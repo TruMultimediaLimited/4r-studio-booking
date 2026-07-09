@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient.js'
 
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD
-
 function timeToMinutes(t) {
   const [h, m] = t.split(':').map(Number)
   return h * 60 + m
@@ -13,9 +11,12 @@ function overlaps(aStart, aEnd, bStart, bEnd) {
 }
 
 export default function AdminPanel() {
-  const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem('studio_admin') === 'yes')
-  const [passwordInput, setPasswordInput] = useState('')
+  const [session, setSession] = useState(null)
+  const [authChecked, setAuthChecked] = useState(false)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [loginError, setLoginError] = useState('')
+  const [loggingIn, setLoggingIn] = useState(false)
 
   const [bookings, setBookings] = useState([])
   const [form, setForm] = useState({
@@ -28,20 +29,36 @@ export default function AdminPanel() {
   const [formError, setFormError] = useState('')
   const [saving, setSaving] = useState(false)
 
-  function handleLogin(e) {
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session)
+      setAuthChecked(true)
+    })
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
+      setSession(s)
+    })
+    return () => sub.subscription.unsubscribe()
+  }, [])
+
+  async function handleLogin(e) {
     e.preventDefault()
-    if (passwordInput === ADMIN_PASSWORD && ADMIN_PASSWORD) {
-      sessionStorage.setItem('studio_admin', 'yes')
-      setUnlocked(true)
-    } else {
-      setLoginError('পাসওয়ার্ড ভুল')
+    setLoginError('')
+    setLoggingIn(true)
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    setLoggingIn(false)
+    if (error) {
+      setLoginError('ইমেইল বা পাসওয়ার্ড ভুল')
     }
   }
 
+  async function handleLogout() {
+    await supabase.auth.signOut()
+  }
+
   useEffect(() => {
-    if (!unlocked) return
+    if (!session) return
     loadUpcomingBookings()
-  }, [unlocked])
+  }, [session])
 
   async function loadUpcomingBookings() {
     const today = new Date().toISOString().slice(0, 10)
@@ -110,26 +127,45 @@ export default function AdminPanel() {
     loadUpcomingBookings()
   }
 
-  if (!unlocked) {
+  if (!authChecked) {
+    return <p className="text-sm text-ink/40 py-12 text-center">লোড হচ্ছে…</p>
+  }
+
+  if (!session) {
     return (
       <form onSubmit={handleLogin} className="max-w-sm mx-auto mt-12 bg-white border border-mist rounded-2xl p-6">
         <p className="font-display text-xl mb-1">টিম লগইন</p>
-        <p className="text-sm text-ink/50 mb-4">বুকিং যোগ/বাতিল করতে পাসওয়ার্ড দিন</p>
+        <p className="text-sm text-ink/50 mb-4">বুকিং যোগ/বাতিল করতে লগইন করুন</p>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="ইমেইল"
+          className="w-full border border-mist rounded-lg px-3 py-2 mb-3 outline-none focus:border-pine"
+        />
         <input
           type="password"
-          value={passwordInput}
-          onChange={(e) => setPasswordInput(e.target.value)}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           placeholder="পাসওয়ার্ড"
           className="w-full border border-mist rounded-lg px-3 py-2 mb-3 outline-none focus:border-pine"
         />
         {loginError && <p className="text-sm text-clay mb-3">{loginError}</p>}
-        <button className="w-full bg-pine text-paper rounded-lg py-2 font-medium">ঢুকুন</button>
+        <button disabled={loggingIn} className="w-full bg-pine text-paper rounded-lg py-2 font-medium disabled:opacity-50">
+          {loggingIn ? 'ঢুকছে…' : 'ঢুকুন'}
+        </button>
       </form>
     )
   }
 
   return (
     <div>
+      <div className="flex justify-end mb-3">
+        <button onClick={handleLogout} className="text-xs text-ink/50 hover:text-clay">
+          লগআউট
+        </button>
+      </div>
+
       <form onSubmit={handleAddBooking} className="bg-white border border-mist rounded-2xl p-4 mb-6">
         <p className="font-display text-lg mb-3">নতুন বুকিং যোগ করুন</p>
 
