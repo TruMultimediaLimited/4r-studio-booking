@@ -45,6 +45,7 @@ export default function PublicAvailability() {
   const [requestError, setRequestError] = useState('')
   const [requestSuccess, setRequestSuccess] = useState('')
   const [requestSaving, setRequestSaving] = useState(false)
+  const [paymentTab, setPaymentTab] = useState('mobile')
 
   const monthCells = useMemo(() => {
     const totalDays = daysInMonth(monthStart)
@@ -152,7 +153,7 @@ export default function PublicAvailability() {
     }
 
     const packageName = priceInfo
-      ? `${selectedPackage.label} (${selectedPackage.rateLabel}) — ${priceInfo.hours} hr = ৳${priceInfo.total}, advance ৳${priceInfo.advance}`
+      ? `${selectedPackage.label} (${selectedPackage.rateLabel}) — ${priceInfo.hours} hr = Tk ${priceInfo.total}, advance Tk ${priceInfo.advance}`
       : selectedPackage.label
 
     setRequestSaving(true)
@@ -412,23 +413,12 @@ export default function PublicAvailability() {
                         <>
                           {priceInfo && (
                             <div className="text-xs bg-pine/5 border border-pine/20 rounded-lg px-3 py-2 mb-2">
-                              <p>Total: ৳{priceInfo.total}</p>
-                              <p>Advance ({ADVANCE_PERCENT}%): ৳{priceInfo.advance}</p>
+                              Total: Tk {priceInfo.total}
                             </div>
                           )}
                           {priceInfo && (
-                            <p className="text-xs text-clay font-medium mb-2">
-                              ⚠ Paying the {ADVANCE_PERCENT}% advance is mandatory to confirm your booking.
-                            </p>
-                          )}
-                          {priceInfo && (
-                            <div className="text-xs bg-mist/20 border border-mist rounded-lg px-3 py-2 mb-2">
-                              <p className="font-medium mb-1">Payment Details</p>
-                              <p>bKash / Nagad: {PAYMENT_INFO.mobileBankingNumber}</p>
-                              <p className="mt-1">Bank Transfer:</p>
-                              <p>{PAYMENT_INFO.bank.accountName}</p>
-                              <p>A/C: {PAYMENT_INFO.bank.accountNumber}</p>
-                              <p>{PAYMENT_INFO.bank.bankName}, {PAYMENT_INFO.bank.branchName} Branch</p>
+                            <div className="text-xs bg-pine/5 border border-pine/20 rounded-lg px-3 py-2 mb-2">
+                              Advance ({ADVANCE_PERCENT}%): Tk {priceInfo.advance}
                             </div>
                           )}
                           <div className="grid grid-cols-2 gap-2 mb-2">
@@ -447,6 +437,48 @@ export default function PublicAvailability() {
                               className="col-span-2 border border-mist rounded-lg px-3 py-2 text-sm"
                             />
                           </div>
+                          {priceInfo && (
+                            <p className="text-xs text-clay font-medium mb-2">
+                              ⚠ Paying the {ADVANCE_PERCENT}% advance is mandatory to confirm your booking.
+                            </p>
+                          )}
+                          {priceInfo && (
+                            <div className="border border-mist rounded-lg overflow-hidden mb-2">
+                              <div className="flex">
+                                <button
+                                  type="button"
+                                  onClick={() => setPaymentTab('mobile')}
+                                  className={`flex-1 text-xs py-1.5 font-medium ${
+                                    paymentTab === 'mobile' ? 'bg-pine text-paper' : 'bg-mist/20 text-ink/60'
+                                  }`}
+                                >
+                                  bKash / Nagad
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setPaymentTab('bank')}
+                                  className={`flex-1 text-xs py-1.5 font-medium ${
+                                    paymentTab === 'bank' ? 'bg-pine text-paper' : 'bg-mist/20 text-ink/60'
+                                  }`}
+                                >
+                                  Bank
+                                </button>
+                              </div>
+                              <div className="px-3 py-2 text-xs bg-mist/10">
+                                {paymentTab === 'mobile' ? (
+                                  <p>
+                                    Send Money to {PAYMENT_INFO.mobileBankingNumber} ({PAYMENT_INFO.mobileBankingType})
+                                  </p>
+                                ) : (
+                                  <>
+                                    <p>{PAYMENT_INFO.bank.accountName}</p>
+                                    <p>A/C: {PAYMENT_INFO.bank.accountNumber}</p>
+                                    <p>{PAYMENT_INFO.bank.bankName}, {PAYMENT_INFO.bank.branchName} Branch</p>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          )}
                           {requestError && (
                             <p className="text-xs text-clay bg-clay/10 border border-clay/20 rounded-lg px-3 py-2 mb-2">
                               {requestError}
