@@ -1,17 +1,21 @@
 import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../supabaseClient.js'
-import { timeToMinutes, overlaps } from '../lib/time.js'
+import {
+  timeToMinutes,
+  overlaps,
+  toDateKey,
+  fromDateKey,
+  generateTimeOptions,
+  BUSINESS_START_HOUR,
+  BUSINESS_END_HOUR,
+} from '../lib/time.js'
 
-// Business hours shown on the timeline. Adjust if 4R Studio's hours differ.
-const DAY_START_HOUR = 9
-const DAY_END_HOUR = 23
+const DAY_START_HOUR = BUSINESS_START_HOUR
+const DAY_END_HOUR = BUSINESS_END_HOUR
+const TIME_OPTIONS = generateTimeOptions()
 
 const HOUR_TICKS = [9, 12, 15, 18, 21, 23]
 const WEEKDAY_LABELS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
-
-function toDateKey(d) {
-  return d.toISOString().slice(0, 10)
-}
 
 function startOfMonth(d) {
   return new Date(d.getFullYear(), d.getMonth(), 1)
@@ -228,7 +232,7 @@ export default function PublicAvailability() {
       ) : (
         <div className="bg-white border border-mist rounded-2xl p-4">
           <p className="font-display text-lg mb-3">
-            {new Date(selectedDate).toLocaleDateString('en-GB', {
+            {fromDateKey(selectedDate).toLocaleDateString('en-GB', {
               weekday: 'long',
               day: 'numeric',
               month: 'long',
@@ -296,18 +300,26 @@ export default function PublicAvailability() {
                 <form onSubmit={handleSubmitRequest} className="border border-mist rounded-xl p-3">
                   <p className="text-sm font-medium mb-2">বুকিং রিকোয়েস্ট</p>
                   <div className="grid grid-cols-2 gap-2 mb-2">
-                    <input
-                      type="time"
+                    <select
                       value={requestForm.start_time}
                       onChange={(e) => setRequestForm({ ...requestForm, start_time: e.target.value })}
                       className="border border-mist rounded-lg px-3 py-2 text-sm"
-                    />
-                    <input
-                      type="time"
+                    >
+                      <option value="">শুরুর সময়</option>
+                      {TIME_OPTIONS.map((t) => (
+                        <option key={t.value} value={t.value}>{t.label}</option>
+                      ))}
+                    </select>
+                    <select
                       value={requestForm.end_time}
                       onChange={(e) => setRequestForm({ ...requestForm, end_time: e.target.value })}
                       className="border border-mist rounded-lg px-3 py-2 text-sm"
-                    />
+                    >
+                      <option value="">শেষের সময়</option>
+                      {TIME_OPTIONS.map((t) => (
+                        <option key={t.value} value={t.value}>{t.label}</option>
+                      ))}
+                    </select>
                     <input
                       type="text"
                       placeholder="আপনার নাম"
