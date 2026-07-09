@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient.js'
-import { timeToMinutes, overlaps } from '../lib/time.js'
+import { timeToMinutes, overlaps, toDateKey, generateTimeOptions } from '../lib/time.js'
+
+const TIME_OPTIONS = generateTimeOptions()
 
 export default function AdminPanel() {
   const [session, setSession] = useState(null)
@@ -54,7 +56,7 @@ export default function AdminPanel() {
   }, [session])
 
   async function loadUpcomingBookings() {
-    const today = new Date().toISOString().slice(0, 10)
+    const today = toDateKey(new Date())
     const { data } = await supabase
       .from('bookings')
       .select('*')
@@ -193,18 +195,26 @@ export default function AdminPanel() {
             className="col-span-2 border border-mist rounded-lg px-3 py-2"
           />
 
-          <input
-            type="time"
+          <select
             value={form.start_time}
             onChange={(e) => setForm({ ...form, start_time: e.target.value })}
             className="border border-mist rounded-lg px-3 py-2"
-          />
-          <input
-            type="time"
+          >
+            <option value="">শুরুর সময়</option>
+            {TIME_OPTIONS.map((t) => (
+              <option key={t.value} value={t.value}>{t.label}</option>
+            ))}
+          </select>
+          <select
             value={form.end_time}
             onChange={(e) => setForm({ ...form, end_time: e.target.value })}
             className="border border-mist rounded-lg px-3 py-2"
-          />
+          >
+            <option value="">শেষের সময়</option>
+            {TIME_OPTIONS.map((t) => (
+              <option key={t.value} value={t.value}>{t.label}</option>
+            ))}
+          </select>
 
           <input
             type="text"
