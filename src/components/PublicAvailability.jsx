@@ -9,7 +9,7 @@ import {
   BUSINESS_START_HOUR,
   BUSINESS_END_HOUR,
 } from '../lib/time.js'
-import { PACKAGES, ADVANCE_PERCENT, buildWhatsAppLink } from '../lib/packages.js'
+import { PACKAGES, ADVANCE_PERCENT, PAYMENT_INFO, buildWhatsAppLink } from '../lib/packages.js'
 
 const DAY_START_HOUR = BUSINESS_START_HOUR
 const DAY_END_HOUR = BUSINESS_END_HOUR
@@ -30,7 +30,7 @@ function daysInMonth(d) {
   return new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()
 }
 
-const emptyRequestForm = { packageId: '', start_time: '', end_time: '', client_name: '', client_phone: '' }
+const emptyRequestForm = { start_time: '', end_time: '', client_name: '', client_phone: '' }
 
 export default function PublicAvailability() {
   const [monthStart, setMonthStart] = useState(startOfMonth(new Date()))
@@ -39,6 +39,7 @@ export default function PublicAvailability() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  const [selectedPackageId, setSelectedPackageId] = useState('')
   const [requestOpen, setRequestOpen] = useState(false)
   const [requestForm, setRequestForm] = useState(emptyRequestForm)
   const [requestError, setRequestError] = useState('')
@@ -66,7 +67,7 @@ export default function PublicAvailability() {
       .gte('booking_date', rangeStart)
       .lt('booking_date', rangeEnd)
     if (error) {
-      setError('বুকিং লোড করা যায়নি। আবার চেষ্টা করুন।')
+      setError('Could not load bookings. Please try again.')
       setLoading(false)
       return
     }
@@ -95,7 +96,7 @@ export default function PublicAvailability() {
   const todayKey = toDateKey(new Date())
   const isSelectedPast = selectedDate && selectedDate < todayKey
 
-  const selectedPackage = PACKAGES.find((p) => p.id === requestForm.packageId) || null
+  const selectedPackage = PACKAGES.find((p) => p.id === selectedPackageId) || null
 
   const priceInfo = useMemo(() => {
     if (!selectedPackage || !selectedPackage.hourlyRate) return null
@@ -110,14 +111,14 @@ export default function PublicAvailability() {
   }, [selectedPackage, requestForm.start_time, requestForm.end_time])
 
   const whatsAppMessage = useMemo(() => {
-    let msg = 'আসসালামু আলাইকুম, আমি 4R Studio-তে একটি শ্যুট বুকিং নিয়ে জানতে চাই।'
+    let msg = "Hello, I'd like to inquire about booking a shoot at 4R Studio."
     if (selectedDate) {
-      msg += ` তারিখ: ${fromDateKey(selectedDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}`
+      msg += ` Date: ${fromDateKey(selectedDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}`
     }
     if (requestForm.start_time && requestForm.end_time) {
       const startLabel = TIME_OPTIONS.find((t) => t.value === requestForm.start_time)?.label
       const endLabel = TIME_OPTIONS.find((t) => t.value === requestForm.end_time)?.label
-      if (startLabel && endLabel) msg += `, সময়: ${startLabel} – ${endLabel}`
+      if (startLabel && endLabel) msg += `, Time: ${startLabel} – ${endLabel}`
     }
     return msg
   }, [selectedDate, requestForm.start_time, requestForm.end_time])
@@ -133,25 +134,25 @@ export default function PublicAvailability() {
     e.preventDefault()
     setRequestError('')
 
-    if (!['photoshoot', 'photo_video'].includes(requestForm.packageId)) return
+    if (!selectedPackage || !selectedPackage.hourlyRate) return
 
     const { start_time, end_time, client_name, client_phone } = requestForm
     if (!start_time || !end_time || !client_name || !client_phone) {
-      setRequestError('নাম, ফোন ও সময় দিন')
+      setRequestError('Please enter your name, phone, and time')
       return
     }
     if (timeToMinutes(start_time) >= timeToMinutes(end_time)) {
-      setRequestError('শুরুর সময় শেষের সময়ের আগে হতে হবে')
+      setRequestError('Start time must be before end time')
       return
     }
     const clash = dayBookings.find((b) => overlaps(start_time, end_time, b.start_time, b.end_time))
     if (clash) {
-      setRequestError(`এই সময় ইতিমধ্যে বুকড (${clash.start_time.slice(0, 5)}–${clash.end_time.slice(0, 5)}), অন্য সময় বেছে নিন`)
+      setRequestError(`This time is already booked (${clash.start_time.slice(0, 5)}–${clash.end_time.slice(0, 5)}), please choose another time`)
       return
     }
 
     const packageName = priceInfo
-      ? `${selectedPackage.label} (${selectedPackage.rateLabel}) — ${priceInfo.hours} ঘণ্টা = ৳${priceInfo.total}, এডভান্স ৳${priceInfo.advance}`
+      ? `${selectedPackage.label} (${selectedPackage.rateLabel}) — ${priceInfo.hours} hr = ৳${priceInfo.total}, advance ৳${priceInfo.advance}`
       : selectedPackage.label
 
     setRequestSaving(true)
@@ -168,9 +169,9 @@ export default function PublicAvailability() {
 
     if (error) {
       if (error.code === '23P01') {
-        setRequestError('দুঃখিত, এই সময়টা এইমাত্র বুক হয়ে গেছে। অন্য সময় বেছে নিন।')
+        setRequestError('Sorry, this slot was just booked. Please choose another time.')
       } else {
-        setRequestError('রিকোয়েস্ট পাঠানো যায়নি: ' + error.message)
+        setRequestError('Could not send request: ' + error.message)
       }
       return
     }
@@ -178,7 +179,7 @@ export default function PublicAvailability() {
     setRequestOpen(false)
     setRequestForm(emptyRequestForm)
     setRequestSuccess(
-      'আপনার রিকোয়েস্ট পাঠানো হয়েছে। আমরা শীঘ্রই যোগাযোগ করে বুকিং কনফার্ম করব। সময়/তারিখ পরিবর্তন করতে চাইলে হোয়াটসঅ্যাপে জানাবেন।'
+      "Your request has been sent. We'll contact you shortly to confirm the booking. Message us on WhatsApp if you need to change the date/time."
     )
     loadBookings()
   }
@@ -192,19 +193,28 @@ export default function PublicAvailability() {
       )}
 
       <p className="text-xs text-ink/50 text-center mb-3">
-        কাজের সময়: সকাল {DAY_START_HOUR}টা – রাত {DAY_END_HOUR - 12}টা
+        Hours: {DAY_START_HOUR} AM – {DAY_END_HOUR - 12} PM
       </p>
 
-      {/* Package/price summary */}
-      <div className="bg-white border border-mist rounded-xl px-3 py-2.5 mb-4 text-xs divide-y divide-mist/60">
-        {PACKAGES.map((p) => (
-          <div key={p.id} className="flex items-center justify-between py-1.5 first:pt-0 last:pb-0">
-            <span className="text-ink/70">{p.label}</span>
-            <span className="font-medium text-ink/80">
-              {p.rateLabel || 'হোয়াটসঅ্যাপে জানুন'}
-            </span>
-          </div>
-        ))}
+      {/* Package selector */}
+      <div className="grid gap-2 mb-4">
+        {PACKAGES.map((p) => {
+          const isSelected = selectedPackageId === p.id
+          return (
+            <button
+              key={p.id}
+              onClick={() => setSelectedPackageId(p.id)}
+              className={`flex items-center justify-between rounded-xl px-3 py-2.5 text-xs border transition-colors ${
+                isSelected
+                  ? 'bg-pine text-paper border-pine'
+                  : 'bg-white text-ink border-mist hover:border-pine/50'
+              }`}
+            >
+              <span>{p.label}</span>
+              <span className="font-medium">{p.rateLabel || 'Contact on WhatsApp'}</span>
+            </button>
+          )
+        })}
       </div>
 
       {/* Month navigation */}
@@ -216,7 +226,7 @@ export default function PublicAvailability() {
           }}
           className="text-sm text-ink/60 px-2 py-1 hover:text-ink"
         >
-          ← আগের মাস
+          ← Previous Month
         </button>
         <p className="font-display text-base text-ink/80">
           {monthStart.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
@@ -228,7 +238,7 @@ export default function PublicAvailability() {
           }}
           className="text-sm text-ink/60 px-2 py-1 hover:text-ink"
         >
-          পরের মাস →
+          Next Month →
         </button>
       </div>
 
@@ -276,7 +286,7 @@ export default function PublicAvailability() {
 
       {/* Day detail */}
       {!selectedDate ? (
-        <p className="text-sm text-ink/40 py-6 text-center">একটি তারিখ সিলেক্ট করুন</p>
+        <p className="text-sm text-ink/40 py-6 text-center">Select a date</p>
       ) : (
         <div className="bg-white border border-mist rounded-2xl p-4">
           <p className="font-display text-lg mb-3">
@@ -288,7 +298,7 @@ export default function PublicAvailability() {
           </p>
 
           {loading ? (
-            <p className="text-sm text-ink/40 py-6 text-center">লোড হচ্ছে…</p>
+            <p className="text-sm text-ink/40 py-6 text-center">Loading…</p>
           ) : (
             <div>
               {/* Timeline — always visible so business hours are always clear */}
@@ -315,7 +325,7 @@ export default function PublicAvailability() {
 
               {dayBookings.length === 0 ? (
                 <p className="text-sm text-pine py-3 text-center bg-pine/5 rounded-xl mb-4">
-                  পুরো দিন খালি আছে
+                  Fully available
                 </p>
               ) : (
                 <ul className="space-y-2 mb-4">
@@ -327,7 +337,7 @@ export default function PublicAvailability() {
                       <span className="font-medium text-ink/80">
                         {b.start_time.slice(0, 5)} – {b.end_time.slice(0, 5)}
                       </span>
-                      <span className="text-ink/50 text-xs">বুকড</span>
+                      <span className="text-ink/50 text-xs">Booked</span>
                     </li>
                   ))}
                 </ul>
@@ -342,116 +352,124 @@ export default function PublicAvailability() {
                   onClick={openRequestForm}
                   className="w-full bg-pine text-paper rounded-lg py-2 font-medium"
                 >
-                  এই সময়টা বুক করতে চাই
+                  Book this slot
                 </button>
               ) : (
                 <form onSubmit={handleSubmitRequest} className="border border-mist rounded-xl p-3">
-                  <p className="text-sm font-medium mb-2">বুকিং রিকোয়েস্ট</p>
+                  <p className="text-sm font-medium mb-2">Booking Request</p>
 
-                  <select
-                    value={requestForm.packageId}
-                    onChange={(e) => setRequestForm({ ...requestForm, packageId: e.target.value })}
-                    className="w-full border border-mist rounded-lg px-3 py-2 text-sm mb-2"
-                  >
-                    <option value="">প্যাকেজ বাছাই করুন</option>
-                    {PACKAGES.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.label}{p.rateLabel ? ` — ${p.rateLabel}` : ''}
-                      </option>
-                    ))}
-                  </select>
-
-                  <div className="grid grid-cols-2 gap-2 mb-2">
-                    <select
-                      value={requestForm.start_time}
-                      onChange={(e) => setRequestForm({ ...requestForm, start_time: e.target.value })}
-                      className="border border-mist rounded-lg px-3 py-2 text-sm"
-                    >
-                      <option value="">শুরুর সময়</option>
-                      {TIME_OPTIONS.map((t) => (
-                        <option key={t.value} value={t.value}>{t.label}</option>
-                      ))}
-                    </select>
-                    <select
-                      value={requestForm.end_time}
-                      onChange={(e) => setRequestForm({ ...requestForm, end_time: e.target.value })}
-                      className="border border-mist rounded-lg px-3 py-2 text-sm"
-                    >
-                      <option value="">শেষের সময়</option>
-                      {TIME_OPTIONS.map((t) => (
-                        <option key={t.value} value={t.value}>{t.label}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {requestForm.packageId === 'custom' ? (
-                    <div>
-                      <p className="text-xs text-ink/60 mb-2">
-                        এই ধরনের শ্যুটের প্যাকেজ ও মূল্য জানতে হোয়াটসঅ্যাপে যোগাযোগ করুন।
-                      </p>
-                      <a
-                        href={buildWhatsAppLink(whatsAppMessage)}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="block text-center bg-[#25D366] text-white rounded-lg py-2 text-sm font-medium"
-                      >
-                        হোয়াটসঅ্যাপে যোগাযোগ করুন
-                      </a>
-                    </div>
-                  ) : requestForm.packageId ? (
+                  {!selectedPackage ? (
                     <>
-                      {priceInfo && (
-                        <p className="text-xs bg-pine/5 border border-pine/20 rounded-lg px-3 py-2 mb-2">
-                          {priceInfo.hours} ঘণ্টা × {selectedPackage.rateLabel} = ৳{priceInfo.total}
-                          <br />
-                          বুকিং কনফার্ম করতে {ADVANCE_PERCENT}% এডভান্স লাগবে: ৳{priceInfo.advance}
-                        </p>
-                      )}
-                      <div className="grid grid-cols-2 gap-2 mb-2">
-                        <input
-                          type="text"
-                          placeholder="আপনার নাম"
-                          value={requestForm.client_name}
-                          onChange={(e) => setRequestForm({ ...requestForm, client_name: e.target.value })}
-                          className="col-span-2 border border-mist rounded-lg px-3 py-2 text-sm"
-                        />
-                        <input
-                          type="tel"
-                          placeholder="ফোন নম্বর"
-                          value={requestForm.client_phone}
-                          onChange={(e) => setRequestForm({ ...requestForm, client_phone: e.target.value })}
-                          className="col-span-2 border border-mist rounded-lg px-3 py-2 text-sm"
-                        />
-                      </div>
-                      {requestError && (
-                        <p className="text-xs text-clay bg-clay/10 border border-clay/20 rounded-lg px-3 py-2 mb-2">
-                          {requestError}
-                        </p>
-                      )}
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setRequestOpen(false)}
-                          className="flex-1 border border-mist rounded-lg py-2 text-sm font-medium text-ink/60"
-                        >
-                          বাতিল
-                        </button>
-                        <button
-                          disabled={requestSaving}
-                          className="flex-1 bg-pine text-paper rounded-lg py-2 text-sm font-medium disabled:opacity-50"
-                        >
-                          {requestSaving ? 'পাঠানো হচ্ছে…' : 'রিকোয়েস্ট পাঠান'}
-                        </button>
-                      </div>
+                      <p className="text-xs text-ink/60 mb-2">Please select a package above.</p>
+                      <button
+                        type="button"
+                        onClick={() => setRequestOpen(false)}
+                        className="w-full border border-mist rounded-lg py-2 text-sm font-medium text-ink/60"
+                      >
+                        Cancel
+                      </button>
                     </>
                   ) : (
-                    <button
-                      type="button"
-                      onClick={() => setRequestOpen(false)}
-                      className="w-full border border-mist rounded-lg py-2 text-sm font-medium text-ink/60"
-                    >
-                      বাতিল
-                    </button>
+                    <>
+                      <div className="grid grid-cols-2 gap-2 mb-2">
+                        <select
+                          value={requestForm.start_time}
+                          onChange={(e) => setRequestForm({ ...requestForm, start_time: e.target.value })}
+                          className="border border-mist rounded-lg px-3 py-2 text-sm"
+                        >
+                          <option value="">Start time</option>
+                          {TIME_OPTIONS.map((t) => (
+                            <option key={t.value} value={t.value}>{t.label}</option>
+                          ))}
+                        </select>
+                        <select
+                          value={requestForm.end_time}
+                          onChange={(e) => setRequestForm({ ...requestForm, end_time: e.target.value })}
+                          className="border border-mist rounded-lg px-3 py-2 text-sm"
+                        >
+                          <option value="">End time</option>
+                          {TIME_OPTIONS.map((t) => (
+                            <option key={t.value} value={t.value}>{t.label}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {selectedPackageId === 'custom' ? (
+                        <div>
+                          <p className="text-xs text-ink/60 mb-2">
+                            Contact us on WhatsApp to discuss packages and pricing for this type of shoot.
+                          </p>
+                          <a
+                            href={buildWhatsAppLink(whatsAppMessage)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="block text-center bg-[#25D366] text-white rounded-lg py-2 text-sm font-medium"
+                          >
+                            Contact on WhatsApp
+                          </a>
+                        </div>
+                      ) : (
+                        <>
+                          {priceInfo && (
+                            <div className="text-xs bg-pine/5 border border-pine/20 rounded-lg px-3 py-2 mb-2">
+                              <p>Total: ৳{priceInfo.total}</p>
+                              <p>Advance ({ADVANCE_PERCENT}%): ৳{priceInfo.advance}</p>
+                            </div>
+                          )}
+                          {priceInfo && (
+                            <p className="text-xs text-clay font-medium mb-2">
+                              ⚠ Paying the {ADVANCE_PERCENT}% advance is mandatory to confirm your booking.
+                            </p>
+                          )}
+                          {priceInfo && (
+                            <div className="text-xs bg-mist/20 border border-mist rounded-lg px-3 py-2 mb-2">
+                              <p className="font-medium mb-1">Payment Details</p>
+                              <p>bKash / Nagad: {PAYMENT_INFO.mobileBankingNumber}</p>
+                              <p className="mt-1">Bank Transfer:</p>
+                              <p>{PAYMENT_INFO.bank.accountName}</p>
+                              <p>A/C: {PAYMENT_INFO.bank.accountNumber}</p>
+                              <p>{PAYMENT_INFO.bank.bankName}, {PAYMENT_INFO.bank.branchName} Branch</p>
+                            </div>
+                          )}
+                          <div className="grid grid-cols-2 gap-2 mb-2">
+                            <input
+                              type="text"
+                              placeholder="Your name"
+                              value={requestForm.client_name}
+                              onChange={(e) => setRequestForm({ ...requestForm, client_name: e.target.value })}
+                              className="col-span-2 border border-mist rounded-lg px-3 py-2 text-sm"
+                            />
+                            <input
+                              type="tel"
+                              placeholder="Phone number"
+                              value={requestForm.client_phone}
+                              onChange={(e) => setRequestForm({ ...requestForm, client_phone: e.target.value })}
+                              className="col-span-2 border border-mist rounded-lg px-3 py-2 text-sm"
+                            />
+                          </div>
+                          {requestError && (
+                            <p className="text-xs text-clay bg-clay/10 border border-clay/20 rounded-lg px-3 py-2 mb-2">
+                              {requestError}
+                            </p>
+                          )}
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setRequestOpen(false)}
+                              className="flex-1 border border-mist rounded-lg py-2 text-sm font-medium text-ink/60"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              disabled={requestSaving}
+                              className="flex-1 bg-pine text-paper rounded-lg py-2 text-sm font-medium disabled:opacity-50"
+                            >
+                              {requestSaving ? 'Sending…' : 'Send Request'}
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </>
                   )}
                 </form>
               )}
@@ -461,12 +479,12 @@ export default function PublicAvailability() {
       )}
 
       <p className="text-xs text-ink/40 mt-4 text-center">
-        রিকোয়েস্ট পাঠালে আমরা যোগাযোগ করে বুকিং কনফার্ম করব। এই পেজে ক্লায়েন্টের নাম কারো কাছে দেখা যায় না।
-        সময়/তারিখ পরিবর্তন করতে চাইলে{' '}
+        We'll contact you to confirm your booking after you send a request. Client names aren't shown publicly on this page.
+        Message us on WhatsApp if you need to change the date/time:{' '}
         <a href={buildWhatsAppLink(whatsAppMessage)} target="_blank" rel="noreferrer" className="underline">
-          হোয়াটসঅ্যাপে জানান
+          Contact on WhatsApp
         </a>
-        ।
+        .
       </p>
     </div>
   )
