@@ -1,9 +1,14 @@
 -- ============================================================
--- 4R Studio booking schema — run once in Supabase SQL Editor
--- (First time setting this up? Run this whole file once. If you already
--- ran an earlier version of this file and just need to add booking
--- requests, run docs/migration_002_pending_requests.sql instead.)
+-- 4R Studio booking schema — run in Supabase SQL Editor
+--
+-- Safe to run any time, including re-runs: it drops and recreates the
+-- `bookings` table and `public_bookings` view from scratch first, so the
+-- result is always fresh. This DELETES any existing booking rows —
+-- only re-run it if that's what you want (e.g. resetting test data).
 -- ============================================================
+
+drop view if exists public.public_bookings;
+drop table if exists public.bookings cascade;
 
 -- Extensions
 create extension if not exists pgcrypto;    -- gen_random_uuid()
