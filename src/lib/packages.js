@@ -1,6 +1,9 @@
 export const WHATSAPP_NUMBER = '8801335254627' // no '+', wa.me format
 export const ADVANCE_PERCENT = 25
 
+export const FACEBOOK_URL = 'https://www.facebook.com/4rstudioBD/'
+export const INSTAGRAM_URL = 'https://instagram.com/4rstudiobd'
+
 export const PACKAGES = [
   { id: 'photoshoot', label: 'Studio Rent for Photoshoot', rateLabel: '700 TK (Per Hour)', hourlyRate: 700 },
   { id: 'photo_video', label: 'Studio Rent for Photo & Videoshoot', rateLabel: '1000 TK (Per Hour)', hourlyRate: 1000 },
