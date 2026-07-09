@@ -1,8 +1,63 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient.js'
-import { timeToMinutes, overlaps, toDateKey, generateTimeOptions } from '../lib/time.js'
+import { timeToMinutes, overlaps, toDateKey, fromDateKey, generateTimeOptions } from '../lib/time.js'
+import { isValidBangladeshiPhone, isValidClientName } from '../lib/validation.js'
 
 const TIME_OPTIONS = generateTimeOptions()
+
+function formatBookingDate(dateKey) {
+  return fromDateKey(dateKey).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+function BookingRow({ b, index, isPending, isExpanded, onToggle, onConfirm, onReject, onCancel }) {
+  return (
+    <li className={`bg-white border rounded-xl overflow-hidden text-sm ${isPending ? 'border-clay/30' : 'border-mist'}`}>
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center justify-between px-3 py-2.5 text-left"
+      >
+        <span className="flex items-center gap-2 min-w-0">
+          <span className="text-ink/40 text-xs shrink-0">{index + 1}.</span>
+          <span className="font-medium truncate">{b.client_name || 'নাম নেই'}</span>
+        </span>
+        <span className="flex items-center gap-2 text-xs text-ink/50 shrink-0">
+          {formatBookingDate(b.booking_date)}, {b.start_time.slice(0, 5)}
+          <span>{isExpanded ? '▲' : '▼'}</span>
+        </span>
+      </button>
+      {isExpanded && (
+        <div className="px-3 pb-3 pt-2 border-t border-mist/60 text-xs space-y-1">
+          <p>তারিখ: {formatBookingDate(b.booking_date)}</p>
+          <p>সময়: {b.start_time.slice(0, 5)}–{b.end_time.slice(0, 5)}</p>
+          <p>ফোন: {b.client_phone || 'দেওয়া হয়নি'}</p>
+          <p>প্যাকেজ: {b.package_name || 'উল্লেখ নেই'}</p>
+          <div className="flex gap-2 pt-2">
+            {isPending ? (
+              <>
+                <button
+                  onClick={onReject}
+                  className="flex-1 border border-mist rounded-lg py-1.5 text-xs font-medium text-ink/60"
+                >
+                  প্রত্যাখ্যান
+                </button>
+                <button
+                  onClick={onConfirm}
+                  className="flex-1 bg-pine text-paper rounded-lg py-1.5 text-xs font-medium"
+                >
+                  কনফার্ম করুন
+                </button>
+              </>
+            ) : (
+              <button onClick={onCancel} className="text-clay text-xs font-medium">
+                বাতিল
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </li>
+  )
+}
 
 export default function AdminPanel() {
   const [session, setSession] = useState(null)
@@ -23,6 +78,16 @@ export default function AdminPanel() {
   })
   const [formError, setFormError] = useState('')
   const [saving, setSaving] = useState(false)
+  const [expandedIds, setExpandedIds] = useState(() => new Set())
+
+  function toggleExpanded(id) {
+    setExpandedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -80,6 +145,14 @@ export default function AdminPanel() {
     }
     if (timeToMinutes(form.start_time) >= timeToMinutes(form.end_time)) {
       setFormError('শুরুর সময় শেষের সময়ের আগে হতে হবে')
+      return
+    }
+    if (form.client_name && !isValidClientName(form.client_name)) {
+      setFormError('সঠিক নাম দিন')
+      return
+    }
+    if (form.client_phone && !isValidBangladeshiPhone(form.client_phone)) {
+      setFormError('সঠিক বাংলাদেশী ফোন নম্বর দিন (যেমন 01712345678)')
       return
     }
 
@@ -256,39 +329,17 @@ export default function AdminPanel() {
         <>
           <p className="font-display text-lg mb-3">বুকিং রিকোয়েস্ট (অপেক্ষমান)</p>
           <ul className="space-y-2 mb-6">
-            {pendingBookings.map((b) => (
-              <li
+            {pendingBookings.map((b, i) => (
+              <BookingRow
                 key={b.id}
-                className="bg-white border border-clay/30 rounded-xl px-3 py-2.5 text-sm"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div>
-                    <p className="font-medium">
-                      {b.booking_date}
-                      {b.package_name ? ` — ${b.package_name}` : ''}
-                    </p>
-                    <p className="text-ink/50 text-xs">
-                      {b.start_time.slice(0, 5)}–{b.end_time.slice(0, 5)}
-                      {b.client_name ? ` · ${b.client_name}` : ''}
-                      {b.client_phone ? ` · ${b.client_phone}` : ''}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleReject(b.id)}
-                    className="flex-1 border border-mist rounded-lg py-1.5 text-xs font-medium text-ink/60"
-                  >
-                    প্রত্যাখ্যান
-                  </button>
-                  <button
-                    onClick={() => handleConfirm(b.id)}
-                    className="flex-1 bg-pine text-paper rounded-lg py-1.5 text-xs font-medium"
-                  >
-                    কনফার্ম করুন
-                  </button>
-                </div>
-              </li>
+                b={b}
+                index={i}
+                isPending
+                isExpanded={expandedIds.has(b.id)}
+                onToggle={() => toggleExpanded(b.id)}
+                onConfirm={() => handleConfirm(b.id)}
+                onReject={() => handleReject(b.id)}
+              />
             ))}
           </ul>
         </>
@@ -297,26 +348,16 @@ export default function AdminPanel() {
       <p className="font-display text-lg mb-3">আসন্ন বুকিং</p>
       <ul className="space-y-2">
         {confirmedBookings.length === 0 && <p className="text-sm text-ink/40">কোনো বুকিং নেই</p>}
-        {confirmedBookings.map((b) => (
-          <li
+        {confirmedBookings.map((b, i) => (
+          <BookingRow
             key={b.id}
-            className="flex items-center justify-between bg-white border border-mist rounded-xl px-3 py-2.5 text-sm"
-          >
-            <div>
-              <p className="font-medium">
-                {b.booking_date}
-                {b.package_name ? ` — ${b.package_name}` : ''}
-              </p>
-              <p className="text-ink/50 text-xs">
-                {b.start_time.slice(0, 5)}–{b.end_time.slice(0, 5)}
-                {b.client_name ? ` · ${b.client_name}` : ''}
-                {b.client_phone ? ` · ${b.client_phone}` : ''}
-              </p>
-            </div>
-            <button onClick={() => handleCancel(b.id)} className="text-clay text-xs font-medium">
-              বাতিল
-            </button>
-          </li>
+            b={b}
+            index={i}
+            isPending={false}
+            isExpanded={expandedIds.has(b.id)}
+            onToggle={() => toggleExpanded(b.id)}
+            onCancel={() => handleCancel(b.id)}
+          />
         ))}
       </ul>
     </div>
