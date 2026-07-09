@@ -198,27 +198,6 @@ export default function PublicAvailability() {
         Hours: {DAY_START_HOUR} AM – {DAY_END_HOUR - 12} PM
       </p>
 
-      {/* Package selector */}
-      <div className="grid gap-2 mb-4">
-        {PACKAGES.map((p) => {
-          const isSelected = selectedPackageId === p.id
-          return (
-            <button
-              key={p.id}
-              onClick={() => setSelectedPackageId(p.id)}
-              className={`flex items-center justify-between rounded-xl px-3 py-2.5 text-xs border transition-colors ${
-                isSelected
-                  ? 'bg-pine text-paper border-pine'
-                  : 'bg-white text-ink border-mist hover:border-pine/50'
-              }`}
-            >
-              <span>{p.label}</span>
-              <span className="font-medium">{p.rateLabel || 'Contact on WhatsApp'}</span>
-            </button>
-          )
-        })}
-      </div>
-
       {/* Month navigation */}
       <div className="flex items-center justify-between mb-3">
         <button
@@ -281,6 +260,27 @@ export default function PublicAvailability() {
                   count > 0 ? 'bg-clay' : isPast ? 'bg-transparent' : 'bg-pine/40'
                 }`}
               />
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Package selector */}
+      <div className="grid gap-2 mb-4">
+        {PACKAGES.map((p) => {
+          const isSelected = selectedPackageId === p.id
+          return (
+            <button
+              key={p.id}
+              onClick={() => setSelectedPackageId(p.id)}
+              className={`flex items-center justify-between rounded-xl px-3 py-2.5 text-xs border transition-colors ${
+                isSelected
+                  ? 'bg-pine text-paper border-pine'
+                  : 'bg-white text-ink border-mist hover:border-pine/50'
+              }`}
+            >
+              <span>{p.label}</span>
+              <span className="font-medium">{p.rateLabel || 'Contact on WhatsApp'}</span>
             </button>
           )
         })}
