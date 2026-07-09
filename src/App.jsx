@@ -21,12 +21,14 @@ export default function App() {
             <p className="font-display text-xl tracking-tight text-ink">4R Studio</p>
             <p className="text-xs text-ink/50 -mt-0.5">Studio Availability</p>
           </div>
-          <a
-            href={isAdmin ? '#/' : '#/admin'}
-            className="text-xs font-medium text-pine border border-pine/30 rounded-full px-3 py-1.5 hover:bg-pine hover:text-paper transition-colors"
-          >
-            {isAdmin ? 'Client View' : 'Team Login'}
-          </a>
+          {isAdmin && (
+            <a
+              href="#/"
+              className="text-xs font-medium text-pine border border-pine/30 rounded-full px-3 py-1.5 hover:bg-pine hover:text-paper transition-colors"
+            >
+              Client View
+            </a>
+          )}
         </div>
       </header>
 
