@@ -194,8 +194,8 @@ export default function PublicAvailability() {
         </div>
       )}
 
-      <p className="text-xs text-ink/50 text-center mb-3">
-        Hours: {DAY_START_HOUR} AM – {DAY_END_HOUR - 12} PM
+      <p className="text-sm font-bold text-ink/80 text-center mb-3">
+        Opening Hours: {DAY_START_HOUR} AM – {DAY_END_HOUR - 12} PM
       </p>
 
       {/* Month navigation */}

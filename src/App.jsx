@@ -19,7 +19,7 @@ export default function App() {
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <img src="/logo.png" alt="4R Studio" className="h-8 w-auto" />
-            <p className="text-sm text-ink/50">Studio Availability</p>
+            <p className="text-sm font-medium text-ink/80">Studio Availability</p>
           </div>
           {isAdmin && (
             <a

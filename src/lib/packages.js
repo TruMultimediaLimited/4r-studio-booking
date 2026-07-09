@@ -2,8 +2,8 @@ export const WHATSAPP_NUMBER = '8801335254627' // no '+', wa.me format
 export const ADVANCE_PERCENT = 25
 
 export const PACKAGES = [
-  { id: 'photoshoot', label: 'Studio Rent for Photoshoot', rateLabel: '700 Tk/hr', hourlyRate: 700 },
-  { id: 'photo_video', label: 'Studio Rent for Photo & Videoshoot', rateLabel: '1000 Tk/hr', hourlyRate: 1000 },
+  { id: 'photoshoot', label: 'Studio Rent for Photoshoot', rateLabel: '700 TK (Per Hour)', hourlyRate: 700 },
+  { id: 'photo_video', label: 'Studio Rent for Photo & Videoshoot', rateLabel: '1000 TK (Per Hour)', hourlyRate: 1000 },
   { id: 'custom', label: 'Others', hourlyRate: null },
 ]
 
