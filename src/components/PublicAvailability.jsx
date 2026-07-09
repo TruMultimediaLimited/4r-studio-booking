@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../supabaseClient.js'
 
 // Business hours shown on the timeline. Adjust if 4R Studio's hours differ.
-const DAY_START_HOUR = 8
-const DAY_END_HOUR = 22
+const DAY_START_HOUR = 9
+const DAY_END_HOUR = 23
 
 function toDateKey(d) {
   return d.toISOString().slice(0, 10)
@@ -47,7 +47,7 @@ export default function PublicAvailability() {
       const rangeStart = toDateKey(weekStart)
       const rangeEnd = toDateKey(addDays(weekStart, 7))
       const { data, error } = await supabase
-        .from('bookings')
+        .from('public_bookings')
         .select('*')
         .gte('booking_date', rangeStart)
         .lt('booking_date', rangeEnd)
