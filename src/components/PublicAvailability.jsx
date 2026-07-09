@@ -10,6 +10,7 @@ import {
   BUSINESS_END_HOUR,
 } from '../lib/time.js'
 import { PACKAGES, ADVANCE_PERCENT, PAYMENT_INFO, buildWhatsAppLink } from '../lib/packages.js'
+import { isValidBangladeshiPhone, isValidClientName } from '../lib/validation.js'
 
 const DAY_START_HOUR = BUSINESS_START_HOUR
 const DAY_END_HOUR = BUSINESS_END_HOUR
@@ -140,6 +141,14 @@ export default function PublicAvailability() {
     const { start_time, end_time, client_name, client_phone } = requestForm
     if (!start_time || !end_time || !client_name || !client_phone) {
       setRequestError('Please enter your name, phone, and time')
+      return
+    }
+    if (!isValidClientName(client_name)) {
+      setRequestError('Please enter a valid name')
+      return
+    }
+    if (!isValidBangladeshiPhone(client_phone)) {
+      setRequestError('Please enter a valid Bangladeshi phone number (e.g. 01712345678)')
       return
     }
     if (timeToMinutes(start_time) >= timeToMinutes(end_time)) {
