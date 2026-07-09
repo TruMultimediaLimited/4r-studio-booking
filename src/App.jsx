@@ -17,9 +17,12 @@ export default function App() {
     <div className="min-h-screen bg-paper font-body">
       <header className="border-b border-mist bg-paper/95 backdrop-blur sticky top-0 z-20">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <p className="font-display text-xl tracking-tight text-ink">4R Studio</p>
-            <p className="text-xs text-ink/50 -mt-0.5">Studio Availability</p>
+          <div className="flex items-center gap-2.5">
+            <img src="/logo.png" alt="4R Studio" className="h-8 w-auto" />
+            <div>
+              <p className="font-display text-xl tracking-tight text-ink">4R Studio</p>
+              <p className="text-xs text-ink/50 -mt-0.5">Studio Availability</p>
+            </div>
           </div>
           {isAdmin && (
             <a
