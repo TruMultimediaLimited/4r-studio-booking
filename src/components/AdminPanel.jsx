@@ -1,14 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient.js'
-
-function timeToMinutes(t) {
-  const [h, m] = t.split(':').map(Number)
-  return h * 60 + m
-}
-
-function overlaps(aStart, aEnd, bStart, bEnd) {
-  return timeToMinutes(aStart) < timeToMinutes(bEnd) && timeToMinutes(bStart) < timeToMinutes(aEnd)
-}
+import { timeToMinutes, overlaps } from '../lib/time.js'
 
 export default function AdminPanel() {
   const [session, setSession] = useState(null)
@@ -24,6 +16,7 @@ export default function AdminPanel() {
     start_time: '',
     end_time: '',
     client_name: '',
+    client_phone: '',
     package_name: '',
   })
   const [formError, setFormError] = useState('')
@@ -72,6 +65,9 @@ export default function AdminPanel() {
     setBookings(data || [])
   }
 
+  const pendingBookings = bookings.filter((b) => b.status === 'pending')
+  const confirmedBookings = bookings.filter((b) => b.status === 'confirmed')
+
   async function handleAddBooking(e) {
     e.preventDefault()
     setFormError('')
@@ -102,6 +98,7 @@ export default function AdminPanel() {
       start_time: form.start_time,
       end_time: form.end_time,
       client_name: form.client_name || null,
+      client_phone: form.client_phone || null,
       package_name: form.package_name || null,
       status: 'confirmed',
     })
@@ -117,12 +114,31 @@ export default function AdminPanel() {
       return
     }
 
-    setForm((f) => ({ ...f, booking_date: '', start_time: '', end_time: '', client_name: '', package_name: '' }))
+    setForm((f) => ({
+      ...f,
+      booking_date: '',
+      start_time: '',
+      end_time: '',
+      client_name: '',
+      client_phone: '',
+      package_name: '',
+    }))
     loadUpcomingBookings()
   }
 
   async function handleCancel(id) {
     if (!confirm('এই বুকিং বাতিল করবেন?')) return
+    await supabase.from('bookings').update({ status: 'cancelled' }).eq('id', id)
+    loadUpcomingBookings()
+  }
+
+  async function handleConfirm(id) {
+    await supabase.from('bookings').update({ status: 'confirmed' }).eq('id', id)
+    loadUpcomingBookings()
+  }
+
+  async function handleReject(id) {
+    if (!confirm('এই রিকোয়েস্ট প্রত্যাখ্যান করবেন?')) return
     await supabase.from('bookings').update({ status: 'cancelled' }).eq('id', id)
     loadUpcomingBookings()
   }
@@ -199,6 +215,14 @@ export default function AdminPanel() {
           />
 
           <input
+            type="tel"
+            placeholder="ফোন নম্বর (ঐচ্ছিক)"
+            value={form.client_phone}
+            onChange={(e) => setForm({ ...form, client_phone: e.target.value })}
+            className="col-span-2 border border-mist rounded-lg px-3 py-2"
+          />
+
+          <input
             type="text"
             placeholder="প্যাকেজ (ঐচ্ছিক)"
             value={form.package_name}
@@ -218,10 +242,52 @@ export default function AdminPanel() {
         </button>
       </form>
 
+      {pendingBookings.length > 0 && (
+        <>
+          <p className="font-display text-lg mb-3">বুকিং রিকোয়েস্ট (অপেক্ষমান)</p>
+          <ul className="space-y-2 mb-6">
+            {pendingBookings.map((b) => (
+              <li
+                key={b.id}
+                className="bg-white border border-clay/30 rounded-xl px-3 py-2.5 text-sm"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div>
+                    <p className="font-medium">
+                      {b.booking_date}
+                      {b.package_name ? ` — ${b.package_name}` : ''}
+                    </p>
+                    <p className="text-ink/50 text-xs">
+                      {b.start_time.slice(0, 5)}–{b.end_time.slice(0, 5)}
+                      {b.client_name ? ` · ${b.client_name}` : ''}
+                      {b.client_phone ? ` · ${b.client_phone}` : ''}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleReject(b.id)}
+                    className="flex-1 border border-mist rounded-lg py-1.5 text-xs font-medium text-ink/60"
+                  >
+                    প্রত্যাখ্যান
+                  </button>
+                  <button
+                    onClick={() => handleConfirm(b.id)}
+                    className="flex-1 bg-pine text-paper rounded-lg py-1.5 text-xs font-medium"
+                  >
+                    কনফার্ম করুন
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+
       <p className="font-display text-lg mb-3">আসন্ন বুকিং</p>
       <ul className="space-y-2">
-        {bookings.length === 0 && <p className="text-sm text-ink/40">কোনো বুকিং নেই</p>}
-        {bookings.map((b) => (
+        {confirmedBookings.length === 0 && <p className="text-sm text-ink/40">কোনো বুকিং নেই</p>}
+        {confirmedBookings.map((b) => (
           <li
             key={b.id}
             className="flex items-center justify-between bg-white border border-mist rounded-xl px-3 py-2.5 text-sm"
@@ -234,6 +300,7 @@ export default function AdminPanel() {
               <p className="text-ink/50 text-xs">
                 {b.start_time.slice(0, 5)}–{b.end_time.slice(0, 5)}
                 {b.client_name ? ` · ${b.client_name}` : ''}
+                {b.client_phone ? ` · ${b.client_phone}` : ''}
               </p>
             </div>
             <button onClick={() => handleCancel(b.id)} className="text-clay text-xs font-medium">
