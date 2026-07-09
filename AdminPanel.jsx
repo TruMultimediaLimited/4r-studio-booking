@@ -1,0 +1,211 @@
+import { useEffect, useState } from 'react'
+import { supabase } from '../supabaseClient.js'
+
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD
+
+function timeToMinutes(t) {
+  const [h, m] = t.split(':').map(Number)
+  return h * 60 + m
+}
+
+function overlaps(aStart, aEnd, bStart, bEnd) {
+  return timeToMinutes(aStart) < timeToMinutes(bEnd) && timeToMinutes(bStart) < timeToMinutes(aEnd)
+}
+
+export default function AdminPanel() {
+  const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem('studio_admin') === 'yes')
+  const [passwordInput, setPasswordInput] = useState('')
+  const [loginError, setLoginError] = useState('')
+
+  const [bookings, setBookings] = useState([])
+  const [form, setForm] = useState({
+    booking_date: '',
+    start_time: '',
+    end_time: '',
+    client_name: '',
+    package_name: '',
+  })
+  const [formError, setFormError] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  function handleLogin(e) {
+    e.preventDefault()
+    if (passwordInput === ADMIN_PASSWORD && ADMIN_PASSWORD) {
+      sessionStorage.setItem('studio_admin', 'yes')
+      setUnlocked(true)
+    } else {
+      setLoginError('পাসওয়ার্ড ভুল')
+    }
+  }
+
+  useEffect(() => {
+    if (!unlocked) return
+    loadUpcomingBookings()
+  }, [unlocked])
+
+  async function loadUpcomingBookings() {
+    const today = new Date().toISOString().slice(0, 10)
+    const { data } = await supabase
+      .from('bookings')
+      .select('*')
+      .gte('booking_date', today)
+      .neq('status', 'cancelled')
+      .order('booking_date')
+      .order('start_time')
+    setBookings(data || [])
+  }
+
+  async function handleAddBooking(e) {
+    e.preventDefault()
+    setFormError('')
+
+    if (!form.booking_date || !form.start_time || !form.end_time) {
+      setFormError('সব ফিল্ড পূরণ করুন')
+      return
+    }
+    if (timeToMinutes(form.start_time) >= timeToMinutes(form.end_time)) {
+      setFormError('শুরুর সময় শেষের সময়ের আগে হতে হবে')
+      return
+    }
+
+    // Client-side overlap check against already-loaded bookings for same date
+    const clash = bookings.find(
+      (b) =>
+        b.booking_date === form.booking_date &&
+        overlaps(form.start_time, form.end_time, b.start_time, b.end_time)
+    )
+    if (clash) {
+      setFormError(`এই সময় ইতিমধ্যে বুকড (${clash.start_time.slice(0, 5)}–${clash.end_time.slice(0, 5)})`)
+      return
+    }
+
+    setSaving(true)
+    const { error } = await supabase.from('bookings').insert({
+      booking_date: form.booking_date,
+      start_time: form.start_time,
+      end_time: form.end_time,
+      client_name: form.client_name || null,
+      package_name: form.package_name || null,
+      status: 'confirmed',
+    })
+    setSaving(false)
+
+    if (error) {
+      // Unique constraint from DB (in case of race between two team members)
+      if (error.code === '23P01' || error.message?.includes('overlap')) {
+        setFormError('এই সময় ইতিমধ্যে অন্য কেউ বুক করে ফেলেছে। রিফ্রেশ করে আবার চেষ্টা করুন।')
+      } else {
+        setFormError('সেভ করা যায়নি: ' + error.message)
+      }
+      return
+    }
+
+    setForm((f) => ({ ...f, booking_date: '', start_time: '', end_time: '', client_name: '', package_name: '' }))
+    loadUpcomingBookings()
+  }
+
+  async function handleCancel(id) {
+    if (!confirm('এই বুকিং বাতিল করবেন?')) return
+    await supabase.from('bookings').update({ status: 'cancelled' }).eq('id', id)
+    loadUpcomingBookings()
+  }
+
+  if (!unlocked) {
+    return (
+      <form onSubmit={handleLogin} className="max-w-sm mx-auto mt-12 bg-white border border-mist rounded-2xl p-6">
+        <p className="font-display text-xl mb-1">টিম লগইন</p>
+        <p className="text-sm text-ink/50 mb-4">বুকিং যোগ/বাতিল করতে পাসওয়ার্ড দিন</p>
+        <input
+          type="password"
+          value={passwordInput}
+          onChange={(e) => setPasswordInput(e.target.value)}
+          placeholder="পাসওয়ার্ড"
+          className="w-full border border-mist rounded-lg px-3 py-2 mb-3 outline-none focus:border-pine"
+        />
+        {loginError && <p className="text-sm text-clay mb-3">{loginError}</p>}
+        <button className="w-full bg-pine text-paper rounded-lg py-2 font-medium">ঢুকুন</button>
+      </form>
+    )
+  }
+
+  return (
+    <div>
+      <form onSubmit={handleAddBooking} className="bg-white border border-mist rounded-2xl p-4 mb-6">
+        <p className="font-display text-lg mb-3">নতুন বুকিং যোগ করুন</p>
+
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          <input
+            type="date"
+            value={form.booking_date}
+            onChange={(e) => setForm({ ...form, booking_date: e.target.value })}
+            className="col-span-2 border border-mist rounded-lg px-3 py-2"
+          />
+
+          <input
+            type="time"
+            value={form.start_time}
+            onChange={(e) => setForm({ ...form, start_time: e.target.value })}
+            className="border border-mist rounded-lg px-3 py-2"
+          />
+          <input
+            type="time"
+            value={form.end_time}
+            onChange={(e) => setForm({ ...form, end_time: e.target.value })}
+            className="border border-mist rounded-lg px-3 py-2"
+          />
+
+          <input
+            type="text"
+            placeholder="ক্লায়েন্টের নাম (ঐচ্ছিক)"
+            value={form.client_name}
+            onChange={(e) => setForm({ ...form, client_name: e.target.value })}
+            className="col-span-2 border border-mist rounded-lg px-3 py-2"
+          />
+
+          <input
+            type="text"
+            placeholder="প্যাকেজ (ঐচ্ছিক)"
+            value={form.package_name}
+            onChange={(e) => setForm({ ...form, package_name: e.target.value })}
+            className="col-span-2 border border-mist rounded-lg px-3 py-2"
+          />
+        </div>
+
+        {formError && (
+          <p className="text-sm text-clay bg-clay/10 border border-clay/20 rounded-lg px-3 py-2 mb-3">
+            {formError}
+          </p>
+        )}
+
+        <button disabled={saving} className="w-full bg-pine text-paper rounded-lg py-2 font-medium disabled:opacity-50">
+          {saving ? 'সেভ হচ্ছে…' : 'বুকিং কনফার্ম করুন'}
+        </button>
+      </form>
+
+      <p className="font-display text-lg mb-3">আসন্ন বুকিং</p>
+      <ul className="space-y-2">
+        {bookings.length === 0 && <p className="text-sm text-ink/40">কোনো বুকিং নেই</p>}
+        {bookings.map((b) => (
+          <li
+            key={b.id}
+            className="flex items-center justify-between bg-white border border-mist rounded-xl px-3 py-2.5 text-sm"
+          >
+            <div>
+              <p className="font-medium">
+                {b.booking_date}
+                {b.package_name ? ` — ${b.package_name}` : ''}
+              </p>
+              <p className="text-ink/50 text-xs">
+                {b.start_time.slice(0, 5)}–{b.end_time.slice(0, 5)}
+                {b.client_name ? ` · ${b.client_name}` : ''}
+              </p>
+            </div>
+            <button onClick={() => handleCancel(b.id)} className="text-clay text-xs font-medium">
+              বাতিল
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
