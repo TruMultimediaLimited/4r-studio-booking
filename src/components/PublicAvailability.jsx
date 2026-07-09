@@ -68,7 +68,7 @@ export default function PublicAvailability() {
       .gte('booking_date', rangeStart)
       .lt('booking_date', rangeEnd)
     if (error) {
-      setError('Could not load bookings. Please try again.')
+      setError(error.message || 'Unknown error')
       setLoading(false)
       return
     }
@@ -153,7 +153,7 @@ export default function PublicAvailability() {
     }
 
     const packageName = priceInfo
-      ? `${selectedPackage.label} (${selectedPackage.rateLabel}) — ${priceInfo.hours} hr = Tk ${priceInfo.total}, advance Tk ${priceInfo.advance}`
+      ? `${selectedPackage.label} (${selectedPackage.rateLabel}) — ${priceInfo.hours} hr = ${priceInfo.total} Tk, advance ${priceInfo.advance} Tk`
       : selectedPackage.label
 
     setRequestSaving(true)
@@ -189,7 +189,8 @@ export default function PublicAvailability() {
     <div>
       {error && (
         <div className="mb-4 text-sm text-clay bg-clay/10 border border-clay/20 rounded-lg px-3 py-2">
-          {error}
+          <p>Could not load bookings. Please try again.</p>
+          <p className="text-xs text-clay/70 mt-1">Details: {error}</p>
         </div>
       )}
 
@@ -413,12 +414,12 @@ export default function PublicAvailability() {
                         <>
                           {priceInfo && (
                             <div className="text-xs bg-pine/5 border border-pine/20 rounded-lg px-3 py-2 mb-2">
-                              Total: Tk {priceInfo.total}
+                              Total: {priceInfo.total} Tk
                             </div>
                           )}
                           {priceInfo && (
                             <div className="text-xs bg-pine/5 border border-pine/20 rounded-lg px-3 py-2 mb-2">
-                              Advance ({ADVANCE_PERCENT}%): Tk {priceInfo.advance}
+                              Advance ({ADVANCE_PERCENT}%): {priceInfo.advance} Tk
                             </div>
                           )}
                           <div className="grid grid-cols-2 gap-2 mb-2">
