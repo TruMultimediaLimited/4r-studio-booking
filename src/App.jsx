@@ -37,7 +37,7 @@ export default function App() {
       <header className="border-b border-mist bg-paper/95 backdrop-blur sticky top-0 z-20">
         {isAdmin ? (
           <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-            <img src="/logo.png" alt="4R Studio" className="h-9 w-auto" />
+            <img src="/logo.png" alt="4R Studio" className="h-12 w-auto" />
             <a
               href="#/"
               className="text-xs font-medium text-pine border border-pine/30 rounded-full px-3 py-1.5 hover:bg-pine hover:text-paper transition-colors"
@@ -53,7 +53,7 @@ export default function App() {
             </div>
 
             <div className="flex items-center justify-center min-w-0">
-              <img src="/logo.png" alt="4R Studio" className="h-10 w-auto" />
+              <img src="/logo.png" alt="4R Studio" className="h-14 w-auto" />
             </div>
 
             <div className="flex flex-col items-end gap-1.5 min-w-0">
