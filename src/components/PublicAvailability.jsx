@@ -473,33 +473,17 @@ export default function PublicAvailability() {
       {!selectedDate ? (
         <p className="text-sm text-[#333333]/50 py-6 text-center">Select a date</p>
       ) : isCollapsedDayView ? (
-        <div className="flex items-center gap-2">
-          <div
-            className={`flex-1 min-w-0 rounded-lg px-3.5 py-2.5 flex items-center gap-1.5 border ${
-              isSelectedDayFull ? 'bg-mist/40 border-[#E0E0E0]' : 'bg-pine border-pine'
-            }`}
-          >
-            <IconCalendar className={`h-3.5 w-3.5 shrink-0 ${isSelectedDayFull ? 'text-[#333333]/40' : 'text-white/80'}`} />
-            <span className={`truncate text-sm font-semibold ${isSelectedDayFull ? 'text-[#333333]/50' : 'text-white'}`}>
-              {fromDateKey(selectedDate).toLocaleDateString('en-GB', {
-                weekday: 'short',
-                day: 'numeric',
-                month: 'short',
-              })}
-            </span>
-          </div>
-          <button
-            onClick={openRequestForm}
-            disabled={isSelectedDayFull}
-            className={`shrink-0 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all ${
-              isSelectedDayFull
-                ? 'bg-mist/40 text-[#333333]/35 cursor-not-allowed shadow-none'
-                : 'bg-pine text-white shadow-sm hover:opacity-95'
-            }`}
-          >
-            {isSelectedDayFull ? 'Fully Booked' : 'Book this slot'}
-          </button>
-        </div>
+        <button
+          onClick={openRequestForm}
+          disabled={isSelectedDayFull}
+          className={`w-full rounded-lg py-2.5 text-sm font-semibold text-center transition-all ${
+            isSelectedDayFull
+              ? 'bg-mist/40 text-[#333333]/35 cursor-not-allowed shadow-none'
+              : 'bg-pine text-white shadow-sm hover:opacity-95'
+          }`}
+        >
+          {isSelectedDayFull ? 'Fully Booked' : 'Book this slot'}
+        </button>
       ) : (
         <div className="bg-white border border-[#E0E0E0]/70 shadow-sm rounded-xl p-2.5">
           <p className="text-sm font-bold text-[#333333] mb-2 flex items-center gap-1.5">
