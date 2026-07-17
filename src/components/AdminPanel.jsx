@@ -916,6 +916,7 @@ export default function AdminPanel() {
           onClick={() => {
             setStatusFilter((prev) => (prev === 'pending' ? 'all' : 'pending'))
             setDateFilter(null)
+            setShowEarningsBreakdown(false)
           }}
           className={`bg-white border shadow-sm rounded-lg p-2 text-center transition-all ${
             statusFilter === 'pending' ? 'border-amber-400 ring-2 ring-amber-300 bg-amber-50' : 'border-[#E0E0E0]/70'
@@ -928,6 +929,7 @@ export default function AdminPanel() {
           onClick={() => {
             setDateFilter((prev) => (prev === 'today' ? null : 'today'))
             setStatusFilter('all')
+            setShowEarningsBreakdown(false)
           }}
           className={`bg-white border shadow-sm rounded-lg p-2 text-center transition-all ${
             dateFilter === 'today' ? 'border-pine ring-2 ring-pine/30 bg-pine/5' : 'border-[#E0E0E0]/70'
@@ -937,7 +939,11 @@ export default function AdminPanel() {
           <p className="text-[9px] uppercase tracking-wide text-[#333333]/45 font-semibold mt-0.5">Today's Bookings</p>
         </button>
         <button
-          onClick={() => setShowEarningsBreakdown((v) => !v)}
+          onClick={() => {
+            setShowEarningsBreakdown((v) => !v)
+            setStatusFilter('all')
+            setDateFilter(null)
+          }}
           className={`bg-white border shadow-sm rounded-lg p-2 text-center transition-all ${
             showEarningsBreakdown ? 'border-pine ring-2 ring-pine/30 bg-pine/5' : 'border-[#E0E0E0]/70'
           }`}
@@ -949,6 +955,7 @@ export default function AdminPanel() {
           onClick={() => {
             setDateFilter((prev) => (prev === 'month' ? null : 'month'))
             setStatusFilter('all')
+            setShowEarningsBreakdown(false)
           }}
           className={`bg-white border shadow-sm rounded-lg p-2 text-center transition-all ${
             dateFilter === 'month' ? 'border-[#333333]/40 ring-2 ring-[#333333]/20 bg-mist/20' : 'border-[#E0E0E0]/70'
