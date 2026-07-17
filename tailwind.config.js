@@ -14,6 +14,7 @@ export default {
       fontFamily: {
         display: ['Fraunces', 'ui-serif', 'Georgia', 'serif'],
         body: ['"Hind Siliguri"', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
     },
   },
