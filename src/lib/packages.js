@@ -3,6 +3,7 @@ export const ADVANCE_PERCENT = 25
 
 export const FACEBOOK_URL = 'https://www.facebook.com/4rstudioBD/'
 export const INSTAGRAM_URL = 'https://instagram.com/4rstudiobd'
+export const MAP_URL = 'https://maps.app.goo.gl/kBQP3Gh91ah2TkPp7'
 
 export const PACKAGES = [
   { id: 'photoshoot', label: 'Studio Rent for Photoshoot', rateLabel: '700 TK (Per Hour)', hourlyRate: 700 },
