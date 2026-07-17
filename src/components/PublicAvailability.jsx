@@ -182,22 +182,23 @@ export default function PublicAvailability() {
     .filter((b) => b.booking_date === selectedDate)
     .sort((a, b) => a.start_time.localeCompare(b.start_time))
 
-  function filterAvailable(options) {
-    return options.filter((opt) => {
+  function markBookedStatus(options) {
+    return options.map((opt) => {
       const t = timeToMinutes(opt.value)
-      return !dayBookings.some((b) => t >= timeToMinutes(b.start_time) && t < timeToMinutes(b.end_time))
+      const isBooked = dayBookings.some((b) => t >= timeToMinutes(b.start_time) && t < timeToMinutes(b.end_time))
+      return { ...opt, disabled: isBooked, label: isBooked ? `${opt.label} (Booked)` : opt.label }
     })
   }
 
   // "From" excludes the last option (closing time) — a booking can't start
   // exactly when the studio closes, since there'd be no room left to end.
-  const availableFromOptions = useMemo(
-    () => filterAvailable(FROM_TIME_OPTIONS),
+  const fromTimeOptions = useMemo(
+    () => markBookedStatus(FROM_TIME_OPTIONS),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [dayBookings]
   )
-  const availableToOptions = useMemo(
-    () => filterAvailable(TIME_OPTIONS),
+  const toTimeOptions = useMemo(
+    () => markBookedStatus(TIME_OPTIONS),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [dayBookings]
   )
@@ -532,8 +533,8 @@ export default function PublicAvailability() {
                           className={inputClass()}
                         >
                           <option value="">From</option>
-                          {availableFromOptions.map((t) => (
-                            <option key={t.value} value={t.value}>{t.label}</option>
+                          {fromTimeOptions.map((t) => (
+                            <option key={t.value} value={t.value} disabled={t.disabled}>{t.label}</option>
                           ))}
                         </select>
                         <select
@@ -542,8 +543,8 @@ export default function PublicAvailability() {
                           className={inputClass()}
                         >
                           <option value="">To</option>
-                          {availableToOptions.map((t) => (
-                            <option key={t.value} value={t.value}>{t.label}</option>
+                          {toTimeOptions.map((t) => (
+                            <option key={t.value} value={t.value} disabled={t.disabled}>{t.label}</option>
                           ))}
                         </select>
                       </div>
@@ -693,6 +694,18 @@ export default function PublicAvailability() {
           )}
         </div>
       )}
+
+      <section className="mt-6 pt-4 border-t border-mist/60">
+        <h2 className="font-display text-base font-semibold text-ink mb-1.5">
+          Why Choose 4R Studio for Your Photoshoot?
+        </h2>
+        <p className="text-xs text-ink/60 leading-relaxed">
+          4R Studio is your go-to space for professional photography and videography in Aftabnagar, Dhaka.
+          Offering premium studio rental services with top-tier equipment, we cater to all your creative needs.
+          If you are looking for a reliable studio rental in Aftabnagar, 4R Studio provides the perfect
+          environment for your brand productions and creative projects.
+        </p>
+      </section>
 
       <p className="text-xs text-ink/40 mt-5 text-center leading-relaxed">
         We'll contact you to confirm your booking after you send a request. Client names aren't shown publicly on this page.
