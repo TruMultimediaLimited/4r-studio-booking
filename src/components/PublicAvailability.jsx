@@ -363,15 +363,15 @@ export default function PublicAvailability() {
             const fillClasses = isPast
               ? 'bg-mist/20 text-ink/25 border-transparent'
               : dayStatus === 'full'
-              ? 'bg-clay text-paper border-clay'
+              ? 'bg-pine text-paper border-pine'
               : dayStatus === 'partial'
-              ? 'bg-honey text-ink border-honey'
+              ? 'bg-sage text-ink border-sage'
               : 'bg-white text-ink border-mist/70 hover:border-pine/40 hover:shadow-sm'
 
             const ringClasses = isSelected
               ? 'ring-2 ring-ink ring-offset-1'
               : isToday && !isPast
-              ? 'ring-2 ring-pine ring-offset-1'
+              ? 'ring-2 ring-clay ring-offset-1'
               : ''
 
             return (
@@ -392,10 +392,10 @@ export default function PublicAvailability() {
             <span className="h-3 w-3 rounded-[4px] bg-white border border-mist/70" /> Available
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-3 w-3 rounded-[4px] bg-honey" /> Partial
+            <span className="h-3 w-3 rounded-[4px] bg-sage" /> Partial
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-3 w-3 rounded-[4px] bg-clay" /> Full
+            <span className="h-3 w-3 rounded-[4px] bg-pine" /> Full
           </span>
         </div>
       </div>

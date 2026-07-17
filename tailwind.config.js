@@ -9,7 +9,7 @@ export default {
         mist: '#DDD6C9',
         pine: '#2F5233',
         clay: '#B5583A',
-        honey: '#D9A441',
+        sage: '#9CAF88',
       },
       fontFamily: {
         display: ['Fraunces', 'ui-serif', 'Georgia', 'serif'],
