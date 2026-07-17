@@ -421,6 +421,7 @@ export default function AdminPanel() {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [dateFilter, setDateFilter] = useState(null) // null | 'today' | 'month'
+  const [showEarningsBreakdown, setShowEarningsBreakdown] = useState(false)
 
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [packages, setPackages] = useState([])
@@ -553,17 +554,24 @@ export default function AdminPanel() {
     return Math.max(0, Number(b.total_amount) - (paymentsByBooking[b.id] || 0))
   }
 
+  const todayPayments = useMemo(
+    () =>
+      payments
+        .filter((p) => toDateKey(new Date(p.created_at)) === todayKey)
+        .map((p) => ({ ...p, booking: bookings.find((b) => b.id === p.booking_id) || null }))
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)),
+    [payments, bookings, todayKey]
+  )
+
   const stats = useMemo(() => {
-    const todayEarnings = payments
-      .filter((p) => toDateKey(new Date(p.created_at)) === todayKey)
-      .reduce((sum, p) => sum + Number(p.amount), 0)
+    const todayEarnings = todayPayments.reduce((sum, p) => sum + Number(p.amount), 0)
     return {
       pending: bookings.filter((b) => b.status === 'pending').length,
       today: bookings.filter((b) => b.status !== 'cancelled' && b.booking_date === todayKey).length,
       todayEarnings,
       month: bookings.filter((b) => b.status !== 'cancelled' && b.booking_date.startsWith(monthPrefix)).length,
     }
-  }, [bookings, payments, todayKey, monthPrefix])
+  }, [bookings, todayPayments, todayKey, monthPrefix])
 
   const pendingBookings = bookings.filter((b) => b.status === 'pending')
   const confirmedUpcoming = bookings.filter((b) => b.status === 'confirmed' && b.booking_date >= todayKey)
@@ -928,10 +936,15 @@ export default function AdminPanel() {
           <p className="text-lg font-bold text-pine">{stats.today}</p>
           <p className="text-[9px] uppercase tracking-wide text-[#333333]/45 font-semibold mt-0.5">Today's Bookings</p>
         </button>
-        <div className="bg-white border border-[#E0E0E0]/70 shadow-sm rounded-lg p-2 text-center">
+        <button
+          onClick={() => setShowEarningsBreakdown((v) => !v)}
+          className={`bg-white border shadow-sm rounded-lg p-2 text-center transition-all ${
+            showEarningsBreakdown ? 'border-pine ring-2 ring-pine/30 bg-pine/5' : 'border-[#E0E0E0]/70'
+          }`}
+        >
           <p className="text-lg font-bold text-[#333333]">{formatMoney(stats.todayEarnings)}</p>
           <p className="text-[9px] uppercase tracking-wide text-[#333333]/45 font-semibold mt-0.5">Today Earnings</p>
-        </div>
+        </button>
         <button
           onClick={() => {
             setDateFilter((prev) => (prev === 'month' ? null : 'month'))
@@ -945,6 +958,33 @@ export default function AdminPanel() {
           <p className="text-[9px] uppercase tracking-wide text-[#333333]/45 font-semibold mt-0.5">This Month</p>
         </button>
       </div>
+
+      {showEarningsBreakdown && (
+        <div className="bg-white border border-pine/30 shadow-sm rounded-xl p-2.5 mb-2">
+          <p className="text-[10px] uppercase tracking-wide text-pine font-bold mb-1.5 px-0.5">Today's Earnings — Where It Came From</p>
+          {todayPayments.length === 0 ? (
+            <p className="flex flex-col items-center gap-2 text-xs text-[#333333]/40 py-6 text-center">
+              <IconInbox className="h-5 w-5" /> No payments collected today
+            </p>
+          ) : (
+            <ul className="space-y-1.5">
+              {todayPayments.map((p) => (
+                <li key={p.id} className="flex items-center justify-between gap-2 border border-[#E0E0E0]/70 rounded-lg px-2.5 py-1.5">
+                  <span className="min-w-0">
+                    <span className="text-xs font-semibold text-[#333333] block truncate">
+                      {p.booking?.client_name || 'Unknown booking'}
+                    </span>
+                    <span className="text-[10px] text-[#333333]/50">
+                      {formatMethod(p.method)} · {p.collector} · {new Date(p.created_at).toLocaleTimeString('en-GB', { hour: 'numeric', minute: '2-digit' })}
+                    </span>
+                  </span>
+                  <span className="text-xs font-bold text-pine shrink-0">{formatMoney(p.amount)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
 
       {/* Add booking (collapsible) */}
       <div className="bg-white border border-[#E0E0E0]/70 shadow-sm rounded-xl p-2.5 mb-2">
