@@ -298,7 +298,7 @@ export default function PublicAvailability() {
   }
 
   return (
-    <div className="max-w-md mx-auto">
+    <div className="font-sans max-w-md mx-auto">
       {error && (
         <div className="flex items-start gap-2 mb-4 text-sm text-clay bg-clay/10 border border-clay/20 rounded-xl px-3.5 py-3">
           <IconAlert className="h-4 w-4 shrink-0 mt-0.5" />
@@ -309,26 +309,26 @@ export default function PublicAvailability() {
         </div>
       )}
 
-      <div className="flex items-center justify-center gap-1.5 mb-5 text-ink/70">
-        <IconClock className="h-4 w-4" />
-        <p className="text-sm font-semibold">Opening Hours: {DAY_START_HOUR} AM – {DAY_END_HOUR - 12} PM</p>
+      <div className="flex items-center justify-center gap-1.5 mb-2 text-ink/70">
+        <IconClock className="h-3.5 w-3.5" />
+        <p className="text-xs font-semibold">Opening Hours: {DAY_START_HOUR} AM – {DAY_END_HOUR - 12} PM</p>
       </div>
 
       {/* Month calendar card */}
-      <div className="bg-white rounded-2xl border border-mist/70 shadow-sm p-3.5 mb-5">
-        <div className="flex items-center justify-between mb-3">
+      <div className="bg-white rounded-2xl border border-mist/70 shadow-sm p-2.5 mb-2">
+        <div className="flex items-center justify-between mb-2">
           <button
             onClick={() => {
               setMonthStart(addMonths(monthStart, -1))
               setSelectedDate(null)
             }}
             aria-label="Previous month"
-            className="flex items-center justify-center h-9 w-9 rounded-full text-ink/60 hover:bg-mist/40 hover:text-ink transition-colors"
+            className="flex items-center justify-center h-7 w-7 rounded-full text-ink/60 hover:bg-mist/40 hover:text-ink transition-colors"
           >
-            <IconChevronLeft className="h-5 w-5" />
+            <IconChevronLeft className="h-4 w-4" />
           </button>
-          <p className="font-display text-lg text-ink flex items-center gap-2">
-            <IconCalendar className="h-4 w-4 text-pine" />
+          <p className="font-display text-sm text-ink flex items-center gap-1.5">
+            <IconCalendar className="h-3.5 w-3.5 text-pine" />
             {monthStart.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
           </p>
           <button
@@ -337,20 +337,20 @@ export default function PublicAvailability() {
               setSelectedDate(null)
             }}
             aria-label="Next month"
-            className="flex items-center justify-center h-9 w-9 rounded-full text-ink/60 hover:bg-mist/40 hover:text-ink transition-colors"
+            className="flex items-center justify-center h-7 w-7 rounded-full text-ink/60 hover:bg-mist/40 hover:text-ink transition-colors"
           >
-            <IconChevronRight className="h-5 w-5" />
+            <IconChevronRight className="h-4 w-4" />
           </button>
         </div>
 
-        <div className="grid grid-cols-7 gap-1 mb-1.5">
+        <div className="grid grid-cols-7 gap-0.5 mb-1">
           {WEEKDAY_LABELS.map((label) => (
-            <p key={label} className="text-center text-[10px] uppercase tracking-wide text-ink/40 font-semibold py-1">
+            <p key={label} className="text-center text-[9px] uppercase tracking-wide text-ink/40 font-semibold py-0.5">
               {label}
             </p>
           ))}
         </div>
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid grid-cols-7 gap-0.5">
           {monthCells.map((d, i) => {
             if (!d) return <div key={`blank-${i}`} />
             const key = toDateKey(d)
@@ -371,7 +371,7 @@ export default function PublicAvailability() {
             const ringClasses = isSelected
               ? 'ring-2 ring-ink ring-offset-1'
               : isToday && !isPast
-              ? 'ring-2 ring-clay ring-offset-1'
+              ? 'ring-2 ring-clay ring-offset-1 font-extrabold'
               : ''
 
             return (
@@ -379,7 +379,7 @@ export default function PublicAvailability() {
                 key={key}
                 onClick={() => setSelectedDate(key)}
                 disabled={isPast}
-                className={`flex items-center justify-center rounded-xl py-2 border font-display text-sm transition-all ${fillClasses} ${ringClasses}`}
+                className={`flex items-center justify-center rounded-lg py-1 border font-sans font-semibold text-xs transition-all ${fillClasses} ${ringClasses}`}
               >
                 {d.getDate()}
               </button>
@@ -387,22 +387,22 @@ export default function PublicAvailability() {
           })}
         </div>
 
-        <div className="flex items-center justify-center gap-3 mt-3.5 pt-3 border-t border-mist/60 text-[11px] text-ink/50">
-          <span className="flex items-center gap-1.5">
-            <span className="h-3 w-3 rounded-[4px] bg-mist/30 border border-mist/70" /> Available
+        <div className="flex items-center justify-center gap-2 mt-2 pt-2 border-t border-mist/60 text-[9px] text-ink/50">
+          <span className="flex items-center gap-1">
+            <span className="h-2.5 w-2.5 rounded-[3px] bg-mist/30 border border-mist/70" /> Available
           </span>
-          <span className="flex items-center gap-1.5">
-            <span className="h-3 w-3 rounded-[4px] bg-sage" /> Partially Booked
+          <span className="flex items-center gap-1">
+            <span className="h-2.5 w-2.5 rounded-[3px] bg-sage" /> Partially Booked
           </span>
-          <span className="flex items-center gap-1.5">
-            <span className="h-3 w-3 rounded-[4px] bg-pine" /> Fully Booked
+          <span className="flex items-center gap-1">
+            <span className="h-2.5 w-2.5 rounded-[3px] bg-pine" /> Fully Booked
           </span>
         </div>
       </div>
 
       {/* Package selector */}
-      <p className="text-[11px] uppercase tracking-wide text-ink/45 font-semibold mb-2 px-0.5">Choose a Package</p>
-      <div className="grid gap-1.5 mb-4">
+      <p className="text-[10px] uppercase tracking-wide text-ink/45 font-semibold mb-1.5 px-0.5">Choose a Package</p>
+      <div className="grid gap-1 mb-2">
         {PACKAGES.map((p) => {
           const isSelected = selectedPackageId === p.id
           const Icon = PACKAGE_ICONS[p.id] || IconMessage
@@ -410,24 +410,24 @@ export default function PublicAvailability() {
             <button
               key={p.id}
               onClick={() => setSelectedPackageId(p.id)}
-              className={`flex items-center gap-2.5 rounded-xl px-3 py-2 border text-left transition-all ${
+              className={`flex items-center gap-2 rounded-xl px-2.5 py-1.5 border text-left transition-all ${
                 isSelected
                   ? 'bg-pine border-pine text-paper shadow-sm'
                   : 'bg-white border-mist/70 text-ink shadow-sm hover:border-pine/40'
               }`}
             >
               <span
-                className={`flex items-center justify-center h-7 w-7 rounded-full shrink-0 ${
+                className={`flex items-center justify-center h-6 w-6 rounded-full shrink-0 ${
                   isSelected ? 'bg-white/15 text-paper' : 'bg-pine/10 text-pine'
                 }`}
               >
-                <Icon className="h-3.5 w-3.5" />
+                <Icon className="h-3 w-3" />
               </span>
-              <span className={`flex-1 text-sm font-semibold ${isSelected ? 'text-paper' : 'text-ink'}`}>{p.label}</span>
-              <span className={`text-xs font-medium shrink-0 ${isSelected ? 'text-paper/70' : 'text-ink/45'}`}>
+              <span className={`flex-1 text-xs font-semibold ${isSelected ? 'text-paper' : 'text-ink'}`}>{p.label}</span>
+              <span className={`text-[10px] font-medium shrink-0 ${isSelected ? 'text-paper/70' : 'text-ink/45'}`}>
                 {p.rateLabel || 'WhatsApp'}
               </span>
-              {isSelected && <IconCheck className="h-3.5 w-3.5 shrink-0" />}
+              {isSelected && <IconCheck className="h-3 w-3 shrink-0" />}
             </button>
           )
         })}
