@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://4r-studio-booking.vercel.app/sitemap.xml
+Sitemap: https://4rstudiobd.com/sitemap.xml
