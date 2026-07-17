@@ -329,8 +329,8 @@ export default function PublicAvailability() {
       )}
 
       {/* Month calendar card */}
-      <div className="bg-white rounded-2xl border border-mist/70 shadow-sm p-2.5 mb-2">
-        <div className="flex items-center justify-between mb-2">
+      <div className="bg-white rounded-2xl border border-mist/70 shadow-sm p-2.5 mb-1">
+        <div className="flex items-center justify-between mb-1">
           <button
             onClick={() => {
               setMonthStart(addMonths(monthStart, -1))
@@ -357,9 +357,9 @@ export default function PublicAvailability() {
           </button>
         </div>
 
-        <div className="grid grid-cols-7 gap-0.5 mb-1">
+        <div className="grid grid-cols-7 gap-0.5 mb-0.5">
           {WEEKDAY_LABELS.map((label) => (
-            <p key={label} className="text-center text-[9px] uppercase tracking-wide text-ink/40 font-semibold py-0.5">
+            <p key={label} className="text-center text-[9px] uppercase tracking-wide text-ink/40 font-semibold py-0">
               {label}
             </p>
           ))}
@@ -401,7 +401,7 @@ export default function PublicAvailability() {
           })}
         </div>
 
-        <div className="flex items-center justify-center gap-2 mt-2 pt-2 border-t border-mist/60 text-[9px] text-ink/50">
+        <div className="flex items-center justify-center gap-2 mt-1.5 pt-1.5 border-t border-mist/60 text-[9px] text-ink/50">
           <span className="flex items-center gap-1">
             <span className="h-2.5 w-2.5 rounded-[3px] bg-mist/30 border border-mist/70" /> Available
           </span>
@@ -415,7 +415,7 @@ export default function PublicAvailability() {
       </div>
 
       {/* Package selector */}
-      <p className="text-[10px] uppercase tracking-wide text-ink/45 font-semibold mb-1.5 px-0.5">Choose a Package</p>
+      <p className="text-[10px] uppercase tracking-wide text-ink/45 font-semibold mb-1 px-0.5">Choose a Package</p>
       <div className="grid gap-1 mb-2">
         {PACKAGES.map((p) => {
           const isSelected = selectedPackageId === p.id
