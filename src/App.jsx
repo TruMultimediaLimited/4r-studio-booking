@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import PublicAvailability from './components/PublicAvailability.jsx'
 import AdminPanel from './components/AdminPanel.jsx'
+import MyBookingsModal from './components/MyBookingsModal.jsx'
 import { FACEBOOK_URL, INSTAGRAM_URL } from './lib/packages.js'
 
 export default function App() {
   const [route, setRoute] = useState(window.location.hash)
+  const [myBookingsOpen, setMyBookingsOpen] = useState(false)
 
   useEffect(() => {
     const onHashChange = () => setRoute(window.location.hash)
@@ -31,6 +33,12 @@ export default function App() {
             </a>
           ) : (
             <div className="flex items-center gap-2.5">
+              <button
+                onClick={() => setMyBookingsOpen(true)}
+                className="text-xs font-medium text-pine border border-pine/30 rounded-full px-3 py-1.5 hover:bg-pine hover:text-paper transition-colors"
+              >
+                My Bookings
+              </button>
               <a
                 href={FACEBOOK_URL}
                 target="_blank"
@@ -63,6 +71,8 @@ export default function App() {
       <main className="max-w-5xl mx-auto px-4 py-6">
         {isAdmin ? <AdminPanel /> : <PublicAvailability />}
       </main>
+
+      {myBookingsOpen && <MyBookingsModal onClose={() => setMyBookingsOpen(false)} />}
     </div>
   )
 }
