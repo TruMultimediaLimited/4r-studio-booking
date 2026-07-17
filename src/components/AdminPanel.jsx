@@ -16,7 +16,6 @@ import {
   IconUser,
   IconTag,
   IconInbox,
-  IconDollar,
   IconSettings,
   IconCheckCircle,
 } from './icons.jsx'
@@ -213,7 +212,6 @@ function BookingRow({
                 </p>
                 {b.total_amount != null && (
                   <p className="flex items-center gap-1.5">
-                    <IconDollar className="h-3 w-3 text-[#333333]/40 shrink-0" />
                     Total {formatMoney(b.total_amount)}
                     {dueAmount != null && (
                       <span className={dueAmount > 0 ? 'text-clay font-semibold' : 'text-pine font-semibold'}>
@@ -357,9 +355,7 @@ function HistoryModal({ booking, payments, statusLogs, onClose }) {
             <li key={i} className="bg-white border border-[#E0E0E0]/70 rounded-lg px-3 py-2 text-xs">
               {e.kind === 'payment' ? (
                 <div className="flex items-center justify-between gap-2">
-                  <span className="flex items-center gap-1.5 font-semibold text-pine">
-                    <IconDollar className="h-3.5 w-3.5 shrink-0" /> {formatMoney(e.amount)}
-                  </span>
+                  <span className="font-semibold text-pine">{formatMoney(e.amount)}</span>
                   <span className="text-[10px] text-[#333333]/55 text-right">
                     {e.method} · {e.collector}
                   </span>
