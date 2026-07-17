@@ -21,9 +21,9 @@ import {
 const TIME_OPTIONS = generateTimeOptions()
 
 const STATUS_META = {
-  pending: { label: 'অপেক্ষমান', className: 'bg-clay/10 text-clay border-clay/30' },
-  confirmed: { label: 'কনফার্মড', className: 'bg-pine/10 text-pine border-pine/30' },
-  cancelled: { label: 'বাতিল', className: 'bg-mist/50 text-ink/40 border-mist' },
+  pending: { label: 'Pending', className: 'bg-amber-100 text-amber-800 border-amber-300' },
+  confirmed: { label: 'Confirmed', className: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
+  cancelled: { label: 'Cancelled', className: 'bg-mist/50 text-ink/40 border-mist' },
 }
 
 const emptyForm = { booking_date: '', start_time: '', end_time: '', client_name: '', client_phone: '', package_name: '' }
@@ -39,7 +39,7 @@ function formatBookingDate(dateKey) {
 function StatusBadge({ status }) {
   const meta = STATUS_META[status] || STATUS_META.confirmed
   return (
-    <span className={`inline-flex items-center text-[10px] font-semibold uppercase tracking-wide border rounded-full px-2 py-0.5 shrink-0 ${meta.className}`}>
+    <span className={`inline-flex items-center text-[10px] font-bold uppercase tracking-wide border rounded-full px-2 py-0.5 shrink-0 ${meta.className}`}>
       {meta.label}
     </span>
   )
@@ -56,13 +56,13 @@ function BookingEditForm({ editForm, onChange, editError, editSaving, onSave, on
       />
       <div className="grid grid-cols-2 gap-2.5">
         <select value={editForm.start_time} onChange={(e) => onChange({ ...editForm, start_time: e.target.value })} className={inputClass()}>
-          <option value="">শুরুর সময়</option>
+          <option value="">Start Time</option>
           {TIME_OPTIONS.map((t) => (
             <option key={t.value} value={t.value}>{t.label}</option>
           ))}
         </select>
         <select value={editForm.end_time} onChange={(e) => onChange({ ...editForm, end_time: e.target.value })} className={inputClass()}>
-          <option value="">শেষের সময়</option>
+          <option value="">End Time</option>
           {TIME_OPTIONS.map((t) => (
             <option key={t.value} value={t.value}>{t.label}</option>
           ))}
@@ -70,21 +70,21 @@ function BookingEditForm({ editForm, onChange, editError, editSaving, onSave, on
       </div>
       <input
         type="text"
-        placeholder="ক্লায়েন্টের নাম"
+        placeholder="Client Name"
         value={editForm.client_name}
         onChange={(e) => onChange({ ...editForm, client_name: e.target.value })}
         className={inputClass()}
       />
       <input
         type="tel"
-        placeholder="ফোন নম্বর"
+        placeholder="Phone Number"
         value={editForm.client_phone}
         onChange={(e) => onChange({ ...editForm, client_phone: e.target.value })}
         className={inputClass()}
       />
       <input
         type="text"
-        placeholder="প্যাকেজ"
+        placeholder="Package"
         value={editForm.package_name}
         onChange={(e) => onChange({ ...editForm, package_name: e.target.value })}
         className={inputClass()}
@@ -96,7 +96,7 @@ function BookingEditForm({ editForm, onChange, editError, editSaving, onSave, on
       )}
       <div className="flex gap-2 pt-1">
         <button type="button" onClick={onCancel} className="flex-1 border border-mist rounded-lg py-1.5 text-xs font-medium text-ink/60">
-          বাতিল
+          Cancel
         </button>
         <button
           type="button"
@@ -104,7 +104,7 @@ function BookingEditForm({ editForm, onChange, editError, editSaving, onSave, on
           onClick={onSave}
           className="flex-1 bg-pine text-paper rounded-lg py-1.5 text-xs font-medium disabled:opacity-50"
         >
-          {editSaving ? 'সেভ হচ্ছে…' : 'সেভ করুন'}
+          {editSaving ? 'Saving…' : 'Save'}
         </button>
       </div>
     </div>
@@ -129,14 +129,14 @@ function BookingRow({
   onDelete,
 }) {
   return (
-    <li className={`bg-white border rounded-2xl overflow-hidden text-sm shadow-sm ${b.status === 'pending' ? 'border-clay/30' : 'border-mist/70'}`}>
+    <li className={`bg-white border rounded-2xl overflow-hidden text-sm shadow-sm ${b.status === 'pending' ? 'border-amber-300' : 'border-mist/70'}`}>
       <button onClick={onToggle} className="w-full flex items-center justify-between gap-2 px-3.5 py-3 text-left">
         <span className="flex items-center gap-2.5 min-w-0">
           <span className="flex items-center justify-center h-8 w-8 rounded-full bg-pine/10 text-pine shrink-0">
             <IconUser className="h-4 w-4" />
           </span>
           <span className="min-w-0">
-            <span className="font-medium truncate block">{b.client_name || 'নাম নেই'}</span>
+            <span className="font-medium truncate block">{b.client_name || 'No name'}</span>
             <span className="text-xs text-ink/45">
               {formatBookingDate(b.booking_date)} · {formatTimeLabel(b.start_time.slice(0, 5))}
             </span>
@@ -168,27 +168,27 @@ function BookingRow({
                 </p>
                 <p className="flex items-center gap-1.5">
                   <IconPhone className="h-3.5 w-3.5 text-ink/40 shrink-0" />
-                  {b.client_phone || 'দেওয়া হয়নি'}
+                  {b.client_phone || 'Not provided'}
                 </p>
                 <p className="flex items-center gap-1.5">
                   <IconTag className="h-3.5 w-3.5 text-ink/40 shrink-0" />
-                  {b.package_name || 'উল্লেখ নেই'}
+                  {b.package_name || 'Not specified'}
                 </p>
               </div>
               <div className="flex gap-2">
                 {b.status === 'pending' && (
                   <>
                     <button onClick={onReject} className="flex-1 border border-mist rounded-lg py-1.5 text-xs font-medium text-ink/60">
-                      প্রত্যাখ্যান
+                      Reject
                     </button>
                     <button onClick={onConfirm} className="flex-1 bg-pine text-paper rounded-lg py-1.5 text-xs font-medium">
-                      কনফার্ম করুন
+                      Confirm
                     </button>
                   </>
                 )}
                 {b.status === 'confirmed' && (
                   <button onClick={onCancel} className="flex-1 border border-clay/30 text-clay rounded-lg py-1.5 text-xs font-medium">
-                    বাতিল করুন
+                    Cancel Booking
                   </button>
                 )}
                 {b.status !== 'cancelled' && (
@@ -196,7 +196,7 @@ function BookingRow({
                     onClick={onStartEdit}
                     className="flex items-center justify-center gap-1 flex-1 border border-mist rounded-lg py-1.5 text-xs font-medium text-ink/70"
                   >
-                    <IconEdit className="h-3.5 w-3.5" /> এডিট
+                    <IconEdit className="h-3.5 w-3.5" /> Edit
                   </button>
                 )}
                 {b.status === 'cancelled' && (
@@ -204,7 +204,7 @@ function BookingRow({
                     onClick={onDelete}
                     className="flex items-center justify-center gap-1 flex-1 border border-clay/30 text-clay rounded-lg py-1.5 text-xs font-medium"
                   >
-                    <IconTrash className="h-3.5 w-3.5" /> স্থায়ীভাবে মুছুন
+                    <IconTrash className="h-3.5 w-3.5" /> Delete Permanently
                   </button>
                 )}
               </div>
@@ -291,7 +291,7 @@ export default function AdminPanel() {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     setLoggingIn(false)
     if (error) {
-      setLoginError('ইমেইল বা পাসওয়ার্ড ভুল')
+      setLoginError('Incorrect email or password')
     }
   }
 
@@ -352,25 +352,25 @@ export default function AdminPanel() {
     setFormError('')
 
     if (!form.booking_date || !form.start_time || !form.end_time) {
-      setFormError('সব ফিল্ড পূরণ করুন')
+      setFormError('Please fill in all fields')
       return
     }
     if (timeToMinutes(form.start_time) >= timeToMinutes(form.end_time)) {
-      setFormError('শুরুর সময় শেষের সময়ের আগে হতে হবে')
+      setFormError('Start time must be before end time')
       return
     }
     if (form.client_name && !isValidClientName(form.client_name)) {
-      setFormError('সঠিক নাম দিন')
+      setFormError('Please enter a valid name')
       return
     }
     if (form.client_phone && !isValidBangladeshiPhone(form.client_phone)) {
-      setFormError('সঠিক বাংলাদেশী ফোন নম্বর দিন (যেমন 01712345678)')
+      setFormError('Please enter a valid Bangladeshi phone number (e.g. 01712345678)')
       return
     }
 
     const clash = findOverlap(form.booking_date, form.start_time, form.end_time, null)
     if (clash) {
-      setFormError(`এই সময় ইতিমধ্যে বুকড (${formatTimeLabel(clash.start_time.slice(0, 5))}–${formatTimeLabel(clash.end_time.slice(0, 5))})`)
+      setFormError(`This time is already booked (${formatTimeLabel(clash.start_time.slice(0, 5))}–${formatTimeLabel(clash.end_time.slice(0, 5))})`)
       return
     }
 
@@ -388,9 +388,9 @@ export default function AdminPanel() {
 
     if (error) {
       if (error.code === '23P01' || error.message?.includes('overlap')) {
-        setFormError('এই সময় ইতিমধ্যে অন্য কেউ বুক করে ফেলেছে। রিফ্রেশ করে আবার চেষ্টা করুন।')
+        setFormError('This time was just booked by someone else. Please refresh and try again.')
       } else {
-        setFormError('সেভ করা যায়নি: ' + error.message)
+        setFormError('Could not save: ' + error.message)
       }
       return
     }
@@ -405,25 +405,25 @@ export default function AdminPanel() {
     const f = editForm
 
     if (!f.booking_date || !f.start_time || !f.end_time) {
-      setEditError('সব ফিল্ড পূরণ করুন')
+      setEditError('Please fill in all fields')
       return
     }
     if (timeToMinutes(f.start_time) >= timeToMinutes(f.end_time)) {
-      setEditError('শুরুর সময় শেষের সময়ের আগে হতে হবে')
+      setEditError('Start time must be before end time')
       return
     }
     if (f.client_name && !isValidClientName(f.client_name)) {
-      setEditError('সঠিক নাম দিন')
+      setEditError('Please enter a valid name')
       return
     }
     if (f.client_phone && !isValidBangladeshiPhone(f.client_phone)) {
-      setEditError('সঠিক বাংলাদেশী ফোন নম্বর দিন (যেমন 01712345678)')
+      setEditError('Please enter a valid Bangladeshi phone number (e.g. 01712345678)')
       return
     }
 
     const clash = findOverlap(f.booking_date, f.start_time, f.end_time, editingId)
     if (clash) {
-      setEditError(`এই সময় ইতিমধ্যে বুকড (${formatTimeLabel(clash.start_time.slice(0, 5))}–${formatTimeLabel(clash.end_time.slice(0, 5))})`)
+      setEditError(`This time is already booked (${formatTimeLabel(clash.start_time.slice(0, 5))}–${formatTimeLabel(clash.end_time.slice(0, 5))})`)
       return
     }
 
@@ -443,9 +443,9 @@ export default function AdminPanel() {
 
     if (error) {
       if (error.code === '23P01') {
-        setEditError('এই সময় ইতিমধ্যে অন্য বুকিং এর সাথে সাংঘর্ষিক।')
+        setEditError('This time conflicts with another booking.')
       } else {
-        setEditError('সেভ করা যায়নি: ' + error.message)
+        setEditError('Could not save: ' + error.message)
       }
       return
     }
@@ -455,7 +455,7 @@ export default function AdminPanel() {
   }
 
   async function handleCancel(id) {
-    if (!confirm('এই বুকিং বাতিল করবেন?')) return
+    if (!confirm('Cancel this booking?')) return
     await supabase.from('bookings').update({ status: 'cancelled' }).eq('id', id)
     loadBookings()
   }
@@ -466,13 +466,13 @@ export default function AdminPanel() {
   }
 
   async function handleReject(id) {
-    if (!confirm('এই রিকোয়েস্ট প্রত্যাখ্যান করবেন?')) return
+    if (!confirm('Reject this request?')) return
     await supabase.from('bookings').update({ status: 'cancelled' }).eq('id', id)
     loadBookings()
   }
 
   async function handleHardDelete(id) {
-    if (!confirm('এই বুকিং একদম স্থায়ীভাবে মুছে ফেলবেন? এটা আর ফিরিয়ে আনা যাবে না।')) return
+    if (!confirm('Permanently delete this booking? This cannot be undone.')) return
     await supabase.from('bookings').delete().eq('id', id)
     loadBookings()
   }
@@ -499,28 +499,28 @@ export default function AdminPanel() {
   }
 
   if (!authChecked) {
-    return <p className="text-sm text-ink/40 py-12 text-center">লোড হচ্ছে…</p>
+    return <p className="font-sans text-sm text-ink/40 py-12 text-center">Loading…</p>
   }
 
   if (!session) {
     return (
-      <div className="max-w-sm mx-auto mt-12">
+      <div className="font-sans max-w-sm mx-auto mt-12">
         <form onSubmit={handleLogin} className="bg-white border border-mist/70 shadow-sm rounded-2xl p-6">
-          <p className="font-display text-xl mb-1">টিম লগইন</p>
-          <p className="text-sm text-ink/50 mb-4">বুকিং যোগ/বাতিল করতে লগইন করুন</p>
+          <p className="font-display text-xl mb-1">Team Login</p>
+          <p className="text-sm text-ink/50 mb-4">Log in to add or manage bookings</p>
           <div className="space-y-2.5 mb-3.5">
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="ইমেইল"
+              placeholder="Email"
               className={inputClass()}
             />
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="পাসওয়ার্ড"
+              placeholder="Password"
               className={inputClass()}
             />
           </div>
@@ -528,7 +528,7 @@ export default function AdminPanel() {
             <p className="text-sm text-clay bg-clay/10 border border-clay/20 rounded-xl px-3.5 py-2.5 mb-3.5">{loginError}</p>
           )}
           <button disabled={loggingIn} className="w-full bg-pine text-paper rounded-xl py-2.5 font-semibold shadow-sm disabled:opacity-50">
-            {loggingIn ? 'ঢুকছে…' : 'ঢুকুন'}
+            {loggingIn ? 'Signing in…' : 'Sign In'}
           </button>
         </form>
       </div>
@@ -536,27 +536,27 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="font-sans max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-5">
-        <p className="font-display text-2xl text-ink">এডমিন প্যানেল</p>
+        <p className="font-display text-2xl text-ink">Admin Panel</p>
         <button onClick={handleLogout} className="flex items-center gap-1.5 text-xs font-medium text-ink/50 hover:text-clay transition-colors">
-          <IconLogOut className="h-3.5 w-3.5" /> লগআউট
+          <IconLogOut className="h-3.5 w-3.5" /> Log Out
         </button>
       </div>
 
       {/* Quick stats */}
       <div className="grid grid-cols-3 gap-2.5 mb-5">
         <div className="bg-white border border-mist/70 shadow-sm rounded-2xl p-3.5 text-center">
-          <p className="text-2xl font-display text-clay">{stats.pending}</p>
-          <p className="text-[10px] uppercase tracking-wide text-ink/45 font-semibold mt-0.5">অপেক্ষমান</p>
+          <p className="text-2xl font-display text-amber-600">{stats.pending}</p>
+          <p className="text-[10px] uppercase tracking-wide text-ink/45 font-semibold mt-0.5">Pending</p>
         </div>
         <div className="bg-white border border-mist/70 shadow-sm rounded-2xl p-3.5 text-center">
           <p className="text-2xl font-display text-pine">{stats.today}</p>
-          <p className="text-[10px] uppercase tracking-wide text-ink/45 font-semibold mt-0.5">আজকের বুকিং</p>
+          <p className="text-[10px] uppercase tracking-wide text-ink/45 font-semibold mt-0.5">Today's Bookings</p>
         </div>
         <div className="bg-white border border-mist/70 shadow-sm rounded-2xl p-3.5 text-center">
           <p className="text-2xl font-display text-ink">{stats.month}</p>
-          <p className="text-[10px] uppercase tracking-wide text-ink/45 font-semibold mt-0.5">এই মাসে</p>
+          <p className="text-[10px] uppercase tracking-wide text-ink/45 font-semibold mt-0.5">This Month</p>
         </div>
       </div>
 
@@ -564,7 +564,7 @@ export default function AdminPanel() {
       <div className="bg-white border border-mist/70 shadow-sm rounded-2xl p-4 mb-5">
         <button onClick={() => setAddOpen((v) => !v)} className="w-full flex items-center justify-between">
           <span className="font-display text-lg flex items-center gap-2">
-            <IconPlus className="h-4 w-4 text-pine" /> নতুন বুকিং যোগ করুন
+            <IconPlus className="h-4 w-4 text-pine" /> Add New Booking
           </span>
           <IconChevronDown className={`h-4 w-4 text-ink/40 transition-transform ${addOpen ? 'rotate-180' : ''}`} />
         </button>
@@ -578,13 +578,13 @@ export default function AdminPanel() {
             />
             <div className="grid grid-cols-2 gap-2.5">
               <select value={form.start_time} onChange={(e) => setForm({ ...form, start_time: e.target.value })} className={inputClass()}>
-                <option value="">শুরুর সময়</option>
+                <option value="">Start Time</option>
                 {TIME_OPTIONS.map((t) => (
                   <option key={t.value} value={t.value}>{t.label}</option>
                 ))}
               </select>
               <select value={form.end_time} onChange={(e) => setForm({ ...form, end_time: e.target.value })} className={inputClass()}>
-                <option value="">শেষের সময়</option>
+                <option value="">End Time</option>
                 {TIME_OPTIONS.map((t) => (
                   <option key={t.value} value={t.value}>{t.label}</option>
                 ))}
@@ -592,21 +592,21 @@ export default function AdminPanel() {
             </div>
             <input
               type="text"
-              placeholder="ক্লায়েন্টের নাম (ঐচ্ছিক)"
+              placeholder="Client Name (optional)"
               value={form.client_name}
               onChange={(e) => setForm({ ...form, client_name: e.target.value })}
               className={inputClass()}
             />
             <input
               type="tel"
-              placeholder="ফোন নম্বর (ঐচ্ছিক)"
+              placeholder="Phone Number (optional)"
               value={form.client_phone}
               onChange={(e) => setForm({ ...form, client_phone: e.target.value })}
               className={inputClass()}
             />
             <input
               type="text"
-              placeholder="প্যাকেজ (ঐচ্ছিক)"
+              placeholder="Package (optional)"
               value={form.package_name}
               onChange={(e) => setForm({ ...form, package_name: e.target.value })}
               className={inputClass()}
@@ -617,53 +617,56 @@ export default function AdminPanel() {
               </p>
             )}
             <button disabled={saving} className="w-full bg-pine text-paper rounded-xl py-2.5 font-semibold shadow-sm disabled:opacity-50">
-              {saving ? 'সেভ হচ্ছে…' : 'বুকিং কনফার্ম করুন'}
+              {saving ? 'Saving…' : 'Confirm Booking'}
             </button>
           </form>
         )}
       </div>
 
       {/* Search / filter */}
-      <div className="flex gap-2 mb-5">
-        <div className="relative flex-1">
-          <IconSearch className="h-4 w-4 text-ink/35 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="নাম বা ফোন নম্বর দিয়ে খুঁজুন"
-            className="w-full border border-mist rounded-xl pl-9 pr-8 py-2.5 text-sm outline-none transition-colors focus:border-pine focus:ring-2 focus:ring-pine/15"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              aria-label="Clear search"
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink/30 hover:text-ink/60"
-            >
-              <IconX className="h-4 w-4" />
-            </button>
-          )}
+      <div className="bg-white border-2 border-pine/20 shadow-sm rounded-2xl p-3 mb-5">
+        <p className="text-[10px] uppercase tracking-wide text-pine font-bold mb-2 px-0.5">Search & Filter</p>
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <IconSearch className="h-4 w-4 text-pine/50 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by name or phone number"
+              className="w-full bg-pine/5 border border-pine/25 rounded-xl pl-9 pr-8 py-2.5 text-sm outline-none transition-colors focus:border-pine focus:ring-2 focus:ring-pine/15"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                aria-label="Clear search"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink/30 hover:text-ink/60"
+              >
+                <IconX className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="bg-pine/5 border border-pine/25 rounded-xl px-3 text-sm outline-none focus:border-pine font-medium text-pine"
+          >
+            <option value="all">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
         </div>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="border border-mist rounded-xl px-3 text-sm outline-none focus:border-pine"
-        >
-          <option value="all">সব স্ট্যাটাস</option>
-          <option value="pending">অপেক্ষমান</option>
-          <option value="confirmed">কনফার্মড</option>
-          <option value="cancelled">বাতিল</option>
-        </select>
       </div>
 
       {loadingBookings ? (
-        <p className="text-sm text-ink/40 py-8 text-center">লোড হচ্ছে…</p>
+        <p className="text-sm text-ink/40 py-8 text-center">Loading…</p>
       ) : isFiltering ? (
         <>
-          <p className="font-display text-lg mb-3">খোঁজার ফলাফল ({searchResults.length})</p>
+          <p className="font-display text-lg mb-3">Search Results ({searchResults.length})</p>
           {searchResults.length === 0 ? (
             <p className="flex flex-col items-center gap-2 text-sm text-ink/40 py-10 text-center">
-              <IconInbox className="h-6 w-6" /> কোনো বুকিং পাওয়া যায়নি
+              <IconInbox className="h-6 w-6" /> No bookings found
             </p>
           ) : (
             <ul className="space-y-2">
@@ -677,7 +680,7 @@ export default function AdminPanel() {
         <>
           {pendingBookings.length > 0 && (
             <>
-              <p className="font-display text-lg mb-3">বুকিং রিকোয়েস্ট (অপেক্ষমান)</p>
+              <p className="font-display text-lg mb-3">Booking Requests (Pending)</p>
               <ul className="space-y-2 mb-6">
                 {pendingBookings.map((b) => (
                   <BookingRow key={b.id} {...bookingRowProps(b)} />
@@ -686,9 +689,9 @@ export default function AdminPanel() {
             </>
           )}
 
-          <p className="font-display text-lg mb-3">আসন্ন বুকিং</p>
+          <p className="font-display text-lg mb-3">Upcoming Bookings</p>
           <ul className="space-y-2">
-            {confirmedUpcoming.length === 0 && <p className="text-sm text-ink/40">কোনো বুকিং নেই</p>}
+            {confirmedUpcoming.length === 0 && <p className="text-sm text-ink/40">No bookings</p>}
             {confirmedUpcoming.map((b) => (
               <BookingRow key={b.id} {...bookingRowProps(b)} />
             ))}
