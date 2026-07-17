@@ -5,6 +5,7 @@ import {
   overlaps,
   toDateKey,
   fromDateKey,
+  formatTimeLabel,
   generateTimeOptions,
   BUSINESS_START_HOUR,
   BUSINESS_END_HOUR,
@@ -258,7 +259,7 @@ export default function PublicAvailability() {
     }
     const clash = dayBookings.find((b) => overlaps(start_time, end_time, b.start_time, b.end_time))
     if (clash) {
-      setRequestError(`This time is already booked (${clash.start_time.slice(0, 5)}–${clash.end_time.slice(0, 5)}), please choose another time`)
+      setRequestError(`This time is already booked (${formatTimeLabel(clash.start_time.slice(0, 5))}–${formatTimeLabel(clash.end_time.slice(0, 5))}), please choose another time`)
       return
     }
 
@@ -477,7 +478,7 @@ export default function PublicAvailability() {
                       className="flex items-center justify-between text-sm bg-clay/5 border border-clay/15 rounded-xl px-3.5 py-2.5"
                     >
                       <span className="font-medium text-ink/80">
-                        {b.start_time.slice(0, 5)} – {b.end_time.slice(0, 5)}
+                        {formatTimeLabel(b.start_time.slice(0, 5))} – {formatTimeLabel(b.end_time.slice(0, 5))}
                       </span>
                       <span className="text-ink/50 text-xs font-medium">Booked</span>
                     </li>
