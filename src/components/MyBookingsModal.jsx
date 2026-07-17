@@ -7,7 +7,7 @@ import { IconX, IconSearch, IconAlert, IconCalendar, IconInbox } from './icons.j
 const STATUS_META = {
   pending: { label: 'Pending', className: 'bg-clay/10 text-clay border-clay/30' },
   confirmed: { label: 'Confirmed', className: 'bg-pine/10 text-pine border-pine/30' },
-  cancelled: { label: 'Cancelled', className: 'bg-mist/50 text-ink/40 border-mist' },
+  cancelled: { label: 'Cancelled', className: 'bg-mist/50 text-ink/50 border-mist' },
 }
 
 export default function MyBookingsModal({ onClose }) {
@@ -38,10 +38,10 @@ export default function MyBookingsModal({ onClose }) {
       className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-ink/40 px-4 py-8 overflow-y-auto"
       onClick={onClose}
     >
-      <div className="w-full max-w-sm bg-paper rounded-2xl shadow-lg p-5" onClick={(e) => e.stopPropagation()}>
+      <div className="font-sans w-full max-w-sm bg-paper rounded-xl shadow-lg p-5" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-1">
-          <p className="font-display text-xl text-ink">My Bookings</p>
-          <button onClick={onClose} aria-label="Close" className="text-ink/40 hover:text-ink">
+          <p className="text-xl font-bold text-ink">My Bookings</p>
+          <button onClick={onClose} aria-label="Close" className="text-ink/50 hover:text-ink">
             <IconX className="h-5 w-5" />
           </button>
         </div>
@@ -53,28 +53,28 @@ export default function MyBookingsModal({ onClose }) {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="e.g. 01712345678"
-            className="flex-1 border border-mist rounded-xl px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-pine focus:ring-2 focus:ring-pine/15"
+            className="flex-1 border border-mist rounded-lg px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-pine focus:ring-2 focus:ring-pine/15"
           />
           <button
             disabled={loading}
             aria-label="Search"
-            className="flex items-center justify-center bg-pine text-paper rounded-xl px-4 disabled:opacity-50"
+            className="flex items-center justify-center bg-pine text-paper rounded-lg px-4 disabled:opacity-50"
           >
             <IconSearch className="h-4 w-4" />
           </button>
         </form>
 
         {error && (
-          <p className="flex items-start gap-2 text-xs text-clay bg-clay/10 border border-clay/20 rounded-xl px-3.5 py-2.5 mb-4">
+          <p className="flex items-start gap-2 text-xs text-clay bg-clay/10 border border-clay/20 rounded-lg px-3.5 py-2.5 mb-4">
             <IconAlert className="h-3.5 w-3.5 shrink-0 mt-0.5" /> {error}
           </p>
         )}
 
-        {loading && <p className="text-sm text-ink/40 py-6 text-center">Searching…</p>}
+        {loading && <p className="text-sm text-ink/50 py-6 text-center">Searching…</p>}
 
         {results && !loading && (
           results.length === 0 ? (
-            <p className="flex flex-col items-center gap-2 text-sm text-ink/40 py-8 text-center">
+            <p className="flex flex-col items-center gap-2 text-sm text-ink/50 py-8 text-center">
               <IconInbox className="h-6 w-6" /> No bookings found for this number.
             </p>
           ) : (
@@ -82,7 +82,7 @@ export default function MyBookingsModal({ onClose }) {
               {results.map((b) => {
                 const meta = STATUS_META[b.status] || STATUS_META.confirmed
                 return (
-                  <li key={b.id} className="bg-white border border-mist/70 rounded-xl px-3.5 py-2.5">
+                  <li key={b.id} className="bg-white border border-mist/70 rounded-lg px-3.5 py-2.5">
                     <div className="flex items-center justify-between mb-1 gap-2">
                       <span className="text-sm font-medium flex items-center gap-1.5 min-w-0">
                         <IconCalendar className="h-3.5 w-3.5 text-pine shrink-0" />
@@ -97,7 +97,7 @@ export default function MyBookingsModal({ onClose }) {
                     <p className="text-xs text-ink/60">
                       {formatTimeLabel(b.start_time.slice(0, 5))} – {formatTimeLabel(b.end_time.slice(0, 5))}
                     </p>
-                    {b.package_name && <p className="text-xs text-ink/45 mt-0.5 truncate">{b.package_name}</p>}
+                    {b.package_name && <p className="text-xs text-ink/55 mt-0.5 truncate">{b.package_name}</p>}
                   </li>
                 )
               })}
