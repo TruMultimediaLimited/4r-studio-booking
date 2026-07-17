@@ -17,7 +17,7 @@ function HeaderCard({ href, onClick, icon: Icon, label }) {
       className="flex items-center justify-center gap-1 w-24 bg-white border border-[#E0E0E0] rounded-lg px-1.5 py-1.5 shadow-sm hover:border-pine/40 hover:bg-pine/5 hover:shadow-md transition-all"
     >
       <Icon className="h-3 w-3 text-pine shrink-0" />
-      <span className="text-[10px] font-medium text-[#333333]/75 text-center leading-tight">{label}</span>
+      <span className="text-[11px] font-medium text-[#333333]/75 text-center leading-tight">{label}</span>
     </Tag>
   )
 }
@@ -69,8 +69,8 @@ export default function App() {
             </div>
 
             <div className="flex flex-col items-end gap-1 min-w-0">
-              <HeaderCard onClick={() => setMyBookingsOpen(true)} icon={IconCalendar} label="My Bookings" />
-              <HeaderCard href={MAP_URL} icon={IconMapPin} label="Location" />
+              <HeaderCard onClick={() => setMyBookingsOpen(true)} icon={IconCalendar} label="আমার বুকিং" />
+              <HeaderCard href={MAP_URL} icon={IconMapPin} label="লোকেশন" />
             </div>
           </div>
         )}
@@ -78,7 +78,7 @@ export default function App() {
 
       <main className={`max-w-5xl mx-auto px-4 ${isAdmin ? 'py-6' : 'pt-1.5 pb-6'}`}>
         {isAdmin ? (
-          <Suspense fallback={<p className="font-sans text-sm text-[#333333]/40 py-12 text-center">Loading…</p>}>
+          <Suspense fallback={<p className="font-sans text-sm text-[#333333]/55 py-12 text-center">Loading…</p>}>
             <AdminPanel />
           </Suspense>
         ) : (

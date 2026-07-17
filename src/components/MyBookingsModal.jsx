@@ -5,9 +5,9 @@ import { fromDateKey, formatTimeLabel } from '../lib/time.js'
 import { IconX, IconSearch, IconAlert, IconCalendar, IconInbox } from './icons.jsx'
 
 const STATUS_META = {
-  pending: { label: 'Pending', className: 'bg-clay/10 text-clay border-clay/30' },
-  confirmed: { label: 'Confirmed', className: 'bg-pine/10 text-pine border-pine/30' },
-  cancelled: { label: 'Cancelled', className: 'bg-mist/50 text-[#333333]/50 border-[#E0E0E0]' },
+  pending: { label: 'অপেক্ষমাণ', className: 'bg-clay/10 text-clay border-clay/30' },
+  confirmed: { label: 'কনফার্মড', className: 'bg-pine/10 text-pine border-pine/30' },
+  cancelled: { label: 'বাতিল', className: 'bg-mist/50 text-[#333333]/55 border-[#E0E0E0]' },
 }
 
 export default function MyBookingsModal({ onClose }) {
@@ -28,14 +28,14 @@ export default function MyBookingsModal({ onClose }) {
     e.preventDefault()
     setError('')
     if (!isValidBangladeshiPhone(phone)) {
-      setError('Please enter a valid Bangladeshi phone number (e.g. 01712345678)')
+      setError('সঠিক বাংলাদেশি ফোন নম্বর দিন (যেমন 01712345678)')
       return
     }
     setLoading(true)
     const { data, error: rpcError } = await supabase.rpc('get_bookings_by_phone', { p_phone: phone })
     setLoading(false)
     if (rpcError) {
-      setError('Could not load bookings: ' + rpcError.message)
+      setError('বুকিং লোড করা যায়নি: ' + rpcError.message)
       return
     }
     setResults(data || [])
@@ -45,26 +45,26 @@ export default function MyBookingsModal({ onClose }) {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="My Bookings"
+      aria-label="আমার বুকিং"
       className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-ink/40 px-4 py-8 overflow-y-auto"
       onClick={onClose}
     >
       <div className="font-sans w-full max-w-sm bg-[#F9F7F2] rounded-xl shadow-lg p-5" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-1">
-          <p className="text-xl font-bold text-[#333333]">My Bookings</p>
-          <button onClick={onClose} aria-label="Close" className="text-[#333333]/50 hover:text-[#333333]">
+          <p className="text-xl font-bold text-[#333333]">আমার বুকিং</p>
+          <button onClick={onClose} aria-label="বন্ধ করুন" className="text-[#333333]/55 hover:text-[#333333]">
             <IconX className="h-5 w-5" />
           </button>
         </div>
-        <p className="text-xs text-[#333333]/50 mb-4">Enter the phone number you used when booking to see your request status.</p>
+        <p className="text-xs text-[#333333]/55 mb-4">বুকিংয়ের সময় যে ফোন নম্বরটা দিয়েছিলেন সেটা লিখুন — আপনার রিকোয়েস্টের অবস্থা দেখতে পাবেন।</p>
 
         <form onSubmit={handleSearch} className="flex gap-2 mb-4">
           <input
             type="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            placeholder="e.g. 01712345678"
-            aria-label="Phone number"
+            placeholder="যেমন 01712345678"
+            aria-label="ফোন নম্বর"
             autoComplete="tel"
             inputMode="tel"
             maxLength={20}
@@ -72,7 +72,7 @@ export default function MyBookingsModal({ onClose }) {
           />
           <button
             disabled={loading}
-            aria-label="Search"
+            aria-label="খুঁজুন"
             className="flex items-center justify-center bg-pine text-white rounded-lg px-4 disabled:opacity-50"
           >
             <IconSearch className="h-4 w-4" />
@@ -85,12 +85,12 @@ export default function MyBookingsModal({ onClose }) {
           </p>
         )}
 
-        {loading && <p className="text-sm text-[#333333]/50 py-6 text-center">Searching…</p>}
+        {loading && <p className="text-sm text-[#333333]/55 py-6 text-center">খোঁজা হচ্ছে…</p>}
 
         {results && !loading && (
           results.length === 0 ? (
-            <p className="flex flex-col items-center gap-2 text-sm text-[#333333]/50 py-8 text-center">
-              <IconInbox className="h-6 w-6" /> No bookings found for this number.
+            <p className="flex flex-col items-center gap-2 text-sm text-[#333333]/60 py-8 text-center">
+              <IconInbox className="h-6 w-6" /> এই নম্বরে কোনো বুকিং পাওয়া যায়নি।
             </p>
           ) : (
             <ul className="space-y-2 max-h-80 overflow-y-auto">
@@ -105,7 +105,7 @@ export default function MyBookingsModal({ onClose }) {
                           {fromDateKey(b.booking_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                         </span>
                       </span>
-                      <span className={`text-[10px] font-semibold uppercase tracking-wide border rounded-full px-2 py-0.5 shrink-0 ${meta.className}`}>
+                      <span className={`text-[11px] font-semibold uppercase tracking-wide border rounded-full px-2 py-0.5 shrink-0 ${meta.className}`}>
                         {meta.label}
                       </span>
                     </div>
