@@ -33,21 +33,24 @@ export default function App() {
   const isAdmin = route === '#/admin'
 
   return (
-    <div className={`min-h-screen font-body ${isAdmin ? 'bg-paper' : 'bg-[#F9F7F2]'}`}>
-      <header
-        className={`border-b sticky top-0 z-20 backdrop-blur ${
-          isAdmin ? 'border-mist bg-paper/95' : 'border-[#E0E0E0] bg-[#F9F7F2]/95'
-        }`}
-      >
+    <div className="min-h-screen font-body bg-[#F9F7F2]">
+      <header className="border-b border-[#E0E0E0] bg-[#F9F7F2]/95 sticky top-0 z-20 backdrop-blur">
         {isAdmin ? (
-          <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-            <img src="/logo.png" alt="4R Studio" className="h-12 w-auto" />
-            <a
-              href="#/"
-              className="text-xs font-medium text-pine border border-pine/30 rounded-full px-3 py-1.5 hover:bg-pine hover:text-paper transition-colors"
-            >
-              Client View
-            </a>
+          <div className="font-sans max-w-5xl mx-auto px-4 py-3 grid grid-cols-3 items-center gap-1.5">
+            <div />
+            <div className="flex items-center justify-center min-w-0">
+              <div className="bg-white border border-[#E0E0E0] rounded-lg shadow-sm px-3 py-1.5">
+                <img src="/logo.png" alt="4R Studio" className="h-9 w-auto" />
+              </div>
+            </div>
+            <div className="flex justify-end min-w-0">
+              <a
+                href="#/"
+                className="text-xs font-medium text-pine border border-pine/30 rounded-full px-3 py-1.5 hover:bg-pine hover:text-white transition-colors whitespace-nowrap"
+              >
+                Client View
+              </a>
+            </div>
           </div>
         ) : (
           <div className="font-sans max-w-5xl mx-auto px-3 py-2 grid grid-cols-3 items-center gap-1">
