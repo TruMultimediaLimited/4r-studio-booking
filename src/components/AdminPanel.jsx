@@ -57,6 +57,13 @@ function formatMoney(n) {
   return `${Number(n).toLocaleString('en-US')} Tk`
 }
 
+// payments.method is stored lowercase (DB check constraint); map back to
+// the display-cased label shown in the dropdown (e.g. "bkash" -> "bKash").
+const METHOD_DISPLAY = Object.fromEntries(PAYMENT_METHODS.map((m) => [m.toLowerCase(), m]))
+function formatMethod(method) {
+  return METHOD_DISPLAY[method] || method
+}
+
 function StatusBadge({ status }) {
   const meta = STATUS_META[status] || STATUS_META.confirmed
   return (
@@ -357,7 +364,7 @@ function HistoryModal({ booking, payments, statusLogs, onClose }) {
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-semibold text-pine">{formatMoney(e.amount)}</span>
                   <span className="text-[10px] text-[#333333]/55 text-right">
-                    {e.method} · {e.collector}
+                    {formatMethod(e.method)} · {e.collector}
                   </span>
                 </div>
               ) : (
@@ -762,7 +769,7 @@ export default function AdminPanel() {
     const { error } = await supabase.from('payments').insert({
       booking_id: paymentModalBooking.id,
       amount: amt,
-      method: paymentForm.method,
+      method: paymentForm.method.toLowerCase(),
       collector: paymentForm.collector,
       created_by: staffEmail,
     })
