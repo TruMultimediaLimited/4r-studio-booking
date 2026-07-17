@@ -12,10 +12,10 @@ function HeaderCard({ href, onClick, icon: Icon, label }) {
   return (
     <Tag
       {...linkProps}
-      className="flex items-center gap-1.5 bg-white border border-pine/15 rounded-xl px-2.5 py-1.5 shadow-sm hover:border-pine/40 hover:bg-pine/5 hover:shadow-md transition-all"
+      className="flex items-center justify-center gap-1 w-24 bg-white border border-pine/15 rounded-xl px-2 py-1.5 shadow-sm hover:border-pine/40 hover:bg-pine/5 hover:shadow-md transition-all"
     >
-      <Icon className="h-3.5 w-3.5 text-pine shrink-0" />
-      <span className="text-[11px] font-medium text-ink/75 whitespace-nowrap">{label}</span>
+      <Icon className="h-3 w-3 text-pine shrink-0" />
+      <span className="text-[10px] font-medium text-ink/75 whitespace-nowrap">{label}</span>
     </Tag>
   )
 }
@@ -46,14 +46,14 @@ export default function App() {
             </a>
           </div>
         ) : (
-          <div className="max-w-5xl mx-auto px-4 py-3 grid grid-cols-3 items-center gap-2">
+          <div className="max-w-5xl mx-auto px-4 py-2.5 grid grid-cols-3 items-center gap-2">
             <div className="flex flex-col items-start gap-1.5 min-w-0">
               <HeaderCard href={FACEBOOK_URL} icon={IconFacebook} label="Facebook" />
               <HeaderCard href={INSTAGRAM_URL} icon={IconInstagram} label="Instagram" />
             </div>
 
             <div className="flex items-center justify-center min-w-0">
-              <img src="/logo.png" alt="4R Studio" className="h-14 w-auto" />
+              <img src="/logo.png" alt="4R Studio" className="h-12 w-auto" />
             </div>
 
             <div className="flex flex-col items-end gap-1.5 min-w-0">
