@@ -179,15 +179,33 @@ export default function PublicAvailability() {
     .filter((b) => b.booking_date === selectedDate)
     .sort((a, b) => a.start_time.localeCompare(b.start_time))
 
-  const availableTimeOptions = useMemo(
+  const timeOptionsWithStatus = useMemo(
     () =>
-      TIME_OPTIONS.filter((opt) => {
+      TIME_OPTIONS.map((opt) => {
         const t = timeToMinutes(opt.value)
-        return !dayBookings.some((b) => t >= timeToMinutes(b.start_time) && t < timeToMinutes(b.end_time))
+        const isBooked = dayBookings.some((b) => t >= timeToMinutes(b.start_time) && t < timeToMinutes(b.end_time))
+        return { ...opt, disabled: isBooked, label: isBooked ? `${opt.label} (Booked)` : opt.label }
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [dayBookings]
   )
+
+  const availabilityStatus = useMemo(() => {
+    const { start_time, end_time } = requestForm
+    if (!start_time || !end_time) return null
+    if (timeToMinutes(start_time) >= timeToMinutes(end_time)) {
+      return { kind: 'warn', text: 'End time must be after start time.' }
+    }
+    const clash = dayBookings.find((b) => overlaps(start_time, end_time, b.start_time, b.end_time))
+    if (clash) {
+      return {
+        kind: 'clash',
+        text: `Sorry, this time overlaps a booking (${formatTimeLabel(clash.start_time.slice(0, 5))}–${formatTimeLabel(clash.end_time.slice(0, 5))}).`,
+      }
+    }
+    return { kind: 'ok', text: 'This slot is available.' }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requestForm.start_time, requestForm.end_time, dayBookings])
 
   const bookingsByDate = useMemo(() => {
     const map = {}
@@ -477,15 +495,23 @@ export default function PublicAvailability() {
                   ) : (
                     <>
                       <FieldLabel>Time</FieldLabel>
-                      <div className="grid grid-cols-2 gap-2 mb-3.5">
+                      {dayBookings.length > 0 && (
+                        <p className="text-[11px] text-ink/50 mb-1.5">
+                          Booked:{' '}
+                          {dayBookings
+                            .map((b) => `${formatTimeLabel(b.start_time.slice(0, 5))}–${formatTimeLabel(b.end_time.slice(0, 5))}`)
+                            .join(', ')}
+                        </p>
+                      )}
+                      <div className="grid grid-cols-2 gap-2 mb-1.5">
                         <select
                           value={requestForm.start_time}
                           onChange={(e) => setRequestForm({ ...requestForm, start_time: e.target.value })}
                           className={inputClass()}
                         >
                           <option value="">From</option>
-                          {availableTimeOptions.map((t) => (
-                            <option key={t.value} value={t.value}>{t.label}</option>
+                          {timeOptionsWithStatus.map((t) => (
+                            <option key={t.value} value={t.value} disabled={t.disabled}>{t.label}</option>
                           ))}
                         </select>
                         <select
@@ -494,11 +520,27 @@ export default function PublicAvailability() {
                           className={inputClass()}
                         >
                           <option value="">To</option>
-                          {availableTimeOptions.map((t) => (
-                            <option key={t.value} value={t.value}>{t.label}</option>
+                          {timeOptionsWithStatus.map((t) => (
+                            <option key={t.value} value={t.value} disabled={t.disabled}>{t.label}</option>
                           ))}
                         </select>
                       </div>
+
+                      {availabilityStatus && (
+                        <p
+                          className={`flex items-center gap-1.5 text-xs font-medium mb-3.5 ${
+                            availabilityStatus.kind === 'ok'
+                              ? 'text-pine'
+                              : availabilityStatus.kind === 'clash'
+                              ? 'text-clay'
+                              : 'text-ink/50'
+                          }`}
+                        >
+                          {availabilityStatus.kind === 'ok' && <IconCheckCircle className="h-3.5 w-3.5 shrink-0" />}
+                          {availabilityStatus.kind === 'clash' && <IconAlert className="h-3.5 w-3.5 shrink-0" />}
+                          {availabilityStatus.text}
+                        </p>
+                      )}
 
                       {selectedPackageId === 'custom' ? (
                         <div>
