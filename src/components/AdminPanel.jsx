@@ -240,6 +240,7 @@ export default function AdminPanel() {
 
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [dateFilter, setDateFilter] = useState(null) // null | 'today' | 'month'
 
   function toggleExpanded(id) {
     setExpandedIds((prev) => {
@@ -326,16 +327,18 @@ export default function AdminPanel() {
   const pendingBookings = bookings.filter((b) => b.status === 'pending')
   const confirmedUpcoming = bookings.filter((b) => b.status === 'confirmed' && b.booking_date >= todayKey)
 
-  const isFiltering = searchQuery.trim() !== '' || statusFilter !== 'all'
+  const isFiltering = searchQuery.trim() !== '' || statusFilter !== 'all' || dateFilter !== null
   const searchResults = useMemo(() => {
     if (!isFiltering) return []
     const q = searchQuery.trim().toLowerCase()
     return bookings.filter((b) => {
       if (statusFilter !== 'all' && b.status !== statusFilter) return false
+      if (dateFilter === 'today' && (b.status === 'cancelled' || b.booking_date !== todayKey)) return false
+      if (dateFilter === 'month' && (b.status === 'cancelled' || !b.booking_date.startsWith(monthPrefix))) return false
       if (!q) return true
       return (b.client_name || '').toLowerCase().includes(q) || (b.client_phone || '').includes(q)
     })
-  }, [bookings, isFiltering, searchQuery, statusFilter])
+  }, [bookings, isFiltering, searchQuery, statusFilter, dateFilter, todayKey, monthPrefix])
 
   function findOverlap(dateKey, start, end, excludeId) {
     return bookings.find(
@@ -544,20 +547,44 @@ export default function AdminPanel() {
         </button>
       </div>
 
-      {/* Quick stats */}
+      {/* Quick stats (also act as filters) */}
       <div className="grid grid-cols-3 gap-2.5 mb-5">
-        <div className="bg-white border border-mist/70 shadow-sm rounded-2xl p-3.5 text-center">
+        <button
+          onClick={() => {
+            setStatusFilter((prev) => (prev === 'pending' ? 'all' : 'pending'))
+            setDateFilter(null)
+          }}
+          className={`bg-white border shadow-sm rounded-2xl p-3.5 text-center transition-all ${
+            statusFilter === 'pending' ? 'border-amber-400 ring-2 ring-amber-300 bg-amber-50' : 'border-mist/70'
+          }`}
+        >
           <p className="text-2xl font-display text-amber-600">{stats.pending}</p>
           <p className="text-[10px] uppercase tracking-wide text-ink/45 font-semibold mt-0.5">Pending</p>
-        </div>
-        <div className="bg-white border border-mist/70 shadow-sm rounded-2xl p-3.5 text-center">
+        </button>
+        <button
+          onClick={() => {
+            setDateFilter((prev) => (prev === 'today' ? null : 'today'))
+            setStatusFilter('all')
+          }}
+          className={`bg-white border shadow-sm rounded-2xl p-3.5 text-center transition-all ${
+            dateFilter === 'today' ? 'border-pine ring-2 ring-pine/30 bg-pine/5' : 'border-mist/70'
+          }`}
+        >
           <p className="text-2xl font-display text-pine">{stats.today}</p>
           <p className="text-[10px] uppercase tracking-wide text-ink/45 font-semibold mt-0.5">Today's Bookings</p>
-        </div>
-        <div className="bg-white border border-mist/70 shadow-sm rounded-2xl p-3.5 text-center">
+        </button>
+        <button
+          onClick={() => {
+            setDateFilter((prev) => (prev === 'month' ? null : 'month'))
+            setStatusFilter('all')
+          }}
+          className={`bg-white border shadow-sm rounded-2xl p-3.5 text-center transition-all ${
+            dateFilter === 'month' ? 'border-ink/40 ring-2 ring-ink/20 bg-mist/20' : 'border-mist/70'
+          }`}
+        >
           <p className="text-2xl font-display text-ink">{stats.month}</p>
           <p className="text-[10px] uppercase tracking-wide text-ink/45 font-semibold mt-0.5">This Month</p>
-        </div>
+        </button>
       </div>
 
       {/* Add booking (collapsible) */}
@@ -633,7 +660,7 @@ export default function AdminPanel() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by name or phone number"
+              placeholder="Search name or phone"
               className="w-full bg-pine/5 border border-pine/25 rounded-xl pl-9 pr-8 py-2.5 text-sm outline-none transition-colors focus:border-pine focus:ring-2 focus:ring-pine/15"
             />
             {searchQuery && (

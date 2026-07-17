@@ -17,20 +17,11 @@ const DAY_START_HOUR = BUSINESS_START_HOUR
 const DAY_END_HOUR = BUSINESS_END_HOUR
 const TIME_OPTIONS = generateTimeOptions()
 
-const HOUR_TICKS = [9, 12, 15, 18, 21, 23]
 const WEEKDAY_LABELS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
 
 /* ---------------------------------------------------------------
    Small inline icon set (Feather-style strokes, no dependency)
 --------------------------------------------------------------- */
-function IconClock(props) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <circle cx="12" cy="12" r="10" />
-      <polyline points="12 6 12 12 16 14" />
-    </svg>
-  )
-}
 function IconCalendar(props) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -188,6 +179,16 @@ export default function PublicAvailability() {
     .filter((b) => b.booking_date === selectedDate)
     .sort((a, b) => a.start_time.localeCompare(b.start_time))
 
+  const availableTimeOptions = useMemo(
+    () =>
+      TIME_OPTIONS.filter((opt) => {
+        const t = timeToMinutes(opt.value)
+        return !dayBookings.some((b) => t >= timeToMinutes(b.start_time) && t < timeToMinutes(b.end_time))
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dayBookings]
+  )
+
   const bookingsByDate = useMemo(() => {
     const map = {}
     for (const b of bookings) {
@@ -308,11 +309,6 @@ export default function PublicAvailability() {
           </div>
         </div>
       )}
-
-      <div className="flex items-center justify-center gap-1.5 mb-2 text-ink/70">
-        <IconClock className="h-3.5 w-3.5" />
-        <p className="text-xs font-semibold">Opening Hours: {DAY_START_HOUR} AM – {DAY_END_HOUR - 12} PM</p>
-      </div>
 
       {/* Month calendar card */}
       <div className="bg-white rounded-2xl border border-mist/70 shadow-sm p-2.5 mb-2">
@@ -451,48 +447,6 @@ export default function PublicAvailability() {
             <p className="text-sm text-ink/40 py-6 text-center">Loading…</p>
           ) : (
             <div>
-              {/* Timeline — always visible so business hours are always clear */}
-              <div className="relative h-2.5 bg-mist/40 rounded-full overflow-hidden mb-1.5">
-                {dayBookings.map((b) => {
-                  const start = Math.max(timeToMinutes(b.start_time) - DAY_START_HOUR * 60, 0)
-                  const end = Math.min(timeToMinutes(b.end_time) - DAY_START_HOUR * 60, totalMinutes)
-                  const left = (start / totalMinutes) * 100
-                  const width = ((end - start) / totalMinutes) * 100
-                  return (
-                    <div
-                      key={b.id}
-                      className="absolute top-0 h-full bg-clay/80"
-                      style={{ left: `${left}%`, width: `${width}%` }}
-                    />
-                  )
-                })}
-              </div>
-              <div className="flex justify-between text-[10px] text-ink/40 mb-4">
-                {HOUR_TICKS.map((h) => (
-                  <span key={h}>{h > 12 ? h - 12 : h}{h >= 12 ? 'pm' : 'am'}</span>
-                ))}
-              </div>
-
-              {dayBookings.length === 0 ? (
-                <p className="flex items-center justify-center gap-1.5 text-sm text-pine font-medium py-3 text-center bg-pine/5 rounded-xl mb-4">
-                  <IconCheckCircle className="h-4 w-4" /> Fully available
-                </p>
-              ) : (
-                <ul className="space-y-2 mb-4">
-                  {dayBookings.map((b) => (
-                    <li
-                      key={b.id}
-                      className="flex items-center justify-between text-sm bg-clay/5 border border-clay/15 rounded-xl px-3.5 py-2.5"
-                    >
-                      <span className="font-medium text-ink/80">
-                        {formatTimeLabel(b.start_time.slice(0, 5))} – {formatTimeLabel(b.end_time.slice(0, 5))}
-                      </span>
-                      <span className="text-ink/50 text-xs font-medium">Booked</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-
               {isSelectedPast ? null : requestSuccess ? (
                 <p className="flex items-start gap-2 text-sm text-pine bg-pine/5 border border-pine/20 rounded-xl px-3.5 py-3">
                   <IconCheckCircle className="h-4 w-4 shrink-0 mt-0.5" />
@@ -530,7 +484,7 @@ export default function PublicAvailability() {
                           className={inputClass()}
                         >
                           <option value="">From</option>
-                          {TIME_OPTIONS.map((t) => (
+                          {availableTimeOptions.map((t) => (
                             <option key={t.value} value={t.value}>{t.label}</option>
                           ))}
                         </select>
@@ -540,7 +494,7 @@ export default function PublicAvailability() {
                           className={inputClass()}
                         >
                           <option value="">To</option>
-                          {TIME_OPTIONS.map((t) => (
+                          {availableTimeOptions.map((t) => (
                             <option key={t.value} value={t.value}>{t.label}</option>
                           ))}
                         </select>
