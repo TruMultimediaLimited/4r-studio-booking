@@ -39,48 +39,6 @@ Supabase Dashboard → Authentication → Users → Add user → ইমেইল
 1. উপরের Database setup ধাপ এখনো করা হয়নি (`public_bookings` ভিউ নেই)।
 2. Vercel-এ env var সেট করার পর নতুন করে **Redeploy** করা হয়নি — env var যোগ/পরিবর্তন করলে Vercel-এ Deployments ট্যাব থেকে সর্বশেষ ডিপ্লয়মেন্টে গিয়ে "Redeploy" চাপতে হয়, এমনিতে আপডেট হয় না।
 
-## নতুন বুকিং রিকোয়েস্ট আসলে Telegram-এ নোটিফিকেশন
-
-কাস্টমার রিকোয়েস্ট পাঠালেই আপনার Telegram-এ মেসেজ আসবে, বার বার এডমিন প্যানেল চেক করা লাগবে না। এটা সেটআপ করতে ৪টা ধাপ:
-
-### ১. Telegram বট বানান
-
-1. Telegram-এ **@BotFather** নামের অফিসিয়াল বটটা খুঁজে চ্যাট শুরু করুন।
-2. `/newbot` লিখে পাঠান, এরপর যা যা জিজ্ঞেস করবে (বটের নাম, ইউজারনেম) দিয়ে দিন।
-3. শেষে একটা **টোকেন** পাবেন (এরকম দেখতে: `123456789:ABCdefGhIJKlmNoPQRstuVWXyz`) — এটা সেভ করে রাখুন, এটাই `TELEGRAM_BOT_TOKEN`।
-
-### ২. আপনার Chat ID বের করুন
-
-1. এবার আপনার নতুন বটে গিয়ে (BotFather-এ না, নিজের বটে) `/start` লিখে পাঠান।
-2. Telegram-এ **@userinfobot** এ গিয়ে `/start` চাপুন — ওটা আপনার নিজের ID দেখাবে, এই সংখ্যাটাই `TELEGRAM_CHAT_ID`।
-
-### ৩. Vercel-এ Environment Variables যোগ করুন
-
-Vercel Project Settings → Environment Variables-এ এই তিনটা যোগ করুন (Production/Preview/Development তিনটাতেই):
-
-| নাম | ভ্যালু |
-|---|---|
-| `TELEGRAM_BOT_TOKEN` | ধাপ ১ থেকে পাওয়া টোকেন |
-| `TELEGRAM_CHAT_ID` | ধাপ ২ থেকে পাওয়া নাম্বার |
-| `WEBHOOK_SECRET` | নিজে একটা লম্বা র‍্যান্ডম ভ্যালু বানান — টার্মিনালে `openssl rand -hex 24` চালালেই পাবেন |
-
-(`WEBHOOK_SECRET`-টা একটা পাসওয়ার্ডের মতো — **কখনোই এই README বা কোডে লিখে রাখবেন না**, শুধু Vercel আর Supabase-এর সেটিংসে বসাবেন। আগে এই ফাইলে একটা আসল ভ্যালু লেখা ছিল এবং সেটা git হিস্টরিতে রয়ে গেছে — তাই এখনই একটা **নতুন** ভ্যালু বানিয়ে দুই জায়গাতেই (Vercel + Supabase, নিচে) বদলে নিন।)
-
-যোগ করার পর Deployments ট্যাব থেকে সর্বশেষ ডিপ্লয়মেন্টে **Redeploy** চাপুন।
-
-### ৪. Supabase-এ Webhook বসান
-
-1. Supabase Dashboard → বাম মেনুতে **Database** → **Webhooks** → **Create a new hook**।
-2. **Name**: যেকোনো নাম (যেমন `notify-telegram`)।
-3. **Table**: `bookings`।
-4. **Events**: শুধু **Insert** টিক দিন।
-5. **Type**: HTTP Request।
-6. **Method**: POST, **URL**: `https://<আপনার-ভার্সেল-ডোমেইন>/api/notify-telegram` (যেমন `https://4r-studio-booking-4yjm.vercel.app/api/notify-telegram`)।
-7. **HTTP Headers**-এ একটা নতুন হেডার যোগ করুন: নাম `x-webhook-secret`, ভ্যালু Vercel-এ যেই `WEBHOOK_SECRET` দিয়েছেন হুবহু সেটাই।
-8. Save করুন।
-
-এরপর পাবলিক পেজ থেকে একটা টেস্ট রিকোয়েস্ট পাঠিয়ে দেখুন — কয়েক সেকেন্ডের মধ্যে Telegram-এ মেসেজ আসার কথা। স্টাফ নিজে এডমিন প্যানেল থেকে বুকিং যোগ করলে (status সরাসরি "confirmed") নোটিফিকেশন আসবে না — শুধু কাস্টমারের রিকোয়েস্টেই আসবে।
-
 ## এখন কী আছে, পরে কী আসবে
 
 এখন আছে: মাস-ক্যালেন্ডারে স্টুডিও কখন খালি তা দেখা, ওভারল্যাপ হওয়া সম্ভবই না, ক্লায়েন্ট নিজে থেকে একটা স্লটের জন্য রিকোয়েস্ট পাঠাতে পারবে (নাম+ফোন দিয়ে), স্টাফ এডমিন প্যানেল থেকে কনফার্ম/প্রত্যাখ্যান করবে।
