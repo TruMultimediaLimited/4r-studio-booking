@@ -274,7 +274,7 @@ create table if not exists public.payments (
   id           uuid primary key default gen_random_uuid(),
   booking_id   uuid not null references public.bookings(id) on delete cascade,
   amount       numeric not null check (amount > 0),
-  method       text not null check (method in ('cash', 'bkash', 'bank')),
+  method       text not null check (method in ('hand cash', 'bkash', 'nagad', 'bank')),
   collector    text not null check (collector in ('Rezwan', 'Radone', 'Rasel', 'Kabbo')),
   created_by   text,
   created_at   timestamptz not null default now()
@@ -288,6 +288,18 @@ create policy "authenticated read payments" on public.payments for select to aut
 create policy "authenticated insert payments" on public.payments for insert to authenticated with check (true);
 
 grant select, insert on public.payments to authenticated;
+
+-- ---------------------------------------------------------------
+-- Migration (Follow-up 38): payment methods changed from
+-- Cash/bKash/Bank to Hand Cash/Bkash/Nagad/Bank. Only needed if the
+-- `payments` table above already exists on the live database with the
+-- old constraint — safe to run once, no data loss (assumes no existing
+-- rows use the removed 'cash' value; there was no confirmed real
+-- payment data at the time this was added).
+-- ---------------------------------------------------------------
+alter table public.payments drop constraint if exists payments_method_check;
+alter table public.payments add constraint payments_method_check
+  check (method in ('hand cash', 'bkash', 'nagad', 'bank'));
 
 -- ---------------------------------------------------------------
 -- booking_status_log — append-only audit trail of status transitions

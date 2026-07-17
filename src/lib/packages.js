@@ -15,7 +15,7 @@ export const DEFAULT_PACKAGES = [
   { id: 'custom', label: 'Others', hourlyRate: null },
 ]
 
-export const PAYMENT_METHODS = ['Cash', 'bKash', 'Bank']
+export const PAYMENT_METHODS = ['Hand Cash', 'Bkash', 'Nagad', 'Bank']
 export const PAYMENT_COLLECTORS = ['Rezwan', 'Radone', 'Rasel', 'Kabbo']
 
 export const PAYMENT_INFO = {
