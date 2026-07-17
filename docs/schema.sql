@@ -169,3 +169,146 @@ as $$
 $$;
 
 grant execute on function public.get_bookings_by_phone(text) to anon;
+
+-- ============================================================
+-- Admin management-system migration (Follow-up 34)
+--
+-- Unlike the reset script above, everything below is ADDITIVE and safe
+-- to run once against the live database — it does not touch existing
+-- `bookings` rows and uses IF NOT EXISTS guards throughout. Run this
+-- whole block in the Supabase SQL Editor once.
+-- ============================================================
+
+-- ---------------------------------------------------------------
+-- bookings: numeric total + link to a package row (both nullable —
+-- older/staff-entered rows may not have either; package_name stays as
+-- the free-text historical snapshot shown on the row regardless).
+-- ---------------------------------------------------------------
+alter table public.bookings add column if not exists total_amount numeric;
+
+-- ---------------------------------------------------------------
+-- packages — replaces the hardcoded array in src/lib/packages.js so
+-- price/name changes take effect immediately without a redeploy.
+-- ---------------------------------------------------------------
+create table if not exists public.packages (
+  id           text primary key,
+  label        text not null,
+  rate_label   text,
+  hourly_rate  numeric,
+  sort_order   int not null default 0,
+  is_active    boolean not null default true
+);
+
+insert into public.packages (id, label, rate_label, hourly_rate, sort_order) values
+  ('photoshoot', 'Studio Rent for Photoshoot', '700 TK (Per Hour)', 700, 1),
+  ('photo_video', 'Studio Rent for Photo & Videoshoot', '1000 TK (Per Hour)', 1000, 2),
+  ('custom', 'Others', null, null, 3)
+on conflict (id) do nothing;
+
+alter table public.bookings add column if not exists package_id text references public.packages(id);
+
+alter table public.packages enable row level security;
+
+create policy "anon read active packages" on public.packages for select to anon using (is_active = true);
+create policy "authenticated read all packages" on public.packages for select to authenticated using (true);
+create policy "authenticated manage packages" on public.packages for all to authenticated using (true) with check (true);
+
+grant select on public.packages to anon;
+grant select, insert, update, delete on public.packages to authenticated;
+
+-- Public booking requests now also carry total_amount/package_id.
+grant insert (total_amount, package_id) on public.bookings to anon;
+grant update (total_amount, package_id) on public.bookings to authenticated;
+
+-- ---------------------------------------------------------------
+-- studio_settings — a single-row table (id forced to `true`) holding
+-- business hours. Replaces the hardcoded BUSINESS_START_HOUR/
+-- BUSINESS_END_HOUR constants; the public page and admin panel both
+-- read this at runtime.
+-- ---------------------------------------------------------------
+create table if not exists public.studio_settings (
+  id                    boolean primary key default true check (id),
+  business_start_hour   int not null default 9,
+  business_end_hour     int not null default 23
+);
+
+insert into public.studio_settings (id) values (true) on conflict (id) do nothing;
+
+alter table public.studio_settings enable row level security;
+
+create policy "anon read settings" on public.studio_settings for select to anon using (true);
+create policy "authenticated read settings" on public.studio_settings for select to authenticated using (true);
+create policy "authenticated update settings" on public.studio_settings for update to authenticated using (true) with check (true);
+
+grant select on public.studio_settings to anon;
+grant select, update on public.studio_settings to authenticated;
+
+-- ---------------------------------------------------------------
+-- off_days — specific dates the studio is closed. The public calendar
+-- treats these like past dates (not selectable/bookable).
+-- ---------------------------------------------------------------
+create table if not exists public.off_days (
+  off_date    date primary key,
+  reason      text,
+  created_at  timestamptz not null default now()
+);
+
+alter table public.off_days enable row level security;
+
+create policy "anon read off days" on public.off_days for select to anon using (true);
+create policy "authenticated read off days" on public.off_days for select to authenticated using (true);
+create policy "authenticated manage off days" on public.off_days for all to authenticated using (true) with check (true);
+
+grant select on public.off_days to anon;
+grant select, insert, delete on public.off_days to authenticated;
+
+-- ---------------------------------------------------------------
+-- payments — an append-only ledger. Multiple partial payments can be
+-- recorded against one booking; Due Amount is always computed as
+-- bookings.total_amount minus the sum of this table's rows for that
+-- booking (never stored redundantly, so it can't drift out of sync).
+-- No update/delete policy on purpose — corrections are new entries, not
+-- edits, which keeps the audit trail honest.
+-- ---------------------------------------------------------------
+create table if not exists public.payments (
+  id           uuid primary key default gen_random_uuid(),
+  booking_id   uuid not null references public.bookings(id) on delete cascade,
+  amount       numeric not null check (amount > 0),
+  method       text not null check (method in ('cash', 'bkash', 'bank')),
+  collector    text not null check (collector in ('Rezwan', 'Radone', 'Rasel', 'Kabbo')),
+  created_by   text,
+  created_at   timestamptz not null default now()
+);
+
+create index if not exists payments_booking_idx on public.payments (booking_id);
+
+alter table public.payments enable row level security;
+
+create policy "authenticated read payments" on public.payments for select to authenticated using (true);
+create policy "authenticated insert payments" on public.payments for insert to authenticated with check (true);
+
+grant select, insert on public.payments to authenticated;
+
+-- ---------------------------------------------------------------
+-- booking_status_log — append-only audit trail of status transitions
+-- (pending -> confirmed, confirmed -> cancelled, etc.), who did it and
+-- when. `changed_by` is the staff member's email, captured client-side
+-- from the authenticated session at the moment of the action.
+-- ---------------------------------------------------------------
+create table if not exists public.booking_status_log (
+  id           uuid primary key default gen_random_uuid(),
+  booking_id   uuid not null references public.bookings(id) on delete cascade,
+  from_status  text,
+  to_status    text not null,
+  changed_by   text,
+  changed_at   timestamptz not null default now()
+);
+
+create index if not exists booking_status_log_booking_idx on public.booking_status_log (booking_id);
+
+alter table public.booking_status_log enable row level security;
+
+create policy "authenticated read status log" on public.booking_status_log for select to authenticated using (true);
+create policy "authenticated insert status log" on public.booking_status_log for insert to authenticated with check (true);
+
+grant select, insert on public.booking_status_log to authenticated;

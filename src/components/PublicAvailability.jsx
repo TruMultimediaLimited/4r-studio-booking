@@ -10,15 +10,8 @@ import {
   BUSINESS_START_HOUR,
   BUSINESS_END_HOUR,
 } from '../lib/time.js'
-import { PACKAGES, ADVANCE_PERCENT, PAYMENT_INFO, buildWhatsAppLink } from '../lib/packages.js'
+import { DEFAULT_PACKAGES, ADVANCE_PERCENT, PAYMENT_INFO, buildWhatsAppLink } from '../lib/packages.js'
 import { isValidBangladeshiPhone, isValidClientName } from '../lib/validation.js'
-
-const DAY_START_HOUR = BUSINESS_START_HOUR
-const DAY_END_HOUR = BUSINESS_END_HOUR
-const TIME_OPTIONS = generateTimeOptions()
-// A booking can't start at closing time (no room left to end), so the
-// "From" list drops the final (closing-time) option; "To" keeps it.
-const FROM_TIME_OPTIONS = TIME_OPTIONS.slice(0, -1)
 
 const WEEKDAY_LABELS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
 
@@ -144,6 +137,39 @@ export default function PublicAvailability() {
   const [requestSaving, setRequestSaving] = useState(false)
   const [paymentTab, setPaymentTab] = useState('mobile')
 
+  const [packages, setPackages] = useState(DEFAULT_PACKAGES)
+  const [businessHours, setBusinessHours] = useState({ start: BUSINESS_START_HOUR, end: BUSINESS_END_HOUR })
+  const [offDays, setOffDays] = useState([])
+
+  useEffect(() => {
+    async function loadConfig() {
+      const [packagesRes, settingsRes, offDaysRes] = await Promise.all([
+        supabase.from('packages').select('*').eq('is_active', true).order('sort_order'),
+        supabase.from('studio_settings').select('*').single(),
+        supabase.from('off_days').select('off_date'),
+      ])
+      if (packagesRes.data && packagesRes.data.length > 0) {
+        setPackages(
+          packagesRes.data.map((p) => ({ id: p.id, label: p.label, rateLabel: p.rate_label, hourlyRate: p.hourly_rate }))
+        )
+      }
+      if (settingsRes.data) {
+        setBusinessHours({ start: settingsRes.data.business_start_hour, end: settingsRes.data.business_end_hour })
+      }
+      if (offDaysRes.data) {
+        setOffDays(offDaysRes.data.map((d) => d.off_date))
+      }
+    }
+    loadConfig()
+  }, [])
+
+  const DAY_START_HOUR = businessHours.start
+  const DAY_END_HOUR = businessHours.end
+  const TIME_OPTIONS = useMemo(() => generateTimeOptions(DAY_START_HOUR, DAY_END_HOUR), [DAY_START_HOUR, DAY_END_HOUR])
+  // A booking can't start at closing time (no room left to end), so the
+  // "From" list drops the final (closing-time) option; "To" keeps it.
+  const FROM_TIME_OPTIONS = useMemo(() => TIME_OPTIONS.slice(0, -1), [TIME_OPTIONS])
+
   const monthCells = useMemo(() => {
     const totalDays = daysInMonth(monthStart)
     const leadingBlanks = startOfMonth(monthStart).getDay()
@@ -233,9 +259,10 @@ export default function PublicAvailability() {
   const todayKey = toDateKey(new Date())
   const isSelectedPast = selectedDate && selectedDate < todayKey
   const isSelectedDayFull = selectedDate ? (bookingsByDate[selectedDate] || 0) >= totalMinutes : false
+  const isSelectedOffDay = selectedDate ? offDays.includes(selectedDate) : false
   const isCollapsedDayView = !loading && !isSelectedPast && !requestSuccess && !requestOpen
 
-  const selectedPackage = PACKAGES.find((p) => p.id === selectedPackageId) || null
+  const selectedPackage = packages.find((p) => p.id === selectedPackageId) || null
 
   const priceInfo = useMemo(() => {
     if (!selectedPackage || !selectedPackage.hourlyRate) return null
@@ -310,6 +337,8 @@ export default function PublicAvailability() {
       client_name,
       client_phone,
       package_name: packageName,
+      package_id: selectedPackage.id,
+      total_amount: priceInfo ? priceInfo.total : null,
       status: 'pending',
     })
     setRequestSaving(false)
@@ -394,21 +423,19 @@ export default function PublicAvailability() {
             const dayStatus = bookedMinutes === 0 ? 'empty' : bookedMinutes >= totalMinutes ? 'full' : 'partial'
             const isSelected = key === selectedDate
             const isPast = key < todayKey
-            const isToday = key === todayKey
+            const isOffDay = offDays.includes(key)
 
             const fillClasses = isPast
               ? 'bg-mist/20 text-[#333333]/25 border-transparent'
+              : isOffDay
+              ? 'bg-clay/10 text-clay/70 border-clay/20'
               : dayStatus === 'full'
               ? 'bg-pine text-white border-pine shadow-sm'
               : dayStatus === 'partial'
               ? 'bg-sage text-[#333333] border-sage shadow-sm'
               : 'bg-mist/30 text-[#333333] border-[#E0E0E0]/70 shadow-sm hover:border-pine/40 hover:shadow-md'
 
-            const ringClasses = isSelected
-              ? 'ring-2 ring-ink ring-offset-1'
-              : isToday && !isPast
-              ? 'ring-2 ring-clay ring-offset-1 font-extrabold'
-              : ''
+            const ringClasses = isSelected ? 'ring-2 ring-ink ring-offset-1' : ''
 
             return (
               <button
@@ -439,7 +466,7 @@ export default function PublicAvailability() {
       {/* Package selector */}
       <p className="inline-block bg-mist/50 rounded-md text-xs uppercase tracking-wide text-[#333333]/80 font-semibold mb-1.5 px-2.5 py-1">Choose a Package</p>
       <div className="grid gap-1.5 mb-2">
-        {PACKAGES.map((p) => {
+        {packages.map((p) => {
           const isSelected = selectedPackageId === p.id
           const Icon = PACKAGE_ICONS[p.id] || IconMessage
           return (
@@ -475,14 +502,14 @@ export default function PublicAvailability() {
       ) : isCollapsedDayView ? (
         <button
           onClick={openRequestForm}
-          disabled={isSelectedDayFull}
+          disabled={isSelectedDayFull || isSelectedOffDay}
           className={`w-full rounded-lg py-2.5 text-sm font-semibold text-center transition-all ${
-            isSelectedDayFull
+            isSelectedDayFull || isSelectedOffDay
               ? 'bg-mist/40 text-[#333333]/35 cursor-not-allowed shadow-none'
               : 'bg-pine text-white shadow-sm hover:opacity-95'
           }`}
         >
-          {isSelectedDayFull ? 'Fully Booked' : 'Book this slot'}
+          {isSelectedOffDay ? 'Studio Closed' : isSelectedDayFull ? 'Fully Booked' : 'Book this slot'}
         </button>
       ) : (
         <div className="bg-white border border-[#E0E0E0]/70 shadow-sm rounded-xl p-2.5">
@@ -567,7 +594,7 @@ export default function PublicAvailability() {
                         </p>
                       )}
 
-                      {selectedPackageId === 'custom' ? (
+                      {!selectedPackage.hourlyRate ? (
                         <div>
                           <p className="text-xs text-[#333333]/60 mb-2.5">
                             Contact us on WhatsApp to discuss packages and pricing for this type of shoot.
