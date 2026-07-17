@@ -104,9 +104,10 @@ create policy "anon insert pending booking requests"
 -- ---------------------------------------------------------------
 -- Staff: full column access for the operations the policies above allow.
 grant select, insert on public.bookings to authenticated;
--- Staff may only ever UPDATE the status column (i.e. confirm/cancel). They cannot
--- rewrite an existing booking's date/time/client/package through the API.
-grant update (status) on public.bookings to authenticated;
+-- Staff can update status (confirm/cancel/reject) and edit an existing
+-- booking's date/time/client/package details from the admin panel.
+grant update (booking_date, start_time, end_time, client_name, client_phone, package_name, status)
+  on public.bookings to authenticated;
 
 -- Anon: only the columns the public page needs to read, nothing else.
 grant select (id, booking_date, start_time, end_time, status) on public.bookings to anon;
@@ -124,3 +125,38 @@ create view public.public_bookings
   where status <> 'cancelled';
 
 grant select on public.public_bookings to anon;
+
+-- ---------------------------------------------------------------
+-- Client self-service lookup — "My Bookings" on the public page.
+--
+-- No client accounts/passwords: a visitor enters the phone number they
+-- booked with and gets back just their own rows. client_phone is never
+-- exposed to anon via SELECT (see grants above), so this has to go
+-- through a SECURITY DEFINER function that filters strictly by an exact
+-- phone match, rather than a broader RLS policy anon could query directly.
+-- Matching compares only the last 10 digits (after stripping non-digits)
+-- so "01712345678" and "+8801712345678" are treated as the same number,
+-- regardless of which format was stored.
+-- ---------------------------------------------------------------
+create or replace function public.get_bookings_by_phone(p_phone text)
+returns table (
+  id            uuid,
+  booking_date  date,
+  start_time    time,
+  end_time      time,
+  package_name  text,
+  status        text,
+  created_at    timestamptz
+)
+language sql
+security definer
+set search_path = public
+as $$
+  select id, booking_date, start_time, end_time, package_name, status, created_at
+  from public.bookings
+  where right(regexp_replace(client_phone, '\D', '', 'g'), 10)
+      = right(regexp_replace(p_phone, '\D', '', 'g'), 10)
+  order by booking_date desc, start_time desc;
+$$;
+
+grant execute on function public.get_bookings_by_phone(text) to anon;
