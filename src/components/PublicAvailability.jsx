@@ -344,7 +344,7 @@ export default function PublicAvailability() {
       )}
 
       {/* Opening Hours strip */}
-      <div className="bg-pine/5 border-y border-[#E0E0E0] py-1.5 mb-3 -mx-4 px-4">
+      <div className="bg-pine/5 border-y border-[#E0E0E0] py-1.5 mb-1.5 -mx-4 px-4">
         <p className="text-center text-xs font-semibold text-[#333333]/70">
           Opening Hours: {DAY_START_HOUR} AM – {DAY_END_HOUR - 12} PM
         </p>
