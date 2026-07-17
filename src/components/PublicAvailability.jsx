@@ -344,14 +344,14 @@ export default function PublicAvailability() {
       )}
 
       {/* Opening Hours strip */}
-      <div className="bg-pine/5 border-y border-[#E0E0E0] py-2 mb-3 -mx-4 px-4">
-        <p className="text-center text-sm font-semibold text-[#333333]/70">
+      <div className="bg-pine/5 border-y border-[#E0E0E0] py-1.5 mb-3 -mx-4 px-4">
+        <p className="text-center text-xs font-semibold text-[#333333]/70">
           Opening Hours: {DAY_START_HOUR} AM – {DAY_END_HOUR - 12} PM
         </p>
       </div>
 
       {/* Month calendar card */}
-      <div className="bg-white rounded-xl border border-[#E0E0E0]/70 shadow-sm p-3 mb-3">
+      <div className="bg-white rounded-xl border border-[#E0E0E0]/70 shadow-sm p-3 mb-2">
         <div className="flex items-center justify-between mb-2">
           <button
             onClick={() => {
@@ -437,8 +437,8 @@ export default function PublicAvailability() {
       </div>
 
       {/* Package selector */}
-      <p className="inline-block bg-mist/50 rounded-md text-xs uppercase tracking-wide text-[#333333]/80 font-semibold mb-2 px-2.5 py-1">Choose a Package</p>
-      <div className="grid gap-3 mb-3">
+      <p className="inline-block bg-mist/50 rounded-md text-xs uppercase tracking-wide text-[#333333]/80 font-semibold mb-1.5 px-2.5 py-1">Choose a Package</p>
+      <div className="grid gap-2 mb-2">
         {PACKAGES.map((p) => {
           const isSelected = selectedPackageId === p.id
           const Icon = PACKAGE_ICONS[p.id] || IconMessage
@@ -446,24 +446,24 @@ export default function PublicAvailability() {
             <button
               key={p.id}
               onClick={() => setSelectedPackageId(p.id)}
-              className={`flex items-center gap-3 rounded-lg px-3.5 py-2.5 border text-left transition-all ${
+              className={`flex items-center gap-2.5 rounded-lg px-3 py-2 border text-left transition-all ${
                 isSelected
                   ? 'bg-pine border-pine text-white shadow-sm'
                   : 'bg-white border-[#E0E0E0] text-[#333333] shadow-sm hover:border-pine/40'
               }`}
             >
               <span
-                className={`flex items-center justify-center h-8 w-8 rounded-full shrink-0 ${
+                className={`flex items-center justify-center h-7 w-7 rounded-full shrink-0 ${
                   isSelected ? 'bg-white/15 text-white' : 'bg-pine/10 text-pine'
                 }`}
               >
-                <Icon className="h-3.5 w-3.5" />
+                <Icon className="h-3 w-3" />
               </span>
-              <span className={`flex-1 text-sm font-semibold ${isSelected ? 'text-white' : 'text-[#333333]'}`}>{p.label}</span>
-              <span className={`text-xs font-medium shrink-0 ${isSelected ? 'text-white/70' : 'text-[#333333]/55'}`}>
+              <span className={`flex-1 text-xs font-semibold ${isSelected ? 'text-white' : 'text-[#333333]'}`}>{p.label}</span>
+              <span className={`text-[10px] font-medium shrink-0 ${isSelected ? 'text-white/70' : 'text-[#333333]/55'}`}>
                 {p.rateLabel || 'WhatsApp'}
               </span>
-              {isSelected && <IconCheck className="h-3.5 w-3.5 shrink-0" />}
+              {isSelected && <IconCheck className="h-3 w-3 shrink-0" />}
             </button>
           )
         })}
@@ -474,9 +474,13 @@ export default function PublicAvailability() {
         <p className="text-sm text-[#333333]/50 py-6 text-center">Select a date</p>
       ) : isCollapsedDayView ? (
         <div className="flex items-center gap-2">
-          <div className="flex-1 min-w-0 bg-white border border-[#E0E0E0] rounded-lg px-3.5 py-2.5 flex items-center gap-1.5">
-            <IconCalendar className="h-3.5 w-3.5 text-pine shrink-0" />
-            <span className="truncate text-sm font-semibold text-[#333333]">
+          <div
+            className={`flex-1 min-w-0 rounded-lg px-3.5 py-2.5 flex items-center gap-1.5 border ${
+              isSelectedDayFull ? 'bg-mist/40 border-[#E0E0E0]' : 'bg-pine border-pine'
+            }`}
+          >
+            <IconCalendar className={`h-3.5 w-3.5 shrink-0 ${isSelectedDayFull ? 'text-[#333333]/40' : 'text-white/80'}`} />
+            <span className={`truncate text-sm font-semibold ${isSelectedDayFull ? 'text-[#333333]/50' : 'text-white'}`}>
               {fromDateKey(selectedDate).toLocaleDateString('en-GB', {
                 weekday: 'short',
                 day: 'numeric',
