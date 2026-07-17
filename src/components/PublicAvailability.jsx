@@ -191,7 +191,8 @@ export default function PublicAvailability() {
   const bookingsByDate = useMemo(() => {
     const map = {}
     for (const b of bookings) {
-      map[b.booking_date] = (map[b.booking_date] || 0) + 1
+      const minutes = timeToMinutes(b.end_time) - timeToMinutes(b.start_time)
+      map[b.booking_date] = (map[b.booking_date] || 0) + minutes
     }
     return map
   }, [bookings])
@@ -353,42 +354,48 @@ export default function PublicAvailability() {
           {monthCells.map((d, i) => {
             if (!d) return <div key={`blank-${i}`} />
             const key = toDateKey(d)
-            const count = bookingsByDate[key] || 0
+            const bookedMinutes = bookingsByDate[key] || 0
+            const dayStatus = bookedMinutes === 0 ? 'empty' : bookedMinutes >= totalMinutes ? 'full' : 'partial'
             const isSelected = key === selectedDate
             const isPast = key < todayKey
             const isToday = key === todayKey
+
+            const fillClasses = isPast
+              ? 'bg-mist/20 text-ink/25 border-transparent'
+              : dayStatus === 'full'
+              ? 'bg-clay text-paper border-clay'
+              : dayStatus === 'partial'
+              ? 'bg-honey text-ink border-honey'
+              : 'bg-white text-ink border-mist/70 hover:border-pine/40 hover:shadow-sm'
+
+            const ringClasses = isSelected
+              ? 'ring-2 ring-ink ring-offset-1'
+              : isToday && !isPast
+              ? 'ring-2 ring-pine ring-offset-1'
+              : ''
+
             return (
               <button
                 key={key}
                 onClick={() => setSelectedDate(key)}
                 disabled={isPast}
-                className={`flex flex-col items-center justify-center rounded-xl py-2.5 border transition-all ${
-                  isSelected
-                    ? 'bg-ink text-paper border-ink shadow-md'
-                    : isPast
-                    ? 'bg-mist/20 text-ink/25 border-transparent'
-                    : isToday
-                    ? 'bg-pine/5 text-ink border-pine/50'
-                    : 'bg-white text-ink border-mist/70 hover:border-pine/40 hover:shadow-sm'
-                }`}
+                className={`flex items-center justify-center rounded-xl py-2 border font-display text-sm transition-all ${fillClasses} ${ringClasses}`}
               >
-                <span className="font-display text-sm leading-tight">{d.getDate()}</span>
-                <span
-                  className={`mt-1 h-1.5 w-1.5 rounded-full ${
-                    count > 0 ? 'bg-clay' : isPast ? 'bg-transparent' : 'bg-pine/40'
-                  }`}
-                />
+                {d.getDate()}
               </button>
             )
           })}
         </div>
 
-        <div className="flex items-center justify-center gap-4 mt-3.5 pt-3 border-t border-mist/60 text-[11px] text-ink/50">
+        <div className="flex items-center justify-center gap-3 mt-3.5 pt-3 border-t border-mist/60 text-[11px] text-ink/50">
           <span className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-pine/40" /> Available
+            <span className="h-3 w-3 rounded-[4px] bg-white border border-mist/70" /> Available
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-clay" /> Booked
+            <span className="h-3 w-3 rounded-[4px] bg-honey" /> Partial
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="h-3 w-3 rounded-[4px] bg-clay" /> Full
           </span>
         </div>
       </div>
