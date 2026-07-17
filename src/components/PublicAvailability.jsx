@@ -402,7 +402,7 @@ export default function PublicAvailability() {
 
       {/* Package selector */}
       <p className="text-[11px] uppercase tracking-wide text-ink/45 font-semibold mb-2 px-0.5">Choose a Package</p>
-      <div className="grid gap-2 mb-5">
+      <div className="grid gap-1.5 mb-4">
         {PACKAGES.map((p) => {
           const isSelected = selectedPackageId === p.id
           const Icon = PACKAGE_ICONS[p.id] || IconMessage
@@ -410,24 +410,24 @@ export default function PublicAvailability() {
             <button
               key={p.id}
               onClick={() => setSelectedPackageId(p.id)}
-              className={`flex items-center gap-3 rounded-2xl px-3.5 py-3 border text-left transition-all ${
+              className={`flex items-center gap-2.5 rounded-xl px-3 py-2 border text-left transition-all ${
                 isSelected
-                  ? 'bg-pine border-pine text-paper shadow-md'
-                  : 'bg-white border-mist/70 text-ink shadow-sm hover:border-pine/40 hover:shadow-md'
+                  ? 'bg-pine border-pine text-paper shadow-sm'
+                  : 'bg-white border-mist/70 text-ink shadow-sm hover:border-pine/40'
               }`}
             >
               <span
-                className={`flex items-center justify-center h-9 w-9 rounded-full shrink-0 ${
+                className={`flex items-center justify-center h-7 w-7 rounded-full shrink-0 ${
                   isSelected ? 'bg-white/15 text-paper' : 'bg-pine/10 text-pine'
                 }`}
               >
-                <Icon className="h-4.5 w-4.5" />
+                <Icon className="h-3.5 w-3.5" />
               </span>
-              <span className="flex-1 text-sm font-medium">{p.label}</span>
-              <span className={`text-xs font-semibold shrink-0 ${isSelected ? 'text-paper/90' : 'text-ink/70'}`}>
+              <span className={`flex-1 text-sm font-semibold ${isSelected ? 'text-paper' : 'text-ink'}`}>{p.label}</span>
+              <span className={`text-xs font-medium shrink-0 ${isSelected ? 'text-paper/70' : 'text-ink/45'}`}>
                 {p.rateLabel || 'WhatsApp'}
               </span>
-              {isSelected && <IconCheck className="h-4 w-4 shrink-0" />}
+              {isSelected && <IconCheck className="h-3.5 w-3.5 shrink-0" />}
             </button>
           )
         })}
