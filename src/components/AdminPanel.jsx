@@ -28,7 +28,7 @@ const HOUR_OPTIONS = Array.from({ length: 24 }, (_, h) => ({
 const STATUS_META = {
   pending: { label: 'Pending', className: 'bg-amber-100 text-amber-800 border-amber-300' },
   confirmed: { label: 'Confirmed', className: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
-  cancelled: { label: 'Cancelled', className: 'bg-[#E0E0E0]/50 text-[#333333]/40 border-[#E0E0E0]' },
+  cancelled: { label: 'Cancelled', className: 'bg-[#E0E0E0]/50 text-[#333333]/55 border-[#E0E0E0]' },
 }
 
 const emptyForm = { booking_date: '', start_time: '', end_time: '', client_name: '', client_phone: '', package_name: '', total_amount: '' }
@@ -66,7 +66,7 @@ function formatMethod(method) {
 function StatusBadge({ status }) {
   const meta = STATUS_META[status] || STATUS_META.confirmed
   return (
-    <span className={`inline-flex items-center text-[9px] font-bold uppercase tracking-wide border rounded-full px-1.5 py-0.5 shrink-0 ${meta.className}`}>
+    <span className={`inline-flex items-center text-[10px] font-bold uppercase tracking-wide border rounded-full px-1.5 py-0.5 shrink-0 ${meta.className}`}>
       {meta.label}
     </span>
   )
@@ -175,19 +175,19 @@ function BookingRow({
           </span>
           <span className="min-w-0">
             <span className="text-xs font-semibold truncate block">{b.client_name || 'No name'}</span>
-            <span className="text-[10px] text-[#333333]/45">
+            <span className="text-[11px] text-[#333333]/55">
               {formatBookingDate(b.booking_date)} · {formatTimeLabel(b.start_time.slice(0, 5))}
             </span>
           </span>
         </span>
         <span className="flex items-center gap-1.5 shrink-0">
           {dueAmount != null && dueAmount > 0 && (
-            <span className="text-[9px] font-bold uppercase tracking-wide text-clay bg-clay/10 border border-clay/20 rounded-full px-1.5 py-0.5">
+            <span className="text-[10px] font-bold uppercase tracking-wide text-clay bg-clay/10 border border-clay/20 rounded-full px-1.5 py-0.5">
               Due {formatMoney(dueAmount)}
             </span>
           )}
           <StatusBadge status={b.status} />
-          <IconChevronDown className={`h-3.5 w-3.5 text-[#333333]/40 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+          <IconChevronDown className={`h-3.5 w-3.5 text-[#333333]/55 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
         </span>
       </button>
 
@@ -205,17 +205,17 @@ function BookingRow({
             />
           ) : (
             <>
-              <div className="space-y-1 text-[10px] text-[#333333]/70 mb-2 mt-1.5">
+              <div className="space-y-1 text-[11px] text-[#333333]/70 mb-2 mt-1.5">
                 <p className="flex items-center gap-1.5">
-                  <IconCalendar className="h-3 w-3 text-[#333333]/40 shrink-0" />
+                  <IconCalendar className="h-3 w-3 text-[#333333]/55 shrink-0" />
                   {formatBookingDate(b.booking_date)}, {formatTimeLabel(b.start_time.slice(0, 5))} – {formatTimeLabel(b.end_time.slice(0, 5))}
                 </p>
                 <p className="flex items-center gap-1.5">
-                  <IconPhone className="h-3 w-3 text-[#333333]/40 shrink-0" />
+                  <IconPhone className="h-3 w-3 text-[#333333]/55 shrink-0" />
                   {b.client_phone || 'Not provided'}
                 </p>
                 <p className="flex items-center gap-1.5">
-                  <IconTag className="h-3 w-3 text-[#333333]/40 shrink-0" />
+                  <IconTag className="h-3 w-3 text-[#333333]/55 shrink-0" />
                   {b.package_name || 'Not specified'}
                 </p>
                 {b.total_amount != null && (
@@ -234,16 +234,16 @@ function BookingRow({
                   <div className="flex gap-1.5">
                     {b.status === 'pending' && (
                       <>
-                        <button onClick={onReject} className="flex-1 border border-[#E0E0E0] rounded-lg py-1 text-[10px] font-medium text-[#333333]/60">
+                        <button onClick={onReject} className="flex-1 border border-[#E0E0E0] rounded-lg py-1.5 text-[11px] font-medium text-[#333333]/60">
                           Reject
                         </button>
-                        <button onClick={onConfirm} className="flex-1 bg-pine text-white rounded-lg py-1 text-[10px] font-medium">
+                        <button onClick={onConfirm} className="flex-1 bg-pine text-white rounded-lg py-1.5 text-[11px] font-medium">
                           Confirm
                         </button>
                       </>
                     )}
                     {b.status === 'confirmed' && (
-                      <button onClick={onCancel} className="flex-1 border border-clay/30 text-clay rounded-lg py-1 text-[10px] font-medium">
+                      <button onClick={onCancel} className="flex-1 border border-clay/30 text-clay rounded-lg py-1.5 text-[11px] font-medium">
                         Cancel Booking
                       </button>
                     )}
@@ -251,20 +251,20 @@ function BookingRow({
                 )}
                 <div className="flex gap-1.5">
                   {b.status !== 'cancelled' && (
-                    <button onClick={onOpenPayment} className="flex-1 border border-pine/30 text-pine rounded-lg py-1 text-[10px] font-medium">
+                    <button onClick={onOpenPayment} className="flex-1 border border-pine/30 text-pine rounded-lg py-1.5 text-[11px] font-medium">
                       Add Payment
                     </button>
                   )}
-                  <button onClick={onOpenHistory} className="flex-1 border border-[#E0E0E0] rounded-lg py-1 text-[10px] font-medium text-[#333333]/70">
+                  <button onClick={onOpenHistory} className="flex-1 border border-[#E0E0E0] rounded-lg py-1.5 text-[11px] font-medium text-[#333333]/70">
                     History
                   </button>
                   {b.status !== 'cancelled' && (
-                    <button onClick={onStartEdit} className="flex-1 border border-[#E0E0E0] rounded-lg py-1 text-[10px] font-medium text-[#333333]/70">
+                    <button onClick={onStartEdit} className="flex-1 border border-[#E0E0E0] rounded-lg py-1.5 text-[11px] font-medium text-[#333333]/70">
                       Edit
                     </button>
                   )}
                   {b.status === 'cancelled' && (
-                    <button onClick={onDelete} className="flex-1 border border-clay/30 text-clay rounded-lg py-1 text-[10px] font-medium">
+                    <button onClick={onDelete} className="flex-1 border border-clay/30 text-clay rounded-lg py-1.5 text-[11px] font-medium">
                       Delete Permanently
                     </button>
                   )}
@@ -298,7 +298,7 @@ function Modal({ title, onClose, children }) {
       <div className="font-sans w-full max-w-sm bg-[#F9F7F2] rounded-xl shadow-lg p-5" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-3">
           <p className="text-base font-bold text-[#333333]">{title}</p>
-          <button onClick={onClose} aria-label="Close" className="text-[#333333]/40 hover:text-[#333333]">
+          <button onClick={onClose} aria-label="Close" className="text-[#333333]/55 hover:text-[#333333]">
             <IconX className="h-5 w-5" />
           </button>
         </div>
@@ -368,7 +368,7 @@ function HistoryModal({ booking, payments, statusLogs, onClose }) {
   return (
     <Modal title={`History — ${booking.client_name || 'No name'}`} onClose={onClose}>
       {entries.length === 0 ? (
-        <p className="flex flex-col items-center gap-2 text-xs text-[#333333]/40 py-8 text-center">
+        <p className="flex flex-col items-center gap-2 text-xs text-[#333333]/55 py-8 text-center">
           <IconInbox className="h-6 w-6" /> No activity recorded yet.
         </p>
       ) : (
@@ -378,20 +378,20 @@ function HistoryModal({ booking, payments, statusLogs, onClose }) {
               {e.kind === 'payment' ? (
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-semibold text-pine">{formatMoney(e.amount)}</span>
-                  <span className="text-[10px] text-[#333333]/55 text-right">
+                  <span className="text-[11px] text-[#333333]/55 text-right">
                     {formatMethod(e.method)} · {e.collector}
                   </span>
                 </div>
               ) : (
                 <div className="flex items-center justify-between gap-2">
                   <span className="flex items-center gap-1.5 font-semibold text-[#333333]">
-                    <IconCheckCircle className="h-3.5 w-3.5 shrink-0 text-[#333333]/50" />
+                    <IconCheckCircle className="h-3.5 w-3.5 shrink-0 text-[#333333]/60" />
                     {e.from ? `${e.from} → ${e.to}` : `Created (${e.to})`}
                   </span>
-                  <span className="text-[10px] text-[#333333]/55 text-right">{e.by || 'Unknown'}</span>
+                  <span className="text-[11px] text-[#333333]/55 text-right">{e.by || 'Unknown'}</span>
                 </div>
               )}
-              <p className="text-[9px] text-[#333333]/40 mt-1">
+              <p className="text-[10px] text-[#333333]/55 mt-1">
                 {new Date(e.at).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
               </p>
             </li>
@@ -519,44 +519,56 @@ export default function AdminPanel() {
 
   useEffect(() => {
     if (!session) return
+    reloadAll()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session])
+
+  async function loadBookings() {
+    setLoadingBookings(true)
+    const { data, error } = await supabase.from('bookings').select('*').order('booking_date').order('start_time')
+    if (error) reportActionError('Could not load bookings', error)
+    else setBookings(data || [])
+    setLoadingBookings(false)
+  }
+
+  async function loadPayments() {
+    const { data, error } = await supabase.from('payments').select('*').order('created_at')
+    if (error) reportActionError('Could not load payments', error)
+    else setPayments(data || [])
+  }
+
+  async function loadStatusLogs() {
+    const { data, error } = await supabase.from('booking_status_log').select('*').order('changed_at')
+    if (error) reportActionError('Could not load history', error)
+    else setStatusLogs(data || [])
+  }
+
+  async function loadPackages() {
+    const { data, error } = await supabase.from('packages').select('*').order('sort_order')
+    if (error) reportActionError('Could not load packages', error)
+    else setPackages(data || [])
+  }
+
+  async function loadSettings() {
+    const { data, error } = await supabase.from('studio_settings').select('*').single()
+    if (error) reportActionError('Could not load settings', error)
+    else if (data) setHoursForm({ start: data.business_start_hour, end: data.business_end_hour })
+  }
+
+  async function loadOffDays() {
+    const { data, error } = await supabase.from('off_days').select('*').order('off_date')
+    if (error) reportActionError('Could not load off-days', error)
+    else setOffDays(data || [])
+  }
+
+  function reloadAll() {
+    setActionError('')
     loadBookings()
     loadPayments()
     loadStatusLogs()
     loadPackages()
     loadSettings()
     loadOffDays()
-  }, [session])
-
-  async function loadBookings() {
-    setLoadingBookings(true)
-    const { data } = await supabase.from('bookings').select('*').order('booking_date').order('start_time')
-    setBookings(data || [])
-    setLoadingBookings(false)
-  }
-
-  async function loadPayments() {
-    const { data } = await supabase.from('payments').select('*').order('created_at')
-    setPayments(data || [])
-  }
-
-  async function loadStatusLogs() {
-    const { data } = await supabase.from('booking_status_log').select('*').order('changed_at')
-    setStatusLogs(data || [])
-  }
-
-  async function loadPackages() {
-    const { data } = await supabase.from('packages').select('*').order('sort_order')
-    setPackages(data || [])
-  }
-
-  async function loadSettings() {
-    const { data } = await supabase.from('studio_settings').select('*').single()
-    if (data) setHoursForm({ start: data.business_start_hour, end: data.business_end_hour })
-  }
-
-  async function loadOffDays() {
-    const { data } = await supabase.from('off_days').select('*').order('off_date')
-    setOffDays(data || [])
   }
 
   const staffEmail = session?.user?.email || null
@@ -663,6 +675,11 @@ export default function AdminPanel() {
     const clash = findOverlap(form.booking_date, form.start_time, form.end_time, null)
     if (clash) {
       setFormError(`This time is already booked (${formatTimeLabel(clash.start_time.slice(0, 5))}–${formatTimeLabel(clash.end_time.slice(0, 5))})`)
+      return
+    }
+
+    const isOffDay = offDays.some((d) => d.off_date === form.booking_date)
+    if (isOffDay && !confirm('This date is marked as an off-day (studio closed). Add the booking anyway?')) {
       return
     }
 
@@ -916,7 +933,7 @@ export default function AdminPanel() {
   }
 
   if (!authChecked) {
-    return <p className="font-sans text-sm text-[#333333]/40 py-12 text-center">Loading…</p>
+    return <p className="font-sans text-sm text-[#333333]/55 py-12 text-center">Loading…</p>
   }
 
   if (!session) {
@@ -924,7 +941,7 @@ export default function AdminPanel() {
       <div className="font-sans max-w-sm mx-auto mt-12">
         <form onSubmit={handleLogin} className="bg-white border border-[#E0E0E0]/70 shadow-sm rounded-2xl p-6">
           <p className="text-xl font-bold text-[#333333] mb-1">Team Login</p>
-          <p className="text-sm text-[#333333]/50 mb-4">Log in to add or manage bookings</p>
+          <p className="text-sm text-[#333333]/60 mb-4">Log in to add or manage bookings</p>
           <div className="space-y-2.5 mb-3.5">
             <input
               type="email"
@@ -960,7 +977,7 @@ export default function AdminPanel() {
     <div className="font-sans max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-2">
         <p className="text-base font-bold text-[#333333]">Admin Panel</p>
-        <button onClick={handleLogout} className="flex items-center gap-1 text-[10px] font-medium text-[#333333]/50 hover:text-clay transition-colors">
+        <button onClick={handleLogout} className="flex items-center gap-1 text-[11px] font-medium text-[#333333]/60 hover:text-clay transition-colors">
           <IconLogOut className="h-3 w-3" /> Log Out
         </button>
       </div>
@@ -970,9 +987,14 @@ export default function AdminPanel() {
           <span className="flex items-start gap-2">
             <IconAlert className="h-3.5 w-3.5 shrink-0 mt-0.5" /> {actionError}
           </span>
-          <button onClick={() => setActionError('')} aria-label="Dismiss error" className="shrink-0 text-clay/60 hover:text-clay">
-            <IconX className="h-3.5 w-3.5" />
-          </button>
+          <span className="flex items-center gap-2 shrink-0">
+            <button onClick={reloadAll} className="text-[11px] font-semibold text-clay underline">
+              Reload
+            </button>
+            <button onClick={() => setActionError('')} aria-label="Dismiss error" className="text-clay/60 hover:text-clay">
+              <IconX className="h-3.5 w-3.5" />
+            </button>
+          </span>
         </div>
       )}
 
@@ -989,7 +1011,7 @@ export default function AdminPanel() {
           }`}
         >
           <p className="text-lg font-bold text-amber-600">{stats.pending}</p>
-          <p className="text-[9px] uppercase tracking-wide text-[#333333]/45 font-semibold mt-0.5">Pending</p>
+          <p className="text-[10px] uppercase tracking-wide text-[#333333]/55 font-semibold mt-0.5">Pending</p>
         </button>
         <button
           onClick={() => {
@@ -1002,7 +1024,7 @@ export default function AdminPanel() {
           }`}
         >
           <p className="text-lg font-bold text-pine">{stats.today}</p>
-          <p className="text-[9px] uppercase tracking-wide text-[#333333]/45 font-semibold mt-0.5">Today's Bookings</p>
+          <p className="text-[10px] uppercase tracking-wide text-[#333333]/55 font-semibold mt-0.5">Today's Bookings</p>
         </button>
         <button
           onClick={() => {
@@ -1015,7 +1037,7 @@ export default function AdminPanel() {
           }`}
         >
           <p className="text-lg font-bold text-[#333333]">{formatMoney(stats.todayEarnings)}</p>
-          <p className="text-[9px] uppercase tracking-wide text-[#333333]/45 font-semibold mt-0.5">Today Earnings</p>
+          <p className="text-[10px] uppercase tracking-wide text-[#333333]/55 font-semibold mt-0.5">Today Earnings</p>
         </button>
         <button
           onClick={() => {
@@ -1028,15 +1050,15 @@ export default function AdminPanel() {
           }`}
         >
           <p className="text-lg font-bold text-[#333333]">{stats.month}</p>
-          <p className="text-[9px] uppercase tracking-wide text-[#333333]/45 font-semibold mt-0.5">This Month</p>
+          <p className="text-[10px] uppercase tracking-wide text-[#333333]/55 font-semibold mt-0.5">This Month</p>
         </button>
       </div>
 
       {showEarningsBreakdown && (
         <div className="bg-white border border-pine/30 shadow-sm rounded-xl p-2.5 mb-2">
-          <p className="text-[10px] uppercase tracking-wide text-pine font-bold mb-1.5 px-0.5">Today's Earnings — Where It Came From</p>
+          <p className="text-[11px] uppercase tracking-wide text-pine font-bold mb-1.5 px-0.5">Today's Earnings — Where It Came From</p>
           {todayPayments.length === 0 ? (
-            <p className="flex flex-col items-center gap-2 text-xs text-[#333333]/40 py-6 text-center">
+            <p className="flex flex-col items-center gap-2 text-xs text-[#333333]/55 py-6 text-center">
               <IconInbox className="h-5 w-5" /> No payments collected today
             </p>
           ) : (
@@ -1047,7 +1069,7 @@ export default function AdminPanel() {
                     <span className="text-xs font-semibold text-[#333333] block truncate">
                       {p.booking?.client_name || 'Unknown booking'}
                     </span>
-                    <span className="text-[10px] text-[#333333]/50">
+                    <span className="text-[11px] text-[#333333]/60">
                       {formatMethod(p.method)} · {p.collector} · {new Date(p.created_at).toLocaleTimeString('en-GB', { hour: 'numeric', minute: '2-digit' })}
                     </span>
                   </span>
@@ -1065,7 +1087,7 @@ export default function AdminPanel() {
           <span className="text-sm font-semibold flex items-center gap-1.5">
             <IconPlus className="h-3.5 w-3.5 text-pine" /> Add New Booking
           </span>
-          <IconChevronDown className={`h-3.5 w-3.5 text-[#333333]/40 transition-transform ${addOpen ? 'rotate-180' : ''}`} />
+          <IconChevronDown className={`h-3.5 w-3.5 text-[#333333]/55 transition-transform ${addOpen ? 'rotate-180' : ''}`} />
         </button>
         {addOpen && (
           <form onSubmit={handleAddBooking} className="mt-3 space-y-2">
@@ -1135,13 +1157,13 @@ export default function AdminPanel() {
           <span className="text-sm font-semibold flex items-center gap-1.5">
             <IconSettings className="h-3.5 w-3.5 text-pine" /> Studio Settings
           </span>
-          <IconChevronDown className={`h-3.5 w-3.5 text-[#333333]/40 transition-transform ${settingsOpen ? 'rotate-180' : ''}`} />
+          <IconChevronDown className={`h-3.5 w-3.5 text-[#333333]/55 transition-transform ${settingsOpen ? 'rotate-180' : ''}`} />
         </button>
         {settingsOpen && (
           <div className="mt-3 space-y-4">
             {/* Package pricing */}
             <div>
-              <p className="text-[10px] uppercase tracking-wide text-[#333333]/55 font-semibold mb-1.5">Package Pricing</p>
+              <p className="text-[11px] uppercase tracking-wide text-[#333333]/55 font-semibold mb-1.5">Package Pricing</p>
               <div className="space-y-1.5">
                 {packages.map((p) =>
                   editingPackageId === p.id ? (
@@ -1171,7 +1193,7 @@ export default function AdminPanel() {
                         <button
                           type="button"
                           onClick={() => setEditingPackageId(null)}
-                          className="flex-1 border border-[#E0E0E0] rounded-lg py-1 text-[10px] font-medium text-[#333333]/60"
+                          className="flex-1 border border-[#E0E0E0] rounded-lg py-1.5 text-[11px] font-medium text-[#333333]/60"
                         >
                           Cancel
                         </button>
@@ -1179,7 +1201,7 @@ export default function AdminPanel() {
                           type="button"
                           disabled={packageSaving}
                           onClick={savePackageEdit}
-                          className="flex-1 bg-pine text-white rounded-lg py-1 text-[10px] font-semibold disabled:opacity-50"
+                          className="flex-1 bg-pine text-white rounded-lg py-1.5 text-[11px] font-semibold disabled:opacity-50"
                         >
                           {packageSaving ? 'Saving…' : 'Save'}
                         </button>
@@ -1189,11 +1211,11 @@ export default function AdminPanel() {
                     <div key={p.id} className="flex items-center justify-between gap-2 border border-[#E0E0E0]/70 rounded-lg px-2.5 py-1.5">
                       <span className="min-w-0">
                         <span className="text-xs font-semibold text-[#333333] block truncate">{p.label}</span>
-                        <span className="text-[10px] text-[#333333]/50">{p.rate_label || 'WhatsApp only'}</span>
+                        <span className="text-[11px] text-[#333333]/60">{p.rate_label || 'WhatsApp only'}</span>
                       </span>
                       <button
                         onClick={() => startEditPackage(p)}
-                        className="flex items-center gap-1 shrink-0 border border-[#E0E0E0] rounded-lg px-2 py-1 text-[10px] font-medium text-[#333333]/70"
+                        className="flex items-center gap-1 shrink-0 border border-[#E0E0E0] rounded-lg px-2 py-1.5 text-[11px] font-medium text-[#333333]/70"
                       >
                         <IconEdit className="h-3 w-3" /> Edit
                       </button>
@@ -1205,7 +1227,7 @@ export default function AdminPanel() {
 
             {/* Opening hours */}
             <div>
-              <p className="text-[10px] uppercase tracking-wide text-[#333333]/55 font-semibold mb-1.5">Opening Hours</p>
+              <p className="text-[11px] uppercase tracking-wide text-[#333333]/55 font-semibold mb-1.5">Opening Hours</p>
               <div className="grid grid-cols-2 gap-2.5 mb-2">
                 <select
                   value={hoursForm.start}
@@ -1237,7 +1259,7 @@ export default function AdminPanel() {
 
             {/* Special off-days */}
             <div>
-              <p className="text-[10px] uppercase tracking-wide text-[#333333]/55 font-semibold mb-1.5">Special Off-Days</p>
+              <p className="text-[11px] uppercase tracking-wide text-[#333333]/55 font-semibold mb-1.5">Special Off-Days</p>
               <div className="border border-[#E0E0E0]/70 rounded-lg p-2">
                 <div className="flex items-center justify-between mb-1.5">
                   <button
@@ -1268,7 +1290,7 @@ export default function AdminPanel() {
                         key={key}
                         type="button"
                         onClick={() => toggleOffDay(key)}
-                        className={`rounded-md py-1 text-[10px] font-semibold transition-all ${
+                        className={`rounded-md py-1.5 text-[11px] font-semibold transition-all ${
                           isOff ? 'bg-clay text-white' : 'bg-[#F9F7F2] text-[#333333] hover:bg-mist/40'
                         }`}
                       >
@@ -1277,7 +1299,7 @@ export default function AdminPanel() {
                     )
                   })}
                 </div>
-                <p className="text-[9px] text-[#333333]/45 mt-1.5">Tap a date to mark the studio closed (or reopen it).</p>
+                <p className="text-[10px] text-[#333333]/55 mt-1.5">Tap a date to mark the studio closed (or reopen it).</p>
               </div>
             </div>
           </div>
@@ -1286,7 +1308,7 @@ export default function AdminPanel() {
 
       {/* Search / filter */}
       <div className="bg-white border border-pine/20 shadow-sm rounded-xl p-2 mb-2">
-        <p className="text-[9px] uppercase tracking-wide text-pine font-bold mb-1.5 px-0.5">Search & Filter</p>
+        <p className="text-[10px] uppercase tracking-wide text-pine font-bold mb-1.5 px-0.5">Search & Filter</p>
         <div className="space-y-1.5">
           <div className="relative">
             <IconSearch className="h-3.5 w-3.5 text-pine/50 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -1321,12 +1343,12 @@ export default function AdminPanel() {
       </div>
 
       {loadingBookings ? (
-        <p className="text-xs text-[#333333]/40 py-6 text-center">Loading…</p>
+        <p className="text-xs text-[#333333]/55 py-6 text-center">Loading…</p>
       ) : isFiltering ? (
         <>
           <p className="text-sm font-semibold mb-2">Search Results ({searchResults.length})</p>
           {searchResults.length === 0 ? (
-            <p className="flex flex-col items-center gap-2 text-xs text-[#333333]/40 py-8 text-center">
+            <p className="flex flex-col items-center gap-2 text-xs text-[#333333]/55 py-8 text-center">
               <IconInbox className="h-5 w-5" /> No bookings found
             </p>
           ) : (
@@ -1352,7 +1374,7 @@ export default function AdminPanel() {
 
           <p className="text-sm font-semibold mb-2">Upcoming Bookings</p>
           <ul className="space-y-1.5">
-            {confirmedUpcoming.length === 0 && <p className="text-xs text-[#333333]/40">No bookings</p>}
+            {confirmedUpcoming.length === 0 && <p className="text-xs text-[#333333]/55">No bookings</p>}
             {confirmedUpcoming.map((b) => (
               <BookingRow key={b.id} {...bookingRowProps(b)} />
             ))}
