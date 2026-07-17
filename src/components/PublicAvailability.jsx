@@ -134,6 +134,7 @@ export default function PublicAvailability() {
   const [requestForm, setRequestForm] = useState(emptyRequestForm)
   const [requestError, setRequestError] = useState('')
   const [requestSuccess, setRequestSuccess] = useState('')
+  const [lastRequest, setLastRequest] = useState(null)
   const [requestSaving, setRequestSaving] = useState(false)
   const [paymentTab, setPaymentTab] = useState('mobile')
 
@@ -191,7 +192,8 @@ export default function PublicAvailability() {
       .gte('booking_date', rangeStart)
       .lt('booking_date', rangeEnd)
     if (error) {
-      setError(error.message || 'Unknown error')
+      console.error('Failed to load bookings:', error)
+      setError(true)
       setLoading(false)
       return
     }
@@ -208,11 +210,20 @@ export default function PublicAvailability() {
     .filter((b) => b.booking_date === selectedDate)
     .sort((a, b) => a.start_time.localeCompare(b.start_time))
 
+  const now = new Date()
+  const nowMinutes = now.getHours() * 60 + now.getMinutes()
+  const isSelectedToday = selectedDate === toDateKey(now)
+
   function markBookedStatus(options) {
     return options.map((opt) => {
       const t = timeToMinutes(opt.value)
       const isBooked = dayBookings.some((b) => t >= timeToMinutes(b.start_time) && t < timeToMinutes(b.end_time))
-      return { ...opt, disabled: isBooked, label: isBooked ? `${opt.label} (Booked)` : opt.label }
+      const isPassed = isSelectedToday && t <= nowMinutes
+      return {
+        ...opt,
+        disabled: isBooked || isPassed,
+        label: isBooked ? `${opt.label} (Booked)` : isPassed ? `${opt.label} (Passed)` : opt.label,
+      }
     })
   }
 
@@ -221,12 +232,12 @@ export default function PublicAvailability() {
   const fromTimeOptions = useMemo(
     () => markBookedStatus(FROM_TIME_OPTIONS),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dayBookings]
+    [dayBookings, selectedDate]
   )
   const toTimeOptions = useMemo(
     () => markBookedStatus(TIME_OPTIONS),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dayBookings]
+    [dayBookings, selectedDate]
   )
 
   const availabilityStatus = useMemo(() => {
@@ -234,6 +245,9 @@ export default function PublicAvailability() {
     if (!start_time || !end_time) return null
     if (timeToMinutes(start_time) >= timeToMinutes(end_time)) {
       return { kind: 'warn', text: 'End time must be after start time.' }
+    }
+    if (isSelectedToday && timeToMinutes(start_time) <= nowMinutes) {
+      return { kind: 'warn', text: 'This time has already passed today.' }
     }
     const clash = dayBookings.find((b) => overlaps(start_time, end_time, b.start_time, b.end_time))
     if (clash) {
@@ -319,6 +333,10 @@ export default function PublicAvailability() {
       setRequestError('Start time must be before end time')
       return
     }
+    if (isSelectedToday && timeToMinutes(start_time) <= nowMinutes) {
+      setRequestError('This time has already passed today. Please pick a later time.')
+      return
+    }
     const clash = dayBookings.find((b) => overlaps(start_time, end_time, b.start_time, b.end_time))
     if (clash) {
       setRequestError(`This time is already booked (${formatTimeLabel(clash.start_time.slice(0, 5))}–${formatTimeLabel(clash.end_time.slice(0, 5))}), please choose another time`)
@@ -330,6 +348,10 @@ export default function PublicAvailability() {
       : selectedPackage.label
 
     setRequestSaving(true)
+    // total_amount is deliberately NOT sent — the database computes the
+    // price server-side from the package's hourly rate (see
+    // validate_public_booking in docs/schema.sql), so a tampered client
+    // can't set its own price.
     const { error } = await supabase.from('bookings').insert({
       booking_date: selectedDate,
       start_time,
@@ -338,7 +360,6 @@ export default function PublicAvailability() {
       client_phone,
       package_name: packageName,
       package_id: selectedPackage.id,
-      total_amount: priceInfo ? priceInfo.total : null,
       status: 'pending',
     })
     setRequestSaving(false)
@@ -354,8 +375,16 @@ export default function PublicAvailability() {
 
     setRequestOpen(false)
     setRequestForm(emptyRequestForm)
+    setLastRequest({
+      dateKey: selectedDate,
+      start: start_time,
+      end: end_time,
+      packageLabel: selectedPackage.label,
+      total: priceInfo ? priceInfo.total : null,
+      advance: priceInfo ? priceInfo.advance : null,
+    })
     setRequestSuccess(
-      "Your request has been sent. We'll contact you shortly to confirm the booking. Message us on WhatsApp if you need to change the date/time."
+      "Your request has been sent. We'll contact you shortly to confirm the booking."
     )
     loadBookings()
   }
@@ -365,17 +394,14 @@ export default function PublicAvailability() {
       {error && (
         <div className="flex items-start gap-2 mb-4 text-sm text-clay bg-clay/10 border border-clay/20 rounded-lg px-3.5 py-3">
           <IconAlert className="h-4 w-4 shrink-0 mt-0.5" />
-          <div>
-            <p>Could not load bookings. Please try again.</p>
-            <p className="text-xs text-clay/70 mt-1">Details: {error}</p>
-          </div>
+          <p>Could not load bookings. Please check your connection and try again.</p>
         </div>
       )}
 
       {/* Opening Hours strip */}
       <div className="bg-pine/5 border-y border-[#E0E0E0] py-1.5 mb-1.5 -mx-4 px-4">
         <p className="text-center text-xs font-semibold text-[#333333]/70">
-          Opening Hours: {DAY_START_HOUR} AM – {DAY_END_HOUR - 12} PM
+          Opening Hours: {formatTimeLabel(`${String(DAY_START_HOUR).padStart(2, '0')}:00`)} – {formatTimeLabel(`${String(DAY_END_HOUR).padStart(2, '0')}:00`)}
         </p>
       </div>
 
@@ -437,11 +463,25 @@ export default function PublicAvailability() {
 
             const ringClasses = isSelected ? 'ring-2 ring-ink ring-offset-1' : ''
 
+            const statusText = isOffDay
+              ? 'studio closed'
+              : dayStatus === 'full'
+              ? 'fully booked'
+              : dayStatus === 'partial'
+              ? 'partially booked'
+              : 'available'
+
             return (
               <button
                 key={key}
-                onClick={() => setSelectedDate(key)}
+                onClick={() => {
+                  setSelectedDate(key)
+                  setRequestSuccess('')
+                  setLastRequest(null)
+                }}
                 disabled={isPast}
+                aria-label={`${d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}, ${statusText}`}
+                aria-pressed={isSelected}
                 className={`flex items-center justify-center rounded-md py-1.5 border font-sans font-semibold text-xs transition-all ${fillClasses} ${ringClasses}`}
               >
                 {d.getDate()}
@@ -525,10 +565,56 @@ export default function PublicAvailability() {
           {loading ? (
                 <p className="text-sm text-[#333333]/50 py-6 text-center">Loading…</p>
               ) : isSelectedPast ? null : requestSuccess ? (
-                <p className="flex items-start gap-2 text-sm text-pine bg-pine/5 border border-pine/20 rounded-lg px-3.5 py-3">
-                  <IconCheckCircle className="h-4 w-4 shrink-0 mt-0.5" />
-                  {requestSuccess}
-                </p>
+                <div>
+                  <p className="flex items-start gap-2 text-sm text-pine bg-pine/5 border border-pine/20 rounded-lg px-3.5 py-3 mb-2.5">
+                    <IconCheckCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                    {requestSuccess}
+                  </p>
+                  {lastRequest && (
+                    <div className="rounded-lg bg-white border border-[#E0E0E0]/70 px-3.5 py-2.5 text-xs text-[#333333]/75 space-y-1 mb-2.5">
+                      <p className="text-[11px] uppercase tracking-wide font-semibold text-[#333333]/50">Your Request</p>
+                      <p>
+                        <span className="font-semibold text-[#333333]">
+                          {fromDateKey(lastRequest.dateKey).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}
+                        </span>
+                        , {formatTimeLabel(lastRequest.start)} – {formatTimeLabel(lastRequest.end)}
+                      </p>
+                      <p>{lastRequest.packageLabel}</p>
+                      {lastRequest.total != null && (
+                        <p>
+                          Total <span className="font-semibold text-[#333333]">{lastRequest.total} Tk</span> · Advance ({ADVANCE_PERCENT}%){' '}
+                          <span className="font-semibold text-clay">{lastRequest.advance} Tk</span>
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  {lastRequest && lastRequest.advance != null && (
+                    <div className="rounded-lg bg-clay/5 border border-clay/20 px-3.5 py-2.5 text-xs text-[#333333]/75 space-y-1 mb-2.5">
+                      <p className="text-[11px] uppercase tracking-wide font-semibold text-clay">
+                        Pay the {lastRequest.advance} Tk advance to confirm
+                      </p>
+                      <p>
+                        bKash / Nagad (Send Money): <span className="font-semibold text-[#333333]">{PAYMENT_INFO.mobileBankingNumber}</span> ({PAYMENT_INFO.mobileBankingType})
+                      </p>
+                      <p>
+                        Bank: {PAYMENT_INFO.bank.accountName}, A/C {PAYMENT_INFO.bank.accountNumber}, {PAYMENT_INFO.bank.bankName}, {PAYMENT_INFO.bank.branchName} Branch
+                      </p>
+                    </div>
+                  )}
+                  <a
+                    href={buildWhatsAppLink(
+                      lastRequest
+                        ? `Hello, I just sent a booking request at 4R Studio. Date: ${fromDateKey(lastRequest.dateKey).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}, Time: ${formatTimeLabel(lastRequest.start)} – ${formatTimeLabel(lastRequest.end)}, Package: ${lastRequest.packageLabel}.${lastRequest.advance != null ? ` I am sending the ${lastRequest.advance} Tk advance payment proof.` : ''}`
+                        : whatsAppMessage
+                    )}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center justify-center gap-2 text-center bg-[#25D366] text-white rounded-lg py-2.5 text-sm font-semibold shadow-sm"
+                  >
+                    <IconMessage className="h-4 w-4" />
+                    Send Payment Proof on WhatsApp
+                  </a>
+                </div>
               ) : (
                 <form onSubmit={handleSubmitRequest} className="border border-[#E0E0E0]/70 rounded-xl p-4 bg-[#F9F7F2]/60">
                   <p className="text-base font-bold text-[#333333] mb-3">Booking Request</p>
@@ -559,6 +645,7 @@ export default function PublicAvailability() {
                         <select
                           value={requestForm.start_time}
                           onChange={(e) => setRequestForm({ ...requestForm, start_time: e.target.value })}
+                          aria-label="Start time"
                           className={inputClass()}
                         >
                           <option value="">From</option>
@@ -569,6 +656,7 @@ export default function PublicAvailability() {
                         <select
                           value={requestForm.end_time}
                           onChange={(e) => setRequestForm({ ...requestForm, end_time: e.target.value })}
+                          aria-label="End time"
                           className={inputClass()}
                         >
                           <option value="">To</option>
@@ -631,6 +719,9 @@ export default function PublicAvailability() {
                             <input
                               type="text"
                               placeholder="Your name"
+                              aria-label="Your name"
+                              autoComplete="name"
+                              maxLength={100}
                               value={requestForm.client_name}
                               onChange={(e) => setRequestForm({ ...requestForm, client_name: e.target.value })}
                               className={inputClass()}
@@ -638,6 +729,10 @@ export default function PublicAvailability() {
                             <input
                               type="tel"
                               placeholder="Phone number"
+                              aria-label="Phone number"
+                              autoComplete="tel"
+                              inputMode="tel"
+                              maxLength={20}
                               value={requestForm.client_phone}
                               onChange={(e) => setRequestForm({ ...requestForm, client_phone: e.target.value })}
                               className={inputClass()}
@@ -745,6 +840,10 @@ export default function PublicAvailability() {
         Your booking request will be confirmed shortly. Your details remain private. For any changes, please{' '}
         <a href={buildWhatsAppLink(whatsAppMessage)} target="_blank" rel="noreferrer" className="underline text-[#333333]/60 hover:text-[#333333]">
           Contact on WhatsApp
+        </a>{' '}
+        or call{' '}
+        <a href="tel:+8801335254627" className="underline text-[#333333]/60 hover:text-[#333333] whitespace-nowrap">
+          +880 1335-254627
         </a>
         .
       </p>

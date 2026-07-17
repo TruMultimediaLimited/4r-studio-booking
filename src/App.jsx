@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import PublicAvailability from './components/PublicAvailability.jsx'
-import AdminPanel from './components/AdminPanel.jsx'
 import MyBookingsModal from './components/MyBookingsModal.jsx'
+
+// The admin panel is staff-only; keep it out of the public visitors' bundle.
+const AdminPanel = lazy(() => import('./components/AdminPanel.jsx'))
 import { FACEBOOK_URL, INSTAGRAM_URL, MAP_URL } from './lib/packages.js'
 import { IconCalendar, IconMapPin, IconFacebook, IconInstagram } from './components/icons.jsx'
 
@@ -34,6 +36,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen font-body bg-[#F9F7F2]">
+      <h1 className="sr-only">4R Studio — Photography &amp; Videography Studio Rental in Aftabnagar, Dhaka</h1>
       <header className="border-b border-[#E0E0E0] bg-[#F9F7F2]/95 sticky top-0 z-20 backdrop-blur">
         {isAdmin ? (
           <div className="font-sans max-w-5xl mx-auto px-4 py-3 grid grid-cols-3 items-center gap-1.5">
@@ -74,7 +77,13 @@ export default function App() {
       </header>
 
       <main className={`max-w-5xl mx-auto px-4 ${isAdmin ? 'py-6' : 'pt-1.5 pb-6'}`}>
-        {isAdmin ? <AdminPanel /> : <PublicAvailability />}
+        {isAdmin ? (
+          <Suspense fallback={<p className="font-sans text-sm text-[#333333]/40 py-12 text-center">Loading…</p>}>
+            <AdminPanel />
+          </Suspense>
+        ) : (
+          <PublicAvailability />
+        )}
       </main>
 
       {myBookingsOpen && <MyBookingsModal onClose={() => setMyBookingsOpen(false)} />}
