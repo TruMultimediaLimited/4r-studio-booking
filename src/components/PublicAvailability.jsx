@@ -233,6 +233,7 @@ export default function PublicAvailability() {
   const todayKey = toDateKey(new Date())
   const isSelectedPast = selectedDate && selectedDate < todayKey
   const isSelectedDayFull = selectedDate ? (bookingsByDate[selectedDate] || 0) >= totalMinutes : false
+  const isCollapsedDayView = !loading && !isSelectedPast && !requestSuccess && !requestOpen
 
   const selectedPackage = PACKAGES.find((p) => p.id === selectedPackageId) || null
 
@@ -469,37 +470,49 @@ export default function PublicAvailability() {
       {!selectedDate ? (
         <p className="text-sm text-ink/50 py-6 text-center">Select a date</p>
       ) : (
-        <div className="bg-white border border-mist/70 shadow-sm rounded-xl p-4">
-          <p className="text-lg font-bold text-ink mb-3 flex items-center gap-2">
-            <IconCalendar className="h-4 w-4 text-pine" />
-            {fromDateKey(selectedDate).toLocaleDateString('en-GB', {
-              weekday: 'long',
-              day: 'numeric',
-              month: 'long',
-            })}
-          </p>
-
-          {loading ? (
-            <p className="text-sm text-ink/50 py-6 text-center">Loading…</p>
+        <div className="bg-white border border-mist/70 shadow-sm rounded-xl p-2.5">
+          {isCollapsedDayView ? (
+            <div className="flex items-center justify-between gap-2">
+              <p className="flex items-center gap-1.5 text-sm font-bold text-ink truncate">
+                <IconCalendar className="h-3.5 w-3.5 text-pine shrink-0" />
+                <span className="truncate">
+                  {fromDateKey(selectedDate).toLocaleDateString('en-GB', {
+                    weekday: 'short',
+                    day: 'numeric',
+                    month: 'short',
+                  })}
+                </span>
+              </p>
+              <button
+                onClick={openRequestForm}
+                disabled={isSelectedDayFull}
+                className={`shrink-0 rounded-lg px-4 py-1.5 text-sm font-semibold transition-all ${
+                  isSelectedDayFull
+                    ? 'bg-mist/40 text-ink/35 cursor-not-allowed shadow-none'
+                    : 'bg-pine text-paper shadow-sm hover:opacity-95'
+                }`}
+              >
+                {isSelectedDayFull ? 'Fully Booked' : 'Book this slot'}
+              </button>
+            </div>
           ) : (
-            <div>
-              {isSelectedPast ? null : requestSuccess ? (
+            <>
+              <p className="text-sm font-bold text-ink mb-2 flex items-center gap-1.5">
+                <IconCalendar className="h-3.5 w-3.5 text-pine" />
+                {fromDateKey(selectedDate).toLocaleDateString('en-GB', {
+                  weekday: 'long',
+                  day: 'numeric',
+                  month: 'long',
+                })}
+              </p>
+
+              {loading ? (
+                <p className="text-sm text-ink/50 py-6 text-center">Loading…</p>
+              ) : isSelectedPast ? null : requestSuccess ? (
                 <p className="flex items-start gap-2 text-sm text-pine bg-pine/5 border border-pine/20 rounded-lg px-3.5 py-3">
                   <IconCheckCircle className="h-4 w-4 shrink-0 mt-0.5" />
                   {requestSuccess}
                 </p>
-              ) : !requestOpen ? (
-                <button
-                  onClick={openRequestForm}
-                  disabled={isSelectedDayFull}
-                  className={`w-full rounded-lg py-3 font-semibold transition-all ${
-                    isSelectedDayFull
-                      ? 'bg-mist/40 text-ink/35 cursor-not-allowed shadow-none'
-                      : 'bg-pine text-paper shadow-sm hover:opacity-95'
-                  }`}
-                >
-                  {isSelectedDayFull ? 'Fully Booked' : 'Book this slot'}
-                </button>
               ) : (
                 <form onSubmit={handleSubmitRequest} className="border border-mist/70 rounded-xl p-4 bg-paper/40">
                   <p className="text-base font-bold text-ink mb-3">Booking Request</p>
@@ -690,7 +703,7 @@ export default function PublicAvailability() {
                   )}
                 </form>
               )}
-            </div>
+            </>
           )}
         </div>
       )}
