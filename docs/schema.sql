@@ -81,8 +81,14 @@ create policy "authenticated update bookings"
   using (true)
   with check (true);
 
--- No DELETE policy exists at all -> nobody can delete rows via the API, by anyone,
--- ever. Cancellation/rejection is the only removal path, and it's an UPDATE.
+-- Staff may permanently delete a booking, but ONLY once it's already
+-- cancelled — this lets staff clear out test/junk rows from the admin
+-- panel without ever being able to destroy an active pending/confirmed
+-- booking by mistake. Cancelling (an UPDATE) is always required first.
+create policy "authenticated delete cancelled bookings"
+  on public.bookings for delete
+  to authenticated
+  using (status = 'cancelled');
 
 -- Anon needs to read non-cancelled rows too, but ONLY through the public_bookings
 -- view below (security_invoker = true makes the view apply this exact policy).
@@ -108,6 +114,9 @@ grant select, insert on public.bookings to authenticated;
 -- booking's date/time/client/package details from the admin panel.
 grant update (booking_date, start_time, end_time, client_name, client_phone, package_name, status)
   on public.bookings to authenticated;
+-- Staff can permanently delete a booking; the DELETE policy above still
+-- restricts this to rows that are already status = 'cancelled'.
+grant delete on public.bookings to authenticated;
 
 -- Anon: only the columns the public page needs to read, nothing else.
 grant select (id, booking_date, start_time, end_time, status) on public.bookings to anon;

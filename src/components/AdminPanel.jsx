@@ -15,6 +15,7 @@ import {
   IconUser,
   IconTag,
   IconInbox,
+  IconTrash,
 } from './icons.jsx'
 
 const TIME_OPTIONS = generateTimeOptions()
@@ -125,6 +126,7 @@ function BookingRow({
   onConfirm,
   onReject,
   onCancel,
+  onDelete,
 }) {
   return (
     <li className={`bg-white border rounded-2xl overflow-hidden text-sm shadow-sm ${b.status === 'pending' ? 'border-clay/30' : 'border-mist/70'}`}>
@@ -195,6 +197,14 @@ function BookingRow({
                     className="flex items-center justify-center gap-1 flex-1 border border-mist rounded-lg py-1.5 text-xs font-medium text-ink/70"
                   >
                     <IconEdit className="h-3.5 w-3.5" /> এডিট
+                  </button>
+                )}
+                {b.status === 'cancelled' && (
+                  <button
+                    onClick={onDelete}
+                    className="flex items-center justify-center gap-1 flex-1 border border-clay/30 text-clay rounded-lg py-1.5 text-xs font-medium"
+                  >
+                    <IconTrash className="h-3.5 w-3.5" /> স্থায়ীভাবে মুছুন
                   </button>
                 )}
               </div>
@@ -461,6 +471,12 @@ export default function AdminPanel() {
     loadBookings()
   }
 
+  async function handleHardDelete(id) {
+    if (!confirm('এই বুকিং একদম স্থায়ীভাবে মুছে ফেলবেন? এটা আর ফিরিয়ে আনা যাবে না।')) return
+    await supabase.from('bookings').delete().eq('id', id)
+    loadBookings()
+  }
+
   function bookingRowProps(b) {
     const isEditing = editingId === b.id
     return {
@@ -478,6 +494,7 @@ export default function AdminPanel() {
       onConfirm: () => handleConfirm(b.id),
       onReject: () => handleReject(b.id),
       onCancel: () => handleCancel(b.id),
+      onDelete: () => handleHardDelete(b.id),
     }
   }
 
