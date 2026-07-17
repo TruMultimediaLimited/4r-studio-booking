@@ -343,12 +343,15 @@ export default function PublicAvailability() {
         </div>
       )}
 
-      <p className="text-center text-sm font-semibold text-[#333333]/70 mb-2">
-        Opening Hours: {DAY_START_HOUR} AM – {DAY_END_HOUR - 12} PM
-      </p>
+      {/* Opening Hours strip */}
+      <div className="bg-pine/5 border-y border-[#E0E0E0] py-2 mb-3 -mx-4 px-4">
+        <p className="text-center text-sm font-semibold text-[#333333]/70">
+          Opening Hours: {DAY_START_HOUR} AM – {DAY_END_HOUR - 12} PM
+        </p>
+      </div>
 
       {/* Month calendar card */}
-      <div className="bg-white rounded-xl border border-[#E0E0E0]/70 shadow-sm p-4 mb-3">
+      <div className="bg-white rounded-xl border border-[#E0E0E0]/70 shadow-sm p-3 mb-3">
         <div className="flex items-center justify-between mb-2">
           <button
             onClick={() => {
@@ -356,11 +359,11 @@ export default function PublicAvailability() {
               setSelectedDate(null)
             }}
             aria-label="Previous month"
-            className="flex items-center justify-center h-8 w-8 rounded-full text-[#333333]/60 hover:bg-mist/40 hover:text-[#333333] transition-colors"
+            className="flex items-center justify-center h-7 w-7 rounded-full text-[#333333]/60 hover:bg-mist/40 hover:text-[#333333] transition-colors"
           >
             <IconChevronLeft className="h-4 w-4" />
           </button>
-          <p className="text-base font-semibold text-[#333333] flex items-center gap-1.5">
+          <p className="text-sm font-semibold text-[#333333] flex items-center gap-1.5">
             <IconCalendar className="h-4 w-4 text-pine" />
             {monthStart.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
           </p>
@@ -370,7 +373,7 @@ export default function PublicAvailability() {
               setSelectedDate(null)
             }}
             aria-label="Next month"
-            className="flex items-center justify-center h-8 w-8 rounded-full text-[#333333]/60 hover:bg-mist/40 hover:text-[#333333] transition-colors"
+            className="flex items-center justify-center h-7 w-7 rounded-full text-[#333333]/60 hover:bg-mist/40 hover:text-[#333333] transition-colors"
           >
             <IconChevronRight className="h-4 w-4" />
           </button>
@@ -412,7 +415,7 @@ export default function PublicAvailability() {
                 key={key}
                 onClick={() => setSelectedDate(key)}
                 disabled={isPast}
-                className={`flex items-center justify-center rounded-md py-2 border font-sans font-semibold text-sm transition-all ${fillClasses} ${ringClasses}`}
+                className={`flex items-center justify-center rounded-md py-1.5 border font-sans font-semibold text-xs transition-all ${fillClasses} ${ringClasses}`}
               >
                 {d.getDate()}
               </button>
@@ -434,8 +437,8 @@ export default function PublicAvailability() {
       </div>
 
       {/* Package selector */}
-      <p className="text-xs uppercase tracking-wide text-[#333333]/55 font-semibold mb-1.5 px-0.5">Choose a Package</p>
-      <div className="grid gap-2 mb-3">
+      <p className="inline-block bg-mist/50 rounded-md text-xs uppercase tracking-wide text-[#333333]/80 font-semibold mb-2 px-2.5 py-1">Choose a Package</p>
+      <div className="grid gap-3 mb-3">
         {PACKAGES.map((p) => {
           const isSelected = selectedPackageId === p.id
           const Icon = PACKAGE_ICONS[p.id] || IconMessage
@@ -446,7 +449,7 @@ export default function PublicAvailability() {
               className={`flex items-center gap-3 rounded-lg px-3.5 py-2.5 border text-left transition-all ${
                 isSelected
                   ? 'bg-pine border-pine text-white shadow-sm'
-                  : 'bg-white border-[#E0E0E0]/70 text-[#333333] shadow-sm hover:border-pine/40'
+                  : 'bg-white border-[#E0E0E0] text-[#333333] shadow-sm hover:border-pine/40'
               }`}
             >
               <span
@@ -469,44 +472,42 @@ export default function PublicAvailability() {
       {/* Day detail */}
       {!selectedDate ? (
         <p className="text-sm text-[#333333]/50 py-6 text-center">Select a date</p>
+      ) : isCollapsedDayView ? (
+        <div className="flex items-center gap-2">
+          <div className="flex-1 min-w-0 bg-white border border-[#E0E0E0] rounded-lg px-3.5 py-2.5 flex items-center gap-1.5">
+            <IconCalendar className="h-3.5 w-3.5 text-pine shrink-0" />
+            <span className="truncate text-sm font-semibold text-[#333333]">
+              {fromDateKey(selectedDate).toLocaleDateString('en-GB', {
+                weekday: 'short',
+                day: 'numeric',
+                month: 'short',
+              })}
+            </span>
+          </div>
+          <button
+            onClick={openRequestForm}
+            disabled={isSelectedDayFull}
+            className={`shrink-0 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all ${
+              isSelectedDayFull
+                ? 'bg-mist/40 text-[#333333]/35 cursor-not-allowed shadow-none'
+                : 'bg-pine text-white shadow-sm hover:opacity-95'
+            }`}
+          >
+            {isSelectedDayFull ? 'Fully Booked' : 'Book this slot'}
+          </button>
+        </div>
       ) : (
         <div className="bg-white border border-[#E0E0E0]/70 shadow-sm rounded-xl p-2.5">
-          {isCollapsedDayView ? (
-            <div className="flex items-center justify-between gap-2">
-              <p className="flex items-center gap-1.5 text-sm font-bold text-[#333333] truncate">
-                <IconCalendar className="h-3.5 w-3.5 text-pine shrink-0" />
-                <span className="truncate">
-                  {fromDateKey(selectedDate).toLocaleDateString('en-GB', {
-                    weekday: 'short',
-                    day: 'numeric',
-                    month: 'short',
-                  })}
-                </span>
-              </p>
-              <button
-                onClick={openRequestForm}
-                disabled={isSelectedDayFull}
-                className={`shrink-0 rounded-lg px-4 py-1.5 text-sm font-semibold transition-all ${
-                  isSelectedDayFull
-                    ? 'bg-mist/40 text-[#333333]/35 cursor-not-allowed shadow-none'
-                    : 'bg-pine text-white shadow-sm hover:opacity-95'
-                }`}
-              >
-                {isSelectedDayFull ? 'Fully Booked' : 'Book this slot'}
-              </button>
-            </div>
-          ) : (
-            <>
-              <p className="text-sm font-bold text-[#333333] mb-2 flex items-center gap-1.5">
-                <IconCalendar className="h-3.5 w-3.5 text-pine" />
-                {fromDateKey(selectedDate).toLocaleDateString('en-GB', {
-                  weekday: 'long',
-                  day: 'numeric',
-                  month: 'long',
-                })}
-              </p>
+          <p className="text-sm font-bold text-[#333333] mb-2 flex items-center gap-1.5">
+            <IconCalendar className="h-3.5 w-3.5 text-pine" />
+            {fromDateKey(selectedDate).toLocaleDateString('en-GB', {
+              weekday: 'long',
+              day: 'numeric',
+              month: 'long',
+            })}
+          </p>
 
-              {loading ? (
+          {loading ? (
                 <p className="text-sm text-[#333333]/50 py-6 text-center">Loading…</p>
               ) : isSelectedPast ? null : requestSuccess ? (
                 <p className="flex items-start gap-2 text-sm text-pine bg-pine/5 border border-pine/20 rounded-lg px-3.5 py-3">
@@ -703,8 +704,6 @@ export default function PublicAvailability() {
                   )}
                 </form>
               )}
-            </>
-          )}
         </div>
       )}
 
