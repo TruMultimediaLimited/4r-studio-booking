@@ -12,10 +12,10 @@ function HeaderCard({ href, onClick, icon: Icon, label }) {
   return (
     <Tag
       {...linkProps}
-      className="flex items-center justify-center gap-1 w-20 bg-white border border-[#E0E0E0] rounded-lg px-1.5 py-1 shadow-sm hover:border-pine/40 hover:bg-pine/5 hover:shadow-md transition-all"
+      className="flex items-center justify-center gap-1.5 w-24 bg-white border border-[#E0E0E0] rounded-lg px-2 py-1.5 shadow-sm hover:border-pine/40 hover:bg-pine/5 hover:shadow-md transition-all"
     >
-      <Icon className="h-2.5 w-2.5 text-pine shrink-0" />
-      <span className="text-[9px] font-medium text-[#333333]/75 whitespace-nowrap">{label}</span>
+      <Icon className="h-3.5 w-3.5 text-pine shrink-0" />
+      <span className="text-[11px] font-medium text-[#333333]/75 whitespace-nowrap">{label}</span>
     </Tag>
   )
 }
@@ -50,19 +50,19 @@ export default function App() {
             </a>
           </div>
         ) : (
-          <div className="font-sans max-w-5xl mx-auto px-4 py-1.5 grid grid-cols-3 items-center gap-1.5">
-            <div className="flex flex-col items-start gap-1 min-w-0">
+          <div className="font-sans max-w-5xl mx-auto px-4 py-3 grid grid-cols-3 items-center gap-1.5">
+            <div className="flex flex-col items-start gap-1.5 min-w-0">
               <HeaderCard href={FACEBOOK_URL} icon={IconFacebook} label="Facebook" />
               <HeaderCard href={INSTAGRAM_URL} icon={IconInstagram} label="Instagram" />
             </div>
 
             <div className="flex items-center justify-center min-w-0">
-              <div className="bg-white border border-[#E0E0E0] rounded-lg shadow-sm px-2.5 py-1">
-                <img src="/logo.png" alt="4R Studio" className="h-8 w-auto" />
+              <div className="bg-white border border-[#E0E0E0] rounded-lg shadow-sm px-3.5 py-2">
+                <img src="/logo.png" alt="4R Studio" className="h-12 w-auto" />
               </div>
             </div>
 
-            <div className="flex flex-col items-end gap-1 min-w-0">
+            <div className="flex flex-col items-end gap-1.5 min-w-0">
               <HeaderCard onClick={() => setMyBookingsOpen(true)} icon={IconCalendar} label="My Bookings" />
               <HeaderCard href={MAP_URL} icon={IconMapPin} label="Location" />
             </div>

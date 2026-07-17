@@ -438,7 +438,7 @@ export default function PublicAvailability() {
 
       {/* Package selector */}
       <p className="inline-block bg-mist/50 rounded-md text-xs uppercase tracking-wide text-[#333333]/80 font-semibold mb-1.5 px-2.5 py-1">Choose a Package</p>
-      <div className="grid gap-2 mb-2">
+      <div className="grid gap-1.5 mb-2">
         {PACKAGES.map((p) => {
           const isSelected = selectedPackageId === p.id
           const Icon = PACKAGE_ICONS[p.id] || IconMessage
@@ -446,18 +446,18 @@ export default function PublicAvailability() {
             <button
               key={p.id}
               onClick={() => setSelectedPackageId(p.id)}
-              className={`flex items-center gap-2.5 rounded-lg px-3 py-2 border text-left transition-all ${
+              className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 border text-left transition-all ${
                 isSelected
                   ? 'bg-pine border-pine text-white shadow-sm'
                   : 'bg-white border-[#E0E0E0] text-[#333333] shadow-sm hover:border-pine/40'
               }`}
             >
               <span
-                className={`flex items-center justify-center h-7 w-7 rounded-full shrink-0 ${
+                className={`flex items-center justify-center h-6 w-6 rounded-full shrink-0 ${
                   isSelected ? 'bg-white/15 text-white' : 'bg-pine/10 text-pine'
                 }`}
               >
-                <Icon className="h-3 w-3" />
+                <Icon className="h-2.5 w-2.5" />
               </span>
               <span className={`flex-1 text-xs font-semibold ${isSelected ? 'text-white' : 'text-[#333333]'}`}>{p.label}</span>
               <span className={`text-[10px] font-medium shrink-0 ${isSelected ? 'text-white/70' : 'text-[#333333]/55'}`}>
