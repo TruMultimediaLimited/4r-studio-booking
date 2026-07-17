@@ -4,6 +4,7 @@ import AdminPanel from './components/AdminPanel.jsx'
 import MyBookingsModal from './components/MyBookingsModal.jsx'
 import { FACEBOOK_URL, INSTAGRAM_URL, MAP_URL } from './lib/packages.js'
 import { IconCalendar, IconMapPin, IconFacebook, IconInstagram } from './components/icons.jsx'
+import { BUSINESS_START_HOUR, BUSINESS_END_HOUR } from './lib/time.js'
 
 function HeaderCard({ href, onClick, icon: Icon, label }) {
   const isLink = Boolean(href)
@@ -60,6 +61,13 @@ export default function App() {
               <HeaderCard onClick={() => setMyBookingsOpen(true)} icon={IconCalendar} label="My Bookings" />
               <HeaderCard href={MAP_URL} icon={IconMapPin} label="Location" />
             </div>
+          </div>
+        )}
+        {!isAdmin && (
+          <div className="border-t border-mist/60 py-1">
+            <p className="text-center text-[10px] font-semibold text-ink/50">
+              Opening Hours: {BUSINESS_START_HOUR} AM – {BUSINESS_END_HOUR - 12} PM
+            </p>
           </div>
         )}
       </header>
