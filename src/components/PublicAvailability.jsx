@@ -696,21 +696,26 @@ export default function PublicAvailability() {
       )}
 
       <section className="mt-6 pt-4 border-t border-mist/60">
-        <h2 className="font-display text-base font-semibold text-ink mb-1.5">
-          Why Choose 4R Studio for Your Photoshoot?
+        <h2 className="text-lg font-bold text-ink mb-1.5">
+          Why Choose 4R Studio?
         </h2>
-        <p className="text-xs text-ink/60 leading-relaxed">
-          4R Studio is your go-to space for professional photography and videography in Aftabnagar, Dhaka.
-          Offering premium studio rental services with top-tier equipment, we cater to all your creative needs.
-          If you are looking for a reliable studio rental in Aftabnagar, 4R Studio provides the perfect
-          environment for your brand productions and creative projects. We are open 7 days a week to serve
-          you with the best studio rental experience in Aftabnagar, Dhaka.
+        <p className="text-sm font-bold text-ink/80 leading-relaxed mb-1.5">
+          4R Studio offers premium studio rental in Aftabnagar, Dhaka. Open 7 days a week, we provide a
+          professional space for:
+        </p>
+        <ul className="text-sm font-bold text-ink/80 leading-relaxed list-disc list-inside mb-1.5 space-y-0.5">
+          <li>Fashion Photography & Product Photography.</li>
+          <li>Videography, Commercial Productions & Content Creation.</li>
+          <li>Professional Podcast Recording.</li>
+        </ul>
+        <p className="text-sm font-bold text-ink/80 leading-relaxed">
+          With premium equipment and a creative environment, 4R Studio helps brands, businesses, and
+          creators bring their ideas to life.
         </p>
       </section>
 
       <p className="text-xs text-ink/40 mt-5 text-center leading-relaxed">
-        We'll contact you to confirm your booking after you send a request. Client names aren't shown publicly on this page.
-        Message us on WhatsApp if you need to change the date/time:{' '}
+        Your booking request will be confirmed shortly. Your details remain private. For any changes, please{' '}
         <a href={buildWhatsAppLink(whatsAppMessage)} target="_blank" rel="noreferrer" className="underline text-ink/60 hover:text-ink">
           Contact on WhatsApp
         </a>
