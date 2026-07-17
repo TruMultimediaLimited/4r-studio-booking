@@ -324,3 +324,118 @@ create policy "authenticated read status log" on public.booking_status_log for s
 create policy "authenticated insert status log" on public.booking_status_log for insert to authenticated with check (true);
 
 grant select, insert on public.booking_status_log to authenticated;
+
+-- ============================================================
+-- Security-hardening migration (Follow-up: site audit)
+--
+-- ADDITIVE and safe to run once on the live database. Everything the
+-- public booking form used to enforce only in the browser is now also
+-- enforced here, because anyone can call the Supabase REST API directly
+-- with the anon key and skip the React validation entirely.
+-- ============================================================
+
+-- The client no longer sends total_amount; the trigger below computes it
+-- from the package's hourly rate so a malicious client can't set its own
+-- price (e.g. an 8-hour booking with total_amount = 1).
+revoke insert (total_amount) on public.bookings from anon;
+
+-- Validates every public (pending) booking request server-side. Staff
+-- rows (status 'confirmed') are trusted and skipped, so the admin panel
+-- keeps full flexibility (backfilling past dates, off-day shoots, etc.).
+create or replace function public.validate_public_booking()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_today date := (now() at time zone 'Asia/Dhaka')::date;
+  v_now_time time := (now() at time zone 'Asia/Dhaka')::time;
+  v_start_hour int;
+  v_end_hour int;
+  v_rate numeric;
+  v_count int;
+begin
+  if new.status <> 'pending' then
+    return new;
+  end if;
+
+  -- Normalize + validate phone (same rule as the client: BD mobile,
+  -- optional +880/880 country code instead of the leading 0).
+  new.client_phone := regexp_replace(coalesce(new.client_phone, ''), '[\s-]', '', 'g');
+  if new.client_phone !~ '^(\+?880|0)1[3-9][0-9]{8}$' then
+    raise exception 'Please enter a valid Bangladeshi phone number';
+  end if;
+
+  new.client_name := btrim(coalesce(new.client_name, ''));
+  if char_length(new.client_name) < 2 or char_length(new.client_name) > 100 then
+    raise exception 'Please enter a valid name';
+  end if;
+  if new.package_name is not null and char_length(new.package_name) > 200 then
+    raise exception 'Invalid package';
+  end if;
+
+  -- Date sanity: today through one year ahead, Bangladesh time.
+  if new.booking_date < v_today or new.booking_date > v_today + 365 then
+    raise exception 'Invalid booking date';
+  end if;
+  if new.booking_date = v_today and new.start_time <= v_now_time then
+    raise exception 'This time has already passed';
+  end if;
+
+  -- Off-days are not bookable by the public.
+  if exists (select 1 from public.off_days d where d.off_date = new.booking_date) then
+    raise exception 'The studio is closed on this date';
+  end if;
+
+  -- Must fall within opening hours.
+  select business_start_hour, business_end_hour
+    into v_start_hour, v_end_hour
+    from public.studio_settings limit 1;
+  if found and (
+       new.start_time < make_time(v_start_hour, 0, 0)
+       or new.end_time > make_time(v_end_hour, 0, 0)
+     ) then
+    raise exception 'Outside opening hours';
+  end if;
+
+  -- Abuse limits: pending requests hold their slot (the exclusion
+  -- constraint blocks overlaps), so without a cap one person could
+  -- "reserve" the whole calendar with fake requests.
+  select count(*) into v_count
+    from public.bookings b
+    where b.status = 'pending'
+      and right(regexp_replace(b.client_phone, '\D', '', 'g'), 10)
+        = right(regexp_replace(new.client_phone, '\D', '', 'g'), 10);
+  if v_count >= 3 then
+    raise exception 'You already have pending requests — please wait for confirmation or contact us on WhatsApp';
+  end if;
+
+  select count(*) into v_count
+    from public.bookings b
+    where b.status = 'pending'
+      and b.created_at > now() - interval '1 hour';
+  if v_count >= 20 then
+    raise exception 'Too many requests right now, please try again in a little while';
+  end if;
+
+  -- Server-side price: computed from the package's live hourly rate,
+  -- never taken from the client.
+  new.total_amount := null;
+  if new.package_id is not null then
+    select hourly_rate into v_rate
+      from public.packages
+      where id = new.package_id and is_active;
+    if v_rate is not null then
+      new.total_amount := round(v_rate * (extract(epoch from (new.end_time - new.start_time)) / 3600.0));
+    end if;
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists validate_public_booking_trg on public.bookings;
+create trigger validate_public_booking_trg
+  before insert on public.bookings
+  for each row execute function public.validate_public_booking();

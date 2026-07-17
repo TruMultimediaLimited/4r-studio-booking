@@ -20,7 +20,6 @@ import {
   IconCheckCircle,
 } from './icons.jsx'
 
-const TIME_OPTIONS = generateTimeOptions()
 const HOUR_OPTIONS = Array.from({ length: 24 }, (_, h) => ({
   value: h,
   label: formatTimeLabel(`${String(h).padStart(2, '0')}:00`),
@@ -73,7 +72,7 @@ function StatusBadge({ status }) {
   )
 }
 
-function BookingEditForm({ editForm, onChange, editError, editSaving, onSave, onCancel }) {
+function BookingEditForm({ timeOptions: TIME_OPTIONS, editForm, onChange, editError, editSaving, onSave, onCancel }) {
   return (
     <div className="space-y-2.5">
       <input
@@ -148,6 +147,7 @@ function BookingEditForm({ editForm, onChange, editError, editSaving, onSave, on
 
 function BookingRow({
   b,
+  timeOptions,
   dueAmount,
   isExpanded,
   onToggle,
@@ -195,6 +195,7 @@ function BookingRow({
         <div className="px-2.5 pb-2.5 pt-0.5 border-t border-[#E0E0E0]/60">
           {isEditing ? (
             <BookingEditForm
+              timeOptions={timeOptions}
               editForm={editForm}
               onChange={onEditFormChange}
               editError={editError}
@@ -278,8 +279,22 @@ function BookingRow({
 }
 
 function Modal({ title, onClose, children }) {
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
   return (
-    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-[#333333]/40 px-4 py-8 overflow-y-auto" onClick={onClose}>
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+      className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-[#333333]/40 px-4 py-8 overflow-y-auto"
+      onClick={onClose}
+    >
       <div className="font-sans w-full max-w-sm bg-[#F9F7F2] rounded-xl shadow-lg p-5" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-3">
           <p className="text-base font-bold text-[#333333]">{title}</p>
@@ -404,6 +419,7 @@ export default function AdminPanel() {
   const [form, setForm] = useState(emptyForm)
   const [formError, setFormError] = useState('')
   const [saving, setSaving] = useState(false)
+  const [actionError, setActionError] = useState('')
 
   const [expandedIds, setExpandedIds] = useState(() => new Set())
   const [editingId, setEditingId] = useState(null)
@@ -431,6 +447,13 @@ export default function AdminPanel() {
 
   const [hoursForm, setHoursForm] = useState({ start: 9, end: 23 })
   const [hoursSaving, setHoursSaving] = useState(false)
+
+  // Booking time dropdowns follow the studio's live opening hours instead
+  // of the hardcoded defaults.
+  const timeOptions = useMemo(
+    () => generateTimeOptions(Number(hoursForm.start), Number(hoursForm.end)),
+    [hoursForm]
+  )
 
   const [offDays, setOffDays] = useState([])
   const [offDayMonth, setOffDayMonth] = useState(startOfMonth(new Date()))
@@ -609,6 +632,13 @@ export default function AdminPanel() {
     loadStatusLogs()
   }
 
+  // Shared guard for one-tap actions (confirm/cancel/reject/delete/settings):
+  // surfaces the Supabase error instead of silently pretending it worked.
+  function reportActionError(what, error) {
+    setActionError(`${what}: ${error.message || 'unknown error'}`)
+    return true
+  }
+
   async function handleAddBooking(e) {
     e.preventDefault()
     setFormError('')
@@ -729,30 +759,38 @@ export default function AdminPanel() {
 
   async function handleCancel(id) {
     if (!confirm('Cancel this booking?')) return
+    setActionError('')
     const b = bookings.find((x) => x.id === id)
-    await supabase.from('bookings').update({ status: 'cancelled' }).eq('id', id)
+    const { error } = await supabase.from('bookings').update({ status: 'cancelled' }).eq('id', id)
+    if (error) return reportActionError('Could not cancel booking', error)
     if (b) await logStatusChange(b, 'cancelled')
     loadBookings()
   }
 
   async function handleConfirm(id) {
+    setActionError('')
     const b = bookings.find((x) => x.id === id)
-    await supabase.from('bookings').update({ status: 'confirmed' }).eq('id', id)
+    const { error } = await supabase.from('bookings').update({ status: 'confirmed' }).eq('id', id)
+    if (error) return reportActionError('Could not confirm booking', error)
     if (b) await logStatusChange(b, 'confirmed')
     loadBookings()
   }
 
   async function handleReject(id) {
     if (!confirm('Reject this request?')) return
+    setActionError('')
     const b = bookings.find((x) => x.id === id)
-    await supabase.from('bookings').update({ status: 'cancelled' }).eq('id', id)
+    const { error } = await supabase.from('bookings').update({ status: 'cancelled' }).eq('id', id)
+    if (error) return reportActionError('Could not reject request', error)
     if (b) await logStatusChange(b, 'cancelled')
     loadBookings()
   }
 
   async function handleHardDelete(id) {
     if (!confirm('Permanently delete this booking? This cannot be undone.')) return
-    await supabase.from('bookings').delete().eq('id', id)
+    setActionError('')
+    const { error } = await supabase.from('bookings').delete().eq('id', id)
+    if (error) return reportActionError('Could not delete booking', error)
     loadBookings()
   }
 
@@ -771,6 +809,10 @@ export default function AdminPanel() {
     }
     if (!paymentForm.method || !paymentForm.collector) {
       setPaymentError('Select a payment method and collector')
+      return
+    }
+    const due = dueAmountFor(paymentModalBooking)
+    if (due != null && amt > due && !confirm(`This amount (${formatMoney(amt)}) is more than the due amount (${formatMoney(due)}). Save anyway?`)) {
       return
     }
     setPaymentSaving(true)
@@ -796,8 +838,9 @@ export default function AdminPanel() {
   }
 
   async function savePackageEdit() {
+    setActionError('')
     setPackageSaving(true)
-    await supabase
+    const { error } = await supabase
       .from('packages')
       .update({
         label: packageEditForm.label,
@@ -806,27 +849,34 @@ export default function AdminPanel() {
       })
       .eq('id', editingPackageId)
     setPackageSaving(false)
+    if (error) return reportActionError('Could not save package', error)
     setEditingPackageId(null)
     loadPackages()
   }
 
   async function saveHours() {
+    setActionError('')
+    if (Number(hoursForm.start) >= Number(hoursForm.end)) {
+      setActionError('Opening time must be before closing time')
+      return
+    }
     setHoursSaving(true)
-    await supabase
+    const { error } = await supabase
       .from('studio_settings')
       .update({ business_start_hour: Number(hoursForm.start), business_end_hour: Number(hoursForm.end) })
       .eq('id', true)
     setHoursSaving(false)
+    if (error) return reportActionError('Could not save opening hours', error)
     loadSettings()
   }
 
   async function toggleOffDay(dateKey) {
+    setActionError('')
     const existing = offDays.find((d) => d.off_date === dateKey)
-    if (existing) {
-      await supabase.from('off_days').delete().eq('off_date', dateKey)
-    } else {
-      await supabase.from('off_days').insert({ off_date: dateKey })
-    }
+    const { error } = existing
+      ? await supabase.from('off_days').delete().eq('off_date', dateKey)
+      : await supabase.from('off_days').insert({ off_date: dateKey })
+    if (error) return reportActionError('Could not update off-day', error)
     loadOffDays()
   }
 
@@ -844,6 +894,7 @@ export default function AdminPanel() {
     const isEditing = editingId === b.id
     return {
       b,
+      timeOptions,
       dueAmount: dueAmountFor(b),
       isExpanded: expandedIds.has(b.id),
       onToggle: () => toggleExpanded(b.id),
@@ -880,6 +931,8 @@ export default function AdminPanel() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email"
+              aria-label="Email"
+              autoComplete="email"
               className={inputClass()}
             />
             <input
@@ -887,6 +940,8 @@ export default function AdminPanel() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
+              aria-label="Password"
+              autoComplete="current-password"
               className={inputClass()}
             />
           </div>
@@ -909,6 +964,17 @@ export default function AdminPanel() {
           <IconLogOut className="h-3 w-3" /> Log Out
         </button>
       </div>
+
+      {actionError && (
+        <div className="flex items-start justify-between gap-2 text-xs text-clay bg-clay/10 border border-clay/20 rounded-xl px-3 py-2 mb-2">
+          <span className="flex items-start gap-2">
+            <IconAlert className="h-3.5 w-3.5 shrink-0 mt-0.5" /> {actionError}
+          </span>
+          <button onClick={() => setActionError('')} aria-label="Dismiss error" className="shrink-0 text-clay/60 hover:text-clay">
+            <IconX className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* Dashboard overview */}
       <div className="grid grid-cols-2 gap-1.5 mb-2">
@@ -1010,15 +1076,15 @@ export default function AdminPanel() {
               className={inputClass()}
             />
             <div className="grid grid-cols-2 gap-2.5">
-              <select value={form.start_time} onChange={(e) => setForm({ ...form, start_time: e.target.value })} className={inputClass()}>
+              <select value={form.start_time} onChange={(e) => setForm({ ...form, start_time: e.target.value })} aria-label="Start time" className={inputClass()}>
                 <option value="">Start Time</option>
-                {TIME_OPTIONS.map((t) => (
+                {timeOptions.map((t) => (
                   <option key={t.value} value={t.value}>{t.label}</option>
                 ))}
               </select>
-              <select value={form.end_time} onChange={(e) => setForm({ ...form, end_time: e.target.value })} className={inputClass()}>
+              <select value={form.end_time} onChange={(e) => setForm({ ...form, end_time: e.target.value })} aria-label="End time" className={inputClass()}>
                 <option value="">End Time</option>
-                {TIME_OPTIONS.map((t) => (
+                {timeOptions.map((t) => (
                   <option key={t.value} value={t.value}>{t.label}</option>
                 ))}
               </select>

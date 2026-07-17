@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient.js'
 import { isValidBangladeshiPhone } from '../lib/validation.js'
 import { fromDateKey, formatTimeLabel } from '../lib/time.js'
@@ -15,6 +15,14 @@ export default function MyBookingsModal({ onClose }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [results, setResults] = useState(null)
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
 
   async function handleSearch(e) {
     e.preventDefault()
@@ -35,6 +43,9 @@ export default function MyBookingsModal({ onClose }) {
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="My Bookings"
       className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-ink/40 px-4 py-8 overflow-y-auto"
       onClick={onClose}
     >
@@ -53,6 +64,10 @@ export default function MyBookingsModal({ onClose }) {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="e.g. 01712345678"
+            aria-label="Phone number"
+            autoComplete="tel"
+            inputMode="tel"
+            maxLength={20}
             className="flex-1 border border-[#E0E0E0] rounded-lg px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-pine focus:ring-2 focus:ring-pine/15"
           />
           <button
