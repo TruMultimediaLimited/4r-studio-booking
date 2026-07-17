@@ -108,11 +108,11 @@ function IconSend(props) {
 const PACKAGE_ICONS = { photoshoot: IconCamera, photo_video: IconVideo, custom: IconMessage }
 
 function inputClass() {
-  return 'w-full border border-mist rounded-xl px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-pine focus:ring-2 focus:ring-pine/15'
+  return 'w-full border border-mist rounded-lg px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-pine focus:ring-2 focus:ring-pine/15'
 }
 
 function FieldLabel({ children }) {
-  return <span className="block text-[11px] font-semibold uppercase tracking-wide text-ink/45 mb-1">{children}</span>
+  return <span className="block text-[11px] font-semibold uppercase tracking-wide text-ink/55 mb-1">{children}</span>
 }
 
 function startOfMonth(d) {
@@ -333,7 +333,7 @@ export default function PublicAvailability() {
   return (
     <div className="font-sans max-w-md mx-auto">
       {error && (
-        <div className="flex items-start gap-2 mb-4 text-sm text-clay bg-clay/10 border border-clay/20 rounded-xl px-3.5 py-3">
+        <div className="flex items-start gap-2 mb-4 text-sm text-clay bg-clay/10 border border-clay/20 rounded-lg px-3.5 py-3">
           <IconAlert className="h-4 w-4 shrink-0 mt-0.5" />
           <div>
             <p>Could not load bookings. Please try again.</p>
@@ -347,7 +347,7 @@ export default function PublicAvailability() {
       </p>
 
       {/* Month calendar card */}
-      <div className="bg-white rounded-2xl border border-mist/70 shadow-sm p-2.5 mb-1">
+      <div className="bg-white rounded-xl border border-mist/70 shadow-sm p-2.5 mb-1">
         <div className="flex items-center justify-between mb-1">
           <button
             onClick={() => {
@@ -359,7 +359,7 @@ export default function PublicAvailability() {
           >
             <IconChevronLeft className="h-4 w-4" />
           </button>
-          <p className="font-display text-sm text-ink flex items-center gap-1.5">
+          <p className="text-sm font-semibold text-ink flex items-center gap-1.5">
             <IconCalendar className="h-3.5 w-3.5 text-pine" />
             {monthStart.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
           </p>
@@ -377,7 +377,7 @@ export default function PublicAvailability() {
 
         <div className="grid grid-cols-7 gap-0.5 mb-0.5">
           {WEEKDAY_LABELS.map((label) => (
-            <p key={label} className="text-center text-[9px] uppercase tracking-wide text-ink/40 font-semibold py-0">
+            <p key={label} className="text-center text-[9px] uppercase tracking-wide text-ink/50 font-semibold py-0">
               {label}
             </p>
           ))}
@@ -411,7 +411,7 @@ export default function PublicAvailability() {
                 key={key}
                 onClick={() => setSelectedDate(key)}
                 disabled={isPast}
-                className={`flex items-center justify-center rounded-lg py-1 border font-sans font-semibold text-xs transition-all ${fillClasses} ${ringClasses}`}
+                className={`flex items-center justify-center rounded-md py-1 border font-sans font-semibold text-xs transition-all ${fillClasses} ${ringClasses}`}
               >
                 {d.getDate()}
               </button>
@@ -433,7 +433,7 @@ export default function PublicAvailability() {
       </div>
 
       {/* Package selector */}
-      <p className="text-[10px] uppercase tracking-wide text-ink/45 font-semibold mb-1 px-0.5">Choose a Package</p>
+      <p className="text-[10px] uppercase tracking-wide text-ink/55 font-semibold mb-1 px-0.5">Choose a Package</p>
       <div className="grid gap-1 mb-2">
         {PACKAGES.map((p) => {
           const isSelected = selectedPackageId === p.id
@@ -442,7 +442,7 @@ export default function PublicAvailability() {
             <button
               key={p.id}
               onClick={() => setSelectedPackageId(p.id)}
-              className={`flex items-center gap-2 rounded-xl px-2.5 py-1.5 border text-left transition-all ${
+              className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 border text-left transition-all ${
                 isSelected
                   ? 'bg-pine border-pine text-paper shadow-sm'
                   : 'bg-white border-mist/70 text-ink shadow-sm hover:border-pine/40'
@@ -456,7 +456,7 @@ export default function PublicAvailability() {
                 <Icon className="h-3 w-3" />
               </span>
               <span className={`flex-1 text-xs font-semibold ${isSelected ? 'text-paper' : 'text-ink'}`}>{p.label}</span>
-              <span className={`text-[10px] font-medium shrink-0 ${isSelected ? 'text-paper/70' : 'text-ink/45'}`}>
+              <span className={`text-[10px] font-medium shrink-0 ${isSelected ? 'text-paper/70' : 'text-ink/55'}`}>
                 {p.rateLabel || 'WhatsApp'}
               </span>
               {isSelected && <IconCheck className="h-3 w-3 shrink-0" />}
@@ -467,10 +467,10 @@ export default function PublicAvailability() {
 
       {/* Day detail */}
       {!selectedDate ? (
-        <p className="text-sm text-ink/40 py-6 text-center">Select a date</p>
+        <p className="text-sm text-ink/50 py-6 text-center">Select a date</p>
       ) : (
-        <div className="bg-white border border-mist/70 shadow-sm rounded-2xl p-4">
-          <p className="font-display text-lg mb-3 flex items-center gap-2">
+        <div className="bg-white border border-mist/70 shadow-sm rounded-xl p-4">
+          <p className="text-lg font-bold text-ink mb-3 flex items-center gap-2">
             <IconCalendar className="h-4 w-4 text-pine" />
             {fromDateKey(selectedDate).toLocaleDateString('en-GB', {
               weekday: 'long',
@@ -480,11 +480,11 @@ export default function PublicAvailability() {
           </p>
 
           {loading ? (
-            <p className="text-sm text-ink/40 py-6 text-center">Loading…</p>
+            <p className="text-sm text-ink/50 py-6 text-center">Loading…</p>
           ) : (
             <div>
               {isSelectedPast ? null : requestSuccess ? (
-                <p className="flex items-start gap-2 text-sm text-pine bg-pine/5 border border-pine/20 rounded-xl px-3.5 py-3">
+                <p className="flex items-start gap-2 text-sm text-pine bg-pine/5 border border-pine/20 rounded-lg px-3.5 py-3">
                   <IconCheckCircle className="h-4 w-4 shrink-0 mt-0.5" />
                   {requestSuccess}
                 </p>
@@ -492,7 +492,7 @@ export default function PublicAvailability() {
                 <button
                   onClick={openRequestForm}
                   disabled={isSelectedDayFull}
-                  className={`w-full rounded-xl py-3 font-semibold transition-all ${
+                  className={`w-full rounded-lg py-3 font-semibold transition-all ${
                     isSelectedDayFull
                       ? 'bg-mist/40 text-ink/35 cursor-not-allowed shadow-none'
                       : 'bg-pine text-paper shadow-sm hover:opacity-95'
@@ -501,8 +501,8 @@ export default function PublicAvailability() {
                   {isSelectedDayFull ? 'Fully Booked' : 'Book this slot'}
                 </button>
               ) : (
-                <form onSubmit={handleSubmitRequest} className="border border-mist/70 rounded-2xl p-4 bg-paper/40">
-                  <p className="text-base font-display mb-3">Booking Request</p>
+                <form onSubmit={handleSubmitRequest} className="border border-mist/70 rounded-xl p-4 bg-paper/40">
+                  <p className="text-base font-bold text-ink mb-3">Booking Request</p>
 
                   {!selectedPackage ? (
                     <>
@@ -510,7 +510,7 @@ export default function PublicAvailability() {
                       <button
                         type="button"
                         onClick={() => setRequestOpen(false)}
-                        className="w-full border border-mist rounded-xl py-2.5 text-sm font-medium text-ink/60"
+                        className="w-full border border-mist rounded-lg py-2.5 text-sm font-medium text-ink/60"
                       >
                         Cancel
                       </button>
@@ -574,7 +574,7 @@ export default function PublicAvailability() {
                             href={buildWhatsAppLink(whatsAppMessage)}
                             target="_blank"
                             rel="noreferrer"
-                            className="flex items-center justify-center gap-2 text-center bg-[#25D366] text-white rounded-xl py-3 text-sm font-semibold shadow-sm"
+                            className="flex items-center justify-center gap-2 text-center bg-[#25D366] text-white rounded-lg py-3 text-sm font-semibold shadow-sm"
                           >
                             <IconMessage className="h-4 w-4" />
                             Contact on WhatsApp
@@ -584,12 +584,12 @@ export default function PublicAvailability() {
                         <>
                           {priceInfo && (
                             <div className="grid grid-cols-2 gap-2 mb-3.5">
-                              <div className="rounded-xl bg-pine/5 border border-pine/15 px-3 py-2.5">
-                                <p className="text-[10px] uppercase tracking-wide text-ink/40 font-semibold mb-0.5">Total</p>
+                              <div className="rounded-lg bg-pine/5 border border-pine/15 px-3 py-2.5">
+                                <p className="text-[10px] uppercase tracking-wide text-ink/50 font-semibold mb-0.5">Total</p>
                                 <p className="text-sm font-semibold text-ink">{priceInfo.total} Tk</p>
                               </div>
-                              <div className="rounded-xl bg-clay/5 border border-clay/20 px-3 py-2.5">
-                                <p className="text-[10px] uppercase tracking-wide text-ink/40 font-semibold mb-0.5">
+                              <div className="rounded-lg bg-clay/5 border border-clay/20 px-3 py-2.5">
+                                <p className="text-[10px] uppercase tracking-wide text-ink/50 font-semibold mb-0.5">
                                   Advance ({ADVANCE_PERCENT}%)
                                 </p>
                                 <p className="text-sm font-semibold text-clay">{priceInfo.advance} Tk</p>
@@ -616,7 +616,7 @@ export default function PublicAvailability() {
                           </div>
 
                           {priceInfo && (
-                            <div className="flex items-start gap-2 rounded-xl bg-clay/5 border border-clay/20 px-3.5 py-2.5 mb-3.5">
+                            <div className="flex items-start gap-2 rounded-lg bg-clay/5 border border-clay/20 px-3.5 py-2.5 mb-3.5">
                               <IconAlert className="h-4 w-4 text-clay shrink-0 mt-0.5" />
                               <p className="text-xs text-clay font-medium">
                                 Paying the {ADVANCE_PERCENT}% advance is mandatory to confirm your booking.
@@ -627,11 +627,11 @@ export default function PublicAvailability() {
                           {priceInfo && (
                             <div className="mb-3.5">
                               <FieldLabel>Payment Details</FieldLabel>
-                              <div className="flex bg-mist/30 rounded-xl p-1 mb-2">
+                              <div className="flex bg-mist/30 rounded-lg p-1 mb-2">
                                 <button
                                   type="button"
                                   onClick={() => setPaymentTab('mobile')}
-                                  className={`flex-1 rounded-lg py-1.5 text-xs font-semibold transition-colors ${
+                                  className={`flex-1 rounded-md py-1.5 text-xs font-semibold transition-colors ${
                                     paymentTab === 'mobile' ? 'bg-white text-pine shadow-sm' : 'text-ink/50'
                                   }`}
                                 >
@@ -640,14 +640,14 @@ export default function PublicAvailability() {
                                 <button
                                   type="button"
                                   onClick={() => setPaymentTab('bank')}
-                                  className={`flex-1 rounded-lg py-1.5 text-xs font-semibold transition-colors ${
+                                  className={`flex-1 rounded-md py-1.5 text-xs font-semibold transition-colors ${
                                     paymentTab === 'bank' ? 'bg-white text-pine shadow-sm' : 'text-ink/50'
                                   }`}
                                 >
                                   Bank
                                 </button>
                               </div>
-                              <div className="rounded-xl bg-white border border-mist/60 px-3.5 py-2.5 text-xs text-ink/70 space-y-0.5">
+                              <div className="rounded-lg bg-white border border-mist/60 px-3.5 py-2.5 text-xs text-ink/70 space-y-0.5">
                                 {paymentTab === 'mobile' ? (
                                   <p>
                                     Send Money to <span className="font-semibold text-ink">{PAYMENT_INFO.mobileBankingNumber}</span> ({PAYMENT_INFO.mobileBankingType})
@@ -664,7 +664,7 @@ export default function PublicAvailability() {
                           )}
 
                           {requestError && (
-                            <p className="flex items-start gap-2 text-xs text-clay bg-clay/10 border border-clay/20 rounded-xl px-3.5 py-2.5 mb-3.5">
+                            <p className="flex items-start gap-2 text-xs text-clay bg-clay/10 border border-clay/20 rounded-lg px-3.5 py-2.5 mb-3.5">
                               <IconAlert className="h-3.5 w-3.5 shrink-0 mt-0.5" />
                               {requestError}
                             </p>
@@ -673,13 +673,13 @@ export default function PublicAvailability() {
                             <button
                               type="button"
                               onClick={() => setRequestOpen(false)}
-                              className="flex-1 border border-mist rounded-xl py-2.5 text-sm font-medium text-ink/60"
+                              className="flex-1 border border-mist rounded-lg py-2.5 text-sm font-medium text-ink/60"
                             >
                               Cancel
                             </button>
                             <button
                               disabled={requestSaving}
-                              className="flex-1 flex items-center justify-center gap-1.5 bg-pine text-paper rounded-xl py-2.5 text-sm font-semibold shadow-sm disabled:opacity-50"
+                              className="flex-1 flex items-center justify-center gap-1.5 bg-pine text-paper rounded-lg py-2.5 text-sm font-semibold shadow-sm disabled:opacity-50"
                             >
                               {requestSaving ? 'Sending…' : (<><IconSend className="h-3.5 w-3.5" /> Send Request</>)}
                             </button>
@@ -695,26 +695,26 @@ export default function PublicAvailability() {
         </div>
       )}
 
-      <section className="mt-6 pt-4 border-t border-mist/60">
-        <h2 className="text-lg font-bold text-ink mb-1.5">
+      <section className="mt-4 pt-3 border-t border-mist/60">
+        <h2 className="text-base font-bold text-ink mb-1">
           Why Choose 4R Studio?
         </h2>
-        <p className="text-sm font-bold text-ink/80 leading-relaxed mb-1.5">
+        <p className="text-xs font-bold text-ink/80 leading-snug mb-1">
           4R Studio offers premium studio rental in Aftabnagar, Dhaka. Open 7 days a week, we provide a
           professional space for:
         </p>
-        <ul className="text-sm font-bold text-ink/80 leading-relaxed list-disc list-inside mb-1.5 space-y-0.5">
+        <ul className="text-xs font-bold text-ink/80 leading-snug list-disc list-inside mb-1 space-y-0.5">
           <li>Fashion Photography & Product Photography.</li>
           <li>Videography, Commercial Productions & Content Creation.</li>
           <li>Professional Podcast Recording.</li>
         </ul>
-        <p className="text-sm font-bold text-ink/80 leading-relaxed">
+        <p className="text-xs font-bold text-ink/80 leading-snug">
           With premium equipment and a creative environment, 4R Studio helps brands, businesses, and
           creators bring their ideas to life.
         </p>
       </section>
 
-      <p className="text-xs text-ink/40 mt-5 text-center leading-relaxed">
+      <p className="text-xs text-ink/50 mt-3 text-center leading-relaxed">
         Your booking request will be confirmed shortly. Your details remain private. For any changes, please{' '}
         <a href={buildWhatsAppLink(whatsAppMessage)} target="_blank" rel="noreferrer" className="underline text-ink/60 hover:text-ink">
           Contact on WhatsApp
