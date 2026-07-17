@@ -703,7 +703,8 @@ export default function PublicAvailability() {
           4R Studio is your go-to space for professional photography and videography in Aftabnagar, Dhaka.
           Offering premium studio rental services with top-tier equipment, we cater to all your creative needs.
           If you are looking for a reliable studio rental in Aftabnagar, 4R Studio provides the perfect
-          environment for your brand productions and creative projects.
+          environment for your brand productions and creative projects. We are open 7 days a week to serve
+          you with the best studio rental experience in Aftabnagar, Dhaka.
         </p>
       </section>
 
