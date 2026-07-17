@@ -29,7 +29,7 @@ const STATUS_META = {
 const emptyForm = { booking_date: '', start_time: '', end_time: '', client_name: '', client_phone: '', package_name: '' }
 
 function inputClass() {
-  return 'w-full border border-mist rounded-xl px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-pine focus:ring-2 focus:ring-pine/15'
+  return 'w-full border border-mist rounded-xl px-3 py-2 text-xs outline-none transition-colors focus:border-pine focus:ring-2 focus:ring-pine/15'
 }
 
 function formatBookingDate(dateKey) {
@@ -39,7 +39,7 @@ function formatBookingDate(dateKey) {
 function StatusBadge({ status }) {
   const meta = STATUS_META[status] || STATUS_META.confirmed
   return (
-    <span className={`inline-flex items-center text-[10px] font-bold uppercase tracking-wide border rounded-full px-2 py-0.5 shrink-0 ${meta.className}`}>
+    <span className={`inline-flex items-center text-[9px] font-bold uppercase tracking-wide border rounded-full px-1.5 py-0.5 shrink-0 ${meta.className}`}>
       {meta.label}
     </span>
   )
@@ -129,27 +129,27 @@ function BookingRow({
   onDelete,
 }) {
   return (
-    <li className={`bg-white border rounded-2xl overflow-hidden text-sm shadow-sm ${b.status === 'pending' ? 'border-amber-300' : 'border-mist/70'}`}>
-      <button onClick={onToggle} className="w-full flex items-center justify-between gap-2 px-3.5 py-3 text-left">
-        <span className="flex items-center gap-2.5 min-w-0">
-          <span className="flex items-center justify-center h-8 w-8 rounded-full bg-pine/10 text-pine shrink-0">
-            <IconUser className="h-4 w-4" />
+    <li className={`bg-white border rounded-xl overflow-hidden text-xs shadow-sm ${b.status === 'pending' ? 'border-amber-300' : 'border-mist/70'}`}>
+      <button onClick={onToggle} className="w-full flex items-center justify-between gap-2 px-2.5 py-1.5 text-left">
+        <span className="flex items-center gap-2 min-w-0">
+          <span className="flex items-center justify-center h-6 w-6 rounded-full bg-pine/10 text-pine shrink-0">
+            <IconUser className="h-3 w-3" />
           </span>
           <span className="min-w-0">
-            <span className="font-medium truncate block">{b.client_name || 'No name'}</span>
-            <span className="text-xs text-ink/45">
+            <span className="text-xs font-semibold truncate block">{b.client_name || 'No name'}</span>
+            <span className="text-[10px] text-ink/45">
               {formatBookingDate(b.booking_date)} · {formatTimeLabel(b.start_time.slice(0, 5))}
             </span>
           </span>
         </span>
-        <span className="flex items-center gap-2 shrink-0">
+        <span className="flex items-center gap-1.5 shrink-0">
           <StatusBadge status={b.status} />
-          <IconChevronDown className={`h-4 w-4 text-ink/40 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+          <IconChevronDown className={`h-3.5 w-3.5 text-ink/40 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
         </span>
       </button>
 
       {isExpanded && (
-        <div className="px-3.5 pb-3.5 pt-1 border-t border-mist/60">
+        <div className="px-2.5 pb-2.5 pt-0.5 border-t border-mist/60">
           {isEditing ? (
             <BookingEditForm
               editForm={editForm}
@@ -161,50 +161,50 @@ function BookingRow({
             />
           ) : (
             <>
-              <div className="space-y-1.5 text-xs text-ink/70 mb-3 mt-2">
+              <div className="space-y-1 text-[10px] text-ink/70 mb-2 mt-1.5">
                 <p className="flex items-center gap-1.5">
-                  <IconCalendar className="h-3.5 w-3.5 text-ink/40 shrink-0" />
+                  <IconCalendar className="h-3 w-3 text-ink/40 shrink-0" />
                   {formatBookingDate(b.booking_date)}, {formatTimeLabel(b.start_time.slice(0, 5))} – {formatTimeLabel(b.end_time.slice(0, 5))}
                 </p>
                 <p className="flex items-center gap-1.5">
-                  <IconPhone className="h-3.5 w-3.5 text-ink/40 shrink-0" />
+                  <IconPhone className="h-3 w-3 text-ink/40 shrink-0" />
                   {b.client_phone || 'Not provided'}
                 </p>
                 <p className="flex items-center gap-1.5">
-                  <IconTag className="h-3.5 w-3.5 text-ink/40 shrink-0" />
+                  <IconTag className="h-3 w-3 text-ink/40 shrink-0" />
                   {b.package_name || 'Not specified'}
                 </p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-1.5">
                 {b.status === 'pending' && (
                   <>
-                    <button onClick={onReject} className="flex-1 border border-mist rounded-lg py-1.5 text-xs font-medium text-ink/60">
+                    <button onClick={onReject} className="flex-1 border border-mist rounded-lg py-1 text-[10px] font-medium text-ink/60">
                       Reject
                     </button>
-                    <button onClick={onConfirm} className="flex-1 bg-pine text-paper rounded-lg py-1.5 text-xs font-medium">
+                    <button onClick={onConfirm} className="flex-1 bg-pine text-paper rounded-lg py-1 text-[10px] font-medium">
                       Confirm
                     </button>
                   </>
                 )}
                 {b.status === 'confirmed' && (
-                  <button onClick={onCancel} className="flex-1 border border-clay/30 text-clay rounded-lg py-1.5 text-xs font-medium">
+                  <button onClick={onCancel} className="flex-1 border border-clay/30 text-clay rounded-lg py-1 text-[10px] font-medium">
                     Cancel Booking
                   </button>
                 )}
                 {b.status !== 'cancelled' && (
                   <button
                     onClick={onStartEdit}
-                    className="flex items-center justify-center gap-1 flex-1 border border-mist rounded-lg py-1.5 text-xs font-medium text-ink/70"
+                    className="flex items-center justify-center gap-1 flex-1 border border-mist rounded-lg py-1 text-[10px] font-medium text-ink/70"
                   >
-                    <IconEdit className="h-3.5 w-3.5" /> Edit
+                    <IconEdit className="h-3 w-3" /> Edit
                   </button>
                 )}
                 {b.status === 'cancelled' && (
                   <button
                     onClick={onDelete}
-                    className="flex items-center justify-center gap-1 flex-1 border border-clay/30 text-clay rounded-lg py-1.5 text-xs font-medium"
+                    className="flex items-center justify-center gap-1 flex-1 border border-clay/30 text-clay rounded-lg py-1 text-[10px] font-medium"
                   >
-                    <IconTrash className="h-3.5 w-3.5" /> Delete Permanently
+                    <IconTrash className="h-3 w-3" /> Delete Permanently
                   </button>
                 )}
               </div>
@@ -540,63 +540,63 @@ export default function AdminPanel() {
 
   return (
     <div className="font-sans max-w-2xl mx-auto">
-      <div className="flex items-center justify-between mb-5">
-        <p className="font-display text-2xl text-ink">Admin Panel</p>
-        <button onClick={handleLogout} className="flex items-center gap-1.5 text-xs font-medium text-ink/50 hover:text-clay transition-colors">
-          <IconLogOut className="h-3.5 w-3.5" /> Log Out
+      <div className="flex items-center justify-between mb-2">
+        <p className="font-display text-base text-ink">Admin Panel</p>
+        <button onClick={handleLogout} className="flex items-center gap-1 text-[10px] font-medium text-ink/50 hover:text-clay transition-colors">
+          <IconLogOut className="h-3 w-3" /> Log Out
         </button>
       </div>
 
       {/* Quick stats (also act as filters) */}
-      <div className="grid grid-cols-3 gap-2.5 mb-5">
+      <div className="grid grid-cols-3 gap-1.5 mb-2">
         <button
           onClick={() => {
             setStatusFilter((prev) => (prev === 'pending' ? 'all' : 'pending'))
             setDateFilter(null)
           }}
-          className={`bg-white border shadow-sm rounded-2xl p-3.5 text-center transition-all ${
+          className={`bg-white border shadow-sm rounded-lg p-2 text-center transition-all ${
             statusFilter === 'pending' ? 'border-amber-400 ring-2 ring-amber-300 bg-amber-50' : 'border-mist/70'
           }`}
         >
-          <p className="text-2xl font-display text-amber-600">{stats.pending}</p>
-          <p className="text-[10px] uppercase tracking-wide text-ink/45 font-semibold mt-0.5">Pending</p>
+          <p className="text-lg font-display text-amber-600">{stats.pending}</p>
+          <p className="text-[9px] uppercase tracking-wide text-ink/45 font-semibold mt-0.5">Pending</p>
         </button>
         <button
           onClick={() => {
             setDateFilter((prev) => (prev === 'today' ? null : 'today'))
             setStatusFilter('all')
           }}
-          className={`bg-white border shadow-sm rounded-2xl p-3.5 text-center transition-all ${
+          className={`bg-white border shadow-sm rounded-lg p-2 text-center transition-all ${
             dateFilter === 'today' ? 'border-pine ring-2 ring-pine/30 bg-pine/5' : 'border-mist/70'
           }`}
         >
-          <p className="text-2xl font-display text-pine">{stats.today}</p>
-          <p className="text-[10px] uppercase tracking-wide text-ink/45 font-semibold mt-0.5">Today's Bookings</p>
+          <p className="text-lg font-display text-pine">{stats.today}</p>
+          <p className="text-[9px] uppercase tracking-wide text-ink/45 font-semibold mt-0.5">Today's Bookings</p>
         </button>
         <button
           onClick={() => {
             setDateFilter((prev) => (prev === 'month' ? null : 'month'))
             setStatusFilter('all')
           }}
-          className={`bg-white border shadow-sm rounded-2xl p-3.5 text-center transition-all ${
+          className={`bg-white border shadow-sm rounded-lg p-2 text-center transition-all ${
             dateFilter === 'month' ? 'border-ink/40 ring-2 ring-ink/20 bg-mist/20' : 'border-mist/70'
           }`}
         >
-          <p className="text-2xl font-display text-ink">{stats.month}</p>
-          <p className="text-[10px] uppercase tracking-wide text-ink/45 font-semibold mt-0.5">This Month</p>
+          <p className="text-lg font-display text-ink">{stats.month}</p>
+          <p className="text-[9px] uppercase tracking-wide text-ink/45 font-semibold mt-0.5">This Month</p>
         </button>
       </div>
 
       {/* Add booking (collapsible) */}
-      <div className="bg-white border border-mist/70 shadow-sm rounded-2xl p-4 mb-5">
+      <div className="bg-white border border-mist/70 shadow-sm rounded-xl p-2.5 mb-2">
         <button onClick={() => setAddOpen((v) => !v)} className="w-full flex items-center justify-between">
-          <span className="font-display text-lg flex items-center gap-2">
-            <IconPlus className="h-4 w-4 text-pine" /> Add New Booking
+          <span className="text-sm font-semibold flex items-center gap-1.5">
+            <IconPlus className="h-3.5 w-3.5 text-pine" /> Add New Booking
           </span>
-          <IconChevronDown className={`h-4 w-4 text-ink/40 transition-transform ${addOpen ? 'rotate-180' : ''}`} />
+          <IconChevronDown className={`h-3.5 w-3.5 text-ink/40 transition-transform ${addOpen ? 'rotate-180' : ''}`} />
         </button>
         {addOpen && (
-          <form onSubmit={handleAddBooking} className="mt-4 space-y-2.5">
+          <form onSubmit={handleAddBooking} className="mt-3 space-y-2">
             <input
               type="date"
               value={form.booking_date}
@@ -639,11 +639,11 @@ export default function AdminPanel() {
               className={inputClass()}
             />
             {formError && (
-              <p className="flex items-start gap-2 text-sm text-clay bg-clay/10 border border-clay/20 rounded-xl px-3.5 py-2.5">
-                <IconAlert className="h-4 w-4 shrink-0 mt-0.5" /> {formError}
+              <p className="flex items-start gap-2 text-xs text-clay bg-clay/10 border border-clay/20 rounded-xl px-3 py-2">
+                <IconAlert className="h-3.5 w-3.5 shrink-0 mt-0.5" /> {formError}
               </p>
             )}
-            <button disabled={saving} className="w-full bg-pine text-paper rounded-xl py-2.5 font-semibold shadow-sm disabled:opacity-50">
+            <button disabled={saving} className="w-full bg-pine text-paper rounded-xl py-2 text-sm font-semibold shadow-sm disabled:opacity-50">
               {saving ? 'Saving…' : 'Confirm Booking'}
             </button>
           </form>
@@ -651,32 +651,32 @@ export default function AdminPanel() {
       </div>
 
       {/* Search / filter */}
-      <div className="bg-white border-2 border-pine/20 shadow-sm rounded-2xl p-3 mb-5">
-        <p className="text-[10px] uppercase tracking-wide text-pine font-bold mb-2 px-0.5">Search & Filter</p>
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <IconSearch className="h-4 w-4 text-pine/50 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+      <div className="bg-white border border-pine/20 shadow-sm rounded-xl p-2 mb-2">
+        <p className="text-[9px] uppercase tracking-wide text-pine font-bold mb-1.5 px-0.5">Search & Filter</p>
+        <div className="space-y-1.5">
+          <div className="relative">
+            <IconSearch className="h-3.5 w-3.5 text-pine/50 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search name or phone"
-              className="w-full bg-pine/5 border border-pine/25 rounded-xl pl-9 pr-8 py-2.5 text-sm outline-none transition-colors focus:border-pine focus:ring-2 focus:ring-pine/15"
+              placeholder="Search by name or number"
+              className="w-full bg-pine/5 border border-pine/25 rounded-lg pl-8 pr-7 py-1.5 text-xs outline-none transition-colors focus:border-pine focus:ring-2 focus:ring-pine/15"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
                 aria-label="Clear search"
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink/30 hover:text-ink/60"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-ink/30 hover:text-ink/60"
               >
-                <IconX className="h-4 w-4" />
+                <IconX className="h-3.5 w-3.5" />
               </button>
             )}
           </div>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-pine/5 border border-pine/25 rounded-xl px-3 text-sm outline-none focus:border-pine font-medium text-pine"
+            className="w-full bg-pine/5 border border-pine/25 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-pine font-medium text-pine"
           >
             <option value="all">All Statuses</option>
             <option value="pending">Pending</option>
@@ -687,16 +687,16 @@ export default function AdminPanel() {
       </div>
 
       {loadingBookings ? (
-        <p className="text-sm text-ink/40 py-8 text-center">Loading…</p>
+        <p className="text-xs text-ink/40 py-6 text-center">Loading…</p>
       ) : isFiltering ? (
         <>
-          <p className="font-display text-lg mb-3">Search Results ({searchResults.length})</p>
+          <p className="text-sm font-semibold mb-2">Search Results ({searchResults.length})</p>
           {searchResults.length === 0 ? (
-            <p className="flex flex-col items-center gap-2 text-sm text-ink/40 py-10 text-center">
-              <IconInbox className="h-6 w-6" /> No bookings found
+            <p className="flex flex-col items-center gap-2 text-xs text-ink/40 py-8 text-center">
+              <IconInbox className="h-5 w-5" /> No bookings found
             </p>
           ) : (
-            <ul className="space-y-2">
+            <ul className="space-y-1.5">
               {searchResults.map((b) => (
                 <BookingRow key={b.id} {...bookingRowProps(b)} />
               ))}
@@ -707,8 +707,8 @@ export default function AdminPanel() {
         <>
           {pendingBookings.length > 0 && (
             <>
-              <p className="font-display text-lg mb-3">Booking Requests (Pending)</p>
-              <ul className="space-y-2 mb-6">
+              <p className="text-sm font-semibold mb-2">Booking Requests (Pending)</p>
+              <ul className="space-y-1.5 mb-4">
                 {pendingBookings.map((b) => (
                   <BookingRow key={b.id} {...bookingRowProps(b)} />
                 ))}
@@ -716,9 +716,9 @@ export default function AdminPanel() {
             </>
           )}
 
-          <p className="font-display text-lg mb-3">Upcoming Bookings</p>
-          <ul className="space-y-2">
-            {confirmedUpcoming.length === 0 && <p className="text-sm text-ink/40">No bookings</p>}
+          <p className="text-sm font-semibold mb-2">Upcoming Bookings</p>
+          <ul className="space-y-1.5">
+            {confirmedUpcoming.length === 0 && <p className="text-xs text-ink/40">No bookings</p>}
             {confirmedUpcoming.map((b) => (
               <BookingRow key={b.id} {...bookingRowProps(b)} />
             ))}
