@@ -70,7 +70,7 @@ export default function App() {
         )}
       </header>
 
-      <main className={`max-w-5xl mx-auto px-4 ${isAdmin ? 'py-6' : 'pt-4 pb-6'}`}>
+      <main className={`max-w-5xl mx-auto px-4 ${isAdmin ? 'py-6' : 'pt-6 pb-6'}`}>
         {isAdmin ? <AdminPanel /> : <PublicAvailability />}
       </main>
 
