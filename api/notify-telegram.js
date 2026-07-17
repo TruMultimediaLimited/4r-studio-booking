@@ -1,15 +1,25 @@
+import { timingSafeEqual } from 'node:crypto'
+
 // Vercel Serverless Function. Receives a Supabase Database Webhook call on
 // INSERT into `bookings` and relays it to Telegram, since the webhook's
 // fixed payload shape ({type, table, record, ...}) can't be pointed
 // directly at Telegram's Bot API.
+
+function secretMatches(given, expected) {
+  if (typeof given !== 'string' || !expected) return false
+  const a = Buffer.from(given)
+  const b = Buffer.from(expected)
+  if (a.length !== b.length) return false
+  return timingSafeEqual(a, b)
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' })
     return
   }
 
-  const secret = req.headers['x-webhook-secret']
-  if (!process.env.WEBHOOK_SECRET || secret !== process.env.WEBHOOK_SECRET) {
+  if (!secretMatches(req.headers['x-webhook-secret'], process.env.WEBHOOK_SECRET)) {
     res.status(401).json({ error: 'Unauthorized' })
     return
   }
@@ -32,18 +42,23 @@ export default async function handler(req, res) {
     'এডমিন প্যানেলে গিয়ে কনফার্ম/প্রত্যাখ্যান করুন।',
   ].join('\n')
 
-  const telegramRes = await fetch(
-    `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: process.env.TELEGRAM_CHAT_ID, text }),
-    }
-  )
+  try {
+    const telegramRes = await fetch(
+      `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: process.env.TELEGRAM_CHAT_ID, text }),
+      }
+    )
 
-  if (!telegramRes.ok) {
-    const body = await telegramRes.text()
-    res.status(502).json({ error: 'Telegram send failed', body })
+    if (!telegramRes.ok) {
+      const body = await telegramRes.text()
+      res.status(502).json({ error: 'Telegram send failed', body })
+      return
+    }
+  } catch (err) {
+    res.status(502).json({ error: 'Telegram send failed', body: String(err) })
     return
   }
 
