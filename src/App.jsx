@@ -4,7 +4,6 @@ import AdminPanel from './components/AdminPanel.jsx'
 import MyBookingsModal from './components/MyBookingsModal.jsx'
 import { FACEBOOK_URL, INSTAGRAM_URL, MAP_URL } from './lib/packages.js'
 import { IconCalendar, IconMapPin, IconFacebook, IconInstagram } from './components/icons.jsx'
-import { BUSINESS_START_HOUR, BUSINESS_END_HOUR } from './lib/time.js'
 
 function HeaderCard({ href, onClick, icon: Icon, label }) {
   const isLink = Boolean(href)
@@ -53,11 +52,10 @@ export default function App() {
               <HeaderCard href={INSTAGRAM_URL} icon={IconInstagram} label="Instagram" />
             </div>
 
-            <div className="flex flex-col items-center justify-center min-w-0">
-              <img src="/logo.png" alt="4R Studio" className="h-9 w-auto" />
-              <p className="text-[9px] font-semibold text-ink/50 mt-0.5 whitespace-nowrap">
-                Opening Hours: {BUSINESS_START_HOUR} AM – {BUSINESS_END_HOUR - 12} PM
-              </p>
+            <div className="flex items-center justify-center min-w-0">
+              <div className="bg-white border border-pine/15 rounded-lg shadow-sm px-2.5 py-1">
+                <img src="/logo.png" alt="4R Studio" className="h-8 w-auto" />
+              </div>
             </div>
 
             <div className="flex flex-col items-end gap-1 min-w-0">
