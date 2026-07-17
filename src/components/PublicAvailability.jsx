@@ -16,6 +16,9 @@ import { isValidBangladeshiPhone, isValidClientName } from '../lib/validation.js
 const DAY_START_HOUR = BUSINESS_START_HOUR
 const DAY_END_HOUR = BUSINESS_END_HOUR
 const TIME_OPTIONS = generateTimeOptions()
+// A booking can't start at closing time (no room left to end), so the
+// "From" list drops the final (closing-time) option; "To" keeps it.
+const FROM_TIME_OPTIONS = TIME_OPTIONS.slice(0, -1)
 
 const WEEKDAY_LABELS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
 
@@ -179,13 +182,22 @@ export default function PublicAvailability() {
     .filter((b) => b.booking_date === selectedDate)
     .sort((a, b) => a.start_time.localeCompare(b.start_time))
 
-  const timeOptionsWithStatus = useMemo(
-    () =>
-      TIME_OPTIONS.map((opt) => {
-        const t = timeToMinutes(opt.value)
-        const isBooked = dayBookings.some((b) => t >= timeToMinutes(b.start_time) && t < timeToMinutes(b.end_time))
-        return { ...opt, disabled: isBooked, label: isBooked ? `${opt.label} (Booked)` : opt.label }
-      }),
+  function filterAvailable(options) {
+    return options.filter((opt) => {
+      const t = timeToMinutes(opt.value)
+      return !dayBookings.some((b) => t >= timeToMinutes(b.start_time) && t < timeToMinutes(b.end_time))
+    })
+  }
+
+  // "From" excludes the last option (closing time) — a booking can't start
+  // exactly when the studio closes, since there'd be no room left to end.
+  const availableFromOptions = useMemo(
+    () => filterAvailable(FROM_TIME_OPTIONS),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dayBookings]
+  )
+  const availableToOptions = useMemo(
+    () => filterAvailable(TIME_OPTIONS),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [dayBookings]
   )
@@ -219,6 +231,7 @@ export default function PublicAvailability() {
   const totalMinutes = (DAY_END_HOUR - DAY_START_HOUR) * 60
   const todayKey = toDateKey(new Date())
   const isSelectedPast = selectedDate && selectedDate < todayKey
+  const isSelectedDayFull = selectedDate ? (bookingsByDate[selectedDate] || 0) >= totalMinutes : false
 
   const selectedPackage = PACKAGES.find((p) => p.id === selectedPackageId) || null
 
@@ -327,6 +340,10 @@ export default function PublicAvailability() {
           </div>
         </div>
       )}
+
+      <p className="text-center text-xs font-semibold text-ink/70 mb-1">
+        Opening Hours: {DAY_START_HOUR} AM – {DAY_END_HOUR - 12} PM
+      </p>
 
       {/* Month calendar card */}
       <div className="bg-white rounded-2xl border border-mist/70 shadow-sm p-2.5 mb-1">
@@ -473,9 +490,14 @@ export default function PublicAvailability() {
               ) : !requestOpen ? (
                 <button
                   onClick={openRequestForm}
-                  className="w-full bg-pine text-paper rounded-xl py-3 font-semibold shadow-sm hover:opacity-95 transition-opacity"
+                  disabled={isSelectedDayFull}
+                  className={`w-full rounded-xl py-3 font-semibold transition-all ${
+                    isSelectedDayFull
+                      ? 'bg-mist/40 text-ink/35 cursor-not-allowed shadow-none'
+                      : 'bg-pine text-paper shadow-sm hover:opacity-95'
+                  }`}
                 >
-                  Book this slot
+                  {isSelectedDayFull ? 'Fully Booked' : 'Book this slot'}
                 </button>
               ) : (
                 <form onSubmit={handleSubmitRequest} className="border border-mist/70 rounded-2xl p-4 bg-paper/40">
@@ -510,8 +532,8 @@ export default function PublicAvailability() {
                           className={inputClass()}
                         >
                           <option value="">From</option>
-                          {timeOptionsWithStatus.map((t) => (
-                            <option key={t.value} value={t.value} disabled={t.disabled}>{t.label}</option>
+                          {availableFromOptions.map((t) => (
+                            <option key={t.value} value={t.value}>{t.label}</option>
                           ))}
                         </select>
                         <select
@@ -520,8 +542,8 @@ export default function PublicAvailability() {
                           className={inputClass()}
                         >
                           <option value="">To</option>
-                          {timeOptionsWithStatus.map((t) => (
-                            <option key={t.value} value={t.value} disabled={t.disabled}>{t.label}</option>
+                          {availableToOptions.map((t) => (
+                            <option key={t.value} value={t.value}>{t.label}</option>
                           ))}
                         </select>
                       </div>
