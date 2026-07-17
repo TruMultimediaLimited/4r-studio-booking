@@ -16,9 +16,7 @@ import {
   IconUser,
   IconTag,
   IconInbox,
-  IconTrash,
   IconDollar,
-  IconHistory,
   IconSettings,
   IconCheckCircle,
 } from './icons.jsx'
@@ -225,52 +223,46 @@ function BookingRow({
                   </p>
                 )}
               </div>
-              <div className="flex flex-wrap gap-1.5">
-                {b.status === 'pending' && (
-                  <>
-                    <button onClick={onReject} className="flex-1 border border-[#E0E0E0] rounded-lg py-1 text-[10px] font-medium text-[#333333]/60">
-                      Reject
+              <div className="space-y-1.5">
+                {(b.status === 'pending' || b.status === 'confirmed') && (
+                  <div className="flex gap-1.5">
+                    {b.status === 'pending' && (
+                      <>
+                        <button onClick={onReject} className="flex-1 border border-[#E0E0E0] rounded-lg py-1 text-[10px] font-medium text-[#333333]/60">
+                          Reject
+                        </button>
+                        <button onClick={onConfirm} className="flex-1 bg-pine text-white rounded-lg py-1 text-[10px] font-medium">
+                          Confirm
+                        </button>
+                      </>
+                    )}
+                    {b.status === 'confirmed' && (
+                      <button onClick={onCancel} className="flex-1 border border-clay/30 text-clay rounded-lg py-1 text-[10px] font-medium">
+                        Cancel Booking
+                      </button>
+                    )}
+                  </div>
+                )}
+                <div className="flex gap-1.5">
+                  {b.status !== 'cancelled' && (
+                    <button onClick={onOpenPayment} className="flex-1 border border-pine/30 text-pine rounded-lg py-1 text-[10px] font-medium">
+                      Add Payment
                     </button>
-                    <button onClick={onConfirm} className="flex-1 bg-pine text-white rounded-lg py-1 text-[10px] font-medium">
-                      Confirm
+                  )}
+                  <button onClick={onOpenHistory} className="flex-1 border border-[#E0E0E0] rounded-lg py-1 text-[10px] font-medium text-[#333333]/70">
+                    History
+                  </button>
+                  {b.status !== 'cancelled' && (
+                    <button onClick={onStartEdit} className="flex-1 border border-[#E0E0E0] rounded-lg py-1 text-[10px] font-medium text-[#333333]/70">
+                      Edit
                     </button>
-                  </>
-                )}
-                {b.status === 'confirmed' && (
-                  <button onClick={onCancel} className="flex-1 border border-clay/30 text-clay rounded-lg py-1 text-[10px] font-medium">
-                    Cancel Booking
-                  </button>
-                )}
-                {b.status !== 'cancelled' && (
-                  <button
-                    onClick={onOpenPayment}
-                    className="flex items-center justify-center gap-1 flex-1 border border-pine/30 text-pine rounded-lg py-1 text-[10px] font-medium"
-                  >
-                    <IconDollar className="h-3 w-3" /> Add Payment
-                  </button>
-                )}
-                <button
-                  onClick={onOpenHistory}
-                  className="flex items-center justify-center gap-1 flex-1 border border-[#E0E0E0] rounded-lg py-1 text-[10px] font-medium text-[#333333]/70"
-                >
-                  <IconHistory className="h-3 w-3" /> History
-                </button>
-                {b.status !== 'cancelled' && (
-                  <button
-                    onClick={onStartEdit}
-                    className="flex items-center justify-center gap-1 flex-1 border border-[#E0E0E0] rounded-lg py-1 text-[10px] font-medium text-[#333333]/70"
-                  >
-                    <IconEdit className="h-3 w-3" /> Edit
-                  </button>
-                )}
-                {b.status === 'cancelled' && (
-                  <button
-                    onClick={onDelete}
-                    className="flex items-center justify-center gap-1 flex-1 border border-clay/30 text-clay rounded-lg py-1 text-[10px] font-medium"
-                  >
-                    <IconTrash className="h-3 w-3" /> Delete Permanently
-                  </button>
-                )}
+                  )}
+                  {b.status === 'cancelled' && (
+                    <button onClick={onDelete} className="flex-1 border border-clay/30 text-clay rounded-lg py-1 text-[10px] font-medium">
+                      Delete Permanently
+                    </button>
+                  )}
+                </div>
               </div>
             </>
           )}
@@ -566,8 +558,9 @@ export default function AdminPanel() {
       pending: bookings.filter((b) => b.status === 'pending').length,
       today: bookings.filter((b) => b.status !== 'cancelled' && b.booking_date === todayKey).length,
       todayEarnings,
+      month: bookings.filter((b) => b.status !== 'cancelled' && b.booking_date.startsWith(monthPrefix)).length,
     }
-  }, [bookings, payments, todayKey])
+  }, [bookings, payments, todayKey, monthPrefix])
 
   const pendingBookings = bookings.filter((b) => b.status === 'pending')
   const confirmedUpcoming = bookings.filter((b) => b.status === 'confirmed' && b.booking_date >= todayKey)
@@ -907,7 +900,7 @@ export default function AdminPanel() {
       </div>
 
       {/* Dashboard overview */}
-      <div className="grid grid-cols-3 gap-1.5 mb-2">
+      <div className="grid grid-cols-2 gap-1.5 mb-2">
         <button
           onClick={() => {
             setStatusFilter((prev) => (prev === 'pending' ? 'all' : 'pending'))
@@ -918,7 +911,7 @@ export default function AdminPanel() {
           }`}
         >
           <p className="text-lg font-bold text-amber-600">{stats.pending}</p>
-          <p className="text-[9px] uppercase tracking-wide text-[#333333]/45 font-semibold mt-0.5">Pending Requests</p>
+          <p className="text-[9px] uppercase tracking-wide text-[#333333]/45 font-semibold mt-0.5">Pending</p>
         </button>
         <button
           onClick={() => {
@@ -930,12 +923,24 @@ export default function AdminPanel() {
           }`}
         >
           <p className="text-lg font-bold text-pine">{stats.today}</p>
-          <p className="text-[9px] uppercase tracking-wide text-[#333333]/45 font-semibold mt-0.5">Bookings Today</p>
+          <p className="text-[9px] uppercase tracking-wide text-[#333333]/45 font-semibold mt-0.5">Today's Bookings</p>
         </button>
         <div className="bg-white border border-[#E0E0E0]/70 shadow-sm rounded-lg p-2 text-center">
           <p className="text-lg font-bold text-[#333333]">{formatMoney(stats.todayEarnings)}</p>
-          <p className="text-[9px] uppercase tracking-wide text-[#333333]/45 font-semibold mt-0.5">Earnings Today</p>
+          <p className="text-[9px] uppercase tracking-wide text-[#333333]/45 font-semibold mt-0.5">Today Earnings</p>
         </div>
+        <button
+          onClick={() => {
+            setDateFilter((prev) => (prev === 'month' ? null : 'month'))
+            setStatusFilter('all')
+          }}
+          className={`bg-white border shadow-sm rounded-lg p-2 text-center transition-all ${
+            dateFilter === 'month' ? 'border-[#333333]/40 ring-2 ring-[#333333]/20 bg-mist/20' : 'border-[#E0E0E0]/70'
+          }`}
+        >
+          <p className="text-lg font-bold text-[#333333]">{stats.month}</p>
+          <p className="text-[9px] uppercase tracking-wide text-[#333333]/45 font-semibold mt-0.5">This Month</p>
+        </button>
       </div>
 
       {/* Add booking (collapsible) */}
