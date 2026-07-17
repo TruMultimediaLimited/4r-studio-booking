@@ -108,11 +108,11 @@ function IconSend(props) {
 const PACKAGE_ICONS = { photoshoot: IconCamera, photo_video: IconVideo, custom: IconMessage }
 
 function inputClass() {
-  return 'w-full border border-mist rounded-lg px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-pine focus:ring-2 focus:ring-pine/15'
+  return 'w-full border border-[#E0E0E0] rounded-lg px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-pine focus:ring-2 focus:ring-pine/15'
 }
 
 function FieldLabel({ children }) {
-  return <span className="block text-[11px] font-semibold uppercase tracking-wide text-ink/55 mb-1">{children}</span>
+  return <span className="block text-[11px] font-semibold uppercase tracking-wide text-[#333333]/55 mb-1">{children}</span>
 }
 
 function startOfMonth(d) {
@@ -233,7 +233,6 @@ export default function PublicAvailability() {
   const todayKey = toDateKey(new Date())
   const isSelectedPast = selectedDate && selectedDate < todayKey
   const isSelectedDayFull = selectedDate ? (bookingsByDate[selectedDate] || 0) >= totalMinutes : false
-  const isCollapsedDayView = !loading && !isSelectedPast && !requestSuccess && !requestOpen
 
   const selectedPackage = PACKAGES.find((p) => p.id === selectedPackageId) || null
 
@@ -343,25 +342,56 @@ export default function PublicAvailability() {
         </div>
       )}
 
-      <p className="text-center text-xs font-semibold text-ink/70 mb-1">
+      {/* Sticky booking bar — always visible, pinned just below the header */}
+      <div className="sticky top-[83px] z-10 bg-white border border-[#E0E0E0]/70 shadow-sm rounded-xl px-3.5 py-2.5 mb-4 flex items-center justify-between gap-2">
+        <p className="flex items-center gap-1.5 text-sm font-semibold text-[#333333] truncate">
+          <IconCalendar className="h-4 w-4 text-pine shrink-0" />
+          <span className="truncate">
+            {selectedDate
+              ? fromDateKey(selectedDate).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })
+              : 'Select a date'}
+          </span>
+        </p>
+        {!selectedDate ? null : requestSuccess ? (
+          <span className="shrink-0 flex items-center gap-1 text-sm font-semibold text-pine">
+            <IconCheckCircle className="h-4 w-4" /> Request Sent
+          </span>
+        ) : requestOpen ? (
+          <span className="shrink-0 text-xs font-medium text-[#333333]/55">Filling in your request below ↓</span>
+        ) : (
+          <button
+            onClick={openRequestForm}
+            disabled={isSelectedDayFull}
+            className={`shrink-0 rounded-lg px-4 py-1.5 text-sm font-semibold transition-all ${
+              isSelectedDayFull
+                ? 'bg-mist/40 text-[#333333]/35 cursor-not-allowed shadow-none'
+                : 'bg-pine text-white shadow-sm hover:opacity-95'
+            }`}
+          >
+            {isSelectedDayFull ? 'Fully Booked' : 'Book this slot'}
+          </button>
+        )}
+      </div>
+
+      <p className="text-center text-sm font-semibold text-[#333333]/70 mt-4 mb-3">
         Opening Hours: {DAY_START_HOUR} AM – {DAY_END_HOUR - 12} PM
       </p>
 
       {/* Month calendar card */}
-      <div className="bg-white rounded-xl border border-mist/70 shadow-sm p-2.5 mb-1">
-        <div className="flex items-center justify-between mb-1">
+      <div className="bg-white rounded-xl border border-[#E0E0E0]/70 shadow-sm p-4 mb-4">
+        <div className="flex items-center justify-between mb-2">
           <button
             onClick={() => {
               setMonthStart(addMonths(monthStart, -1))
               setSelectedDate(null)
             }}
             aria-label="Previous month"
-            className="flex items-center justify-center h-7 w-7 rounded-full text-ink/60 hover:bg-mist/40 hover:text-ink transition-colors"
+            className="flex items-center justify-center h-8 w-8 rounded-full text-[#333333]/60 hover:bg-mist/40 hover:text-[#333333] transition-colors"
           >
             <IconChevronLeft className="h-4 w-4" />
           </button>
-          <p className="text-sm font-semibold text-ink flex items-center gap-1.5">
-            <IconCalendar className="h-3.5 w-3.5 text-pine" />
+          <p className="text-base font-semibold text-[#333333] flex items-center gap-1.5">
+            <IconCalendar className="h-4 w-4 text-pine" />
             {monthStart.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
           </p>
           <button
@@ -370,20 +400,20 @@ export default function PublicAvailability() {
               setSelectedDate(null)
             }}
             aria-label="Next month"
-            className="flex items-center justify-center h-7 w-7 rounded-full text-ink/60 hover:bg-mist/40 hover:text-ink transition-colors"
+            className="flex items-center justify-center h-8 w-8 rounded-full text-[#333333]/60 hover:bg-mist/40 hover:text-[#333333] transition-colors"
           >
             <IconChevronRight className="h-4 w-4" />
           </button>
         </div>
 
-        <div className="grid grid-cols-7 gap-0.5 mb-0.5">
+        <div className="grid grid-cols-7 gap-1 mb-1">
           {WEEKDAY_LABELS.map((label) => (
-            <p key={label} className="text-center text-[9px] uppercase tracking-wide text-ink/50 font-semibold py-0">
+            <p key={label} className="text-center text-[10px] uppercase tracking-wide text-[#333333]/50 font-semibold py-0.5">
               {label}
             </p>
           ))}
         </div>
-        <div className="grid grid-cols-7 gap-0.5">
+        <div className="grid grid-cols-7 gap-1">
           {monthCells.map((d, i) => {
             if (!d) return <div key={`blank-${i}`} />
             const key = toDateKey(d)
@@ -394,12 +424,12 @@ export default function PublicAvailability() {
             const isToday = key === todayKey
 
             const fillClasses = isPast
-              ? 'bg-mist/20 text-ink/25 border-transparent'
+              ? 'bg-mist/20 text-[#333333]/25 border-transparent'
               : dayStatus === 'full'
-              ? 'bg-pine text-paper border-pine shadow-sm'
+              ? 'bg-pine text-white border-pine shadow-sm'
               : dayStatus === 'partial'
-              ? 'bg-sage text-ink border-sage shadow-sm'
-              : 'bg-mist/30 text-ink border-mist/70 shadow-sm hover:border-pine/40 hover:shadow-md'
+              ? 'bg-sage text-[#333333] border-sage shadow-sm'
+              : 'bg-mist/30 text-[#333333] border-[#E0E0E0]/70 shadow-sm hover:border-pine/40 hover:shadow-md'
 
             const ringClasses = isSelected
               ? 'ring-2 ring-ink ring-offset-1'
@@ -412,7 +442,7 @@ export default function PublicAvailability() {
                 key={key}
                 onClick={() => setSelectedDate(key)}
                 disabled={isPast}
-                className={`flex items-center justify-center rounded-md py-1 border font-sans font-semibold text-xs transition-all ${fillClasses} ${ringClasses}`}
+                className={`flex items-center justify-center rounded-md py-2 border font-sans font-semibold text-sm transition-all ${fillClasses} ${ringClasses}`}
               >
                 {d.getDate()}
               </button>
@@ -420,9 +450,9 @@ export default function PublicAvailability() {
           })}
         </div>
 
-        <div className="flex items-center justify-center gap-2 mt-1.5 pt-1.5 border-t border-mist/60 text-[9px] text-ink/50">
+        <div className="flex items-center justify-center gap-2 mt-2.5 pt-2.5 border-t border-[#E0E0E0]/60 text-[10px] text-[#333333]/50">
           <span className="flex items-center gap-1">
-            <span className="h-2.5 w-2.5 rounded-[3px] bg-mist/30 border border-mist/70" /> Available
+            <span className="h-2.5 w-2.5 rounded-[3px] bg-mist/30 border border-[#E0E0E0]/70" /> Available
           </span>
           <span className="flex items-center gap-1">
             <span className="h-2.5 w-2.5 rounded-[3px] bg-sage" /> Partially Booked
@@ -434,8 +464,8 @@ export default function PublicAvailability() {
       </div>
 
       {/* Package selector */}
-      <p className="text-[10px] uppercase tracking-wide text-ink/55 font-semibold mb-1 px-0.5">Choose a Package</p>
-      <div className="grid gap-1 mb-2">
+      <p className="text-xs uppercase tracking-wide text-[#333333]/55 font-semibold mb-2 px-0.5">Choose a Package</p>
+      <div className="grid gap-2 mb-4">
         {PACKAGES.map((p) => {
           const isSelected = selectedPackageId === p.id
           const Icon = PACKAGE_ICONS[p.id] || IconMessage
@@ -443,87 +473,51 @@ export default function PublicAvailability() {
             <button
               key={p.id}
               onClick={() => setSelectedPackageId(p.id)}
-              className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 border text-left transition-all ${
+              className={`flex items-center gap-3 rounded-lg px-3.5 py-2.5 border text-left transition-all ${
                 isSelected
-                  ? 'bg-pine border-pine text-paper shadow-sm'
-                  : 'bg-white border-mist/70 text-ink shadow-sm hover:border-pine/40'
+                  ? 'bg-pine border-pine text-white shadow-sm'
+                  : 'bg-white border-[#E0E0E0]/70 text-[#333333] shadow-sm hover:border-pine/40'
               }`}
             >
               <span
-                className={`flex items-center justify-center h-6 w-6 rounded-full shrink-0 ${
-                  isSelected ? 'bg-white/15 text-paper' : 'bg-pine/10 text-pine'
+                className={`flex items-center justify-center h-8 w-8 rounded-full shrink-0 ${
+                  isSelected ? 'bg-white/15 text-white' : 'bg-pine/10 text-pine'
                 }`}
               >
-                <Icon className="h-3 w-3" />
+                <Icon className="h-3.5 w-3.5" />
               </span>
-              <span className={`flex-1 text-xs font-semibold ${isSelected ? 'text-paper' : 'text-ink'}`}>{p.label}</span>
-              <span className={`text-[10px] font-medium shrink-0 ${isSelected ? 'text-paper/70' : 'text-ink/55'}`}>
+              <span className={`flex-1 text-sm font-semibold ${isSelected ? 'text-white' : 'text-[#333333]'}`}>{p.label}</span>
+              <span className={`text-xs font-medium shrink-0 ${isSelected ? 'text-white/70' : 'text-[#333333]/55'}`}>
                 {p.rateLabel || 'WhatsApp'}
               </span>
-              {isSelected && <IconCheck className="h-3 w-3 shrink-0" />}
+              {isSelected && <IconCheck className="h-3.5 w-3.5 shrink-0" />}
             </button>
           )
         })}
       </div>
 
-      {/* Day detail */}
-      {!selectedDate ? (
-        <p className="text-sm text-ink/50 py-6 text-center">Select a date</p>
-      ) : (
-        <div className="bg-white border border-mist/70 shadow-sm rounded-xl p-2.5">
-          {isCollapsedDayView ? (
-            <div className="flex items-center justify-between gap-2">
-              <p className="flex items-center gap-1.5 text-sm font-bold text-ink truncate">
-                <IconCalendar className="h-3.5 w-3.5 text-pine shrink-0" />
-                <span className="truncate">
-                  {fromDateKey(selectedDate).toLocaleDateString('en-GB', {
-                    weekday: 'short',
-                    day: 'numeric',
-                    month: 'short',
-                  })}
-                </span>
-              </p>
-              <button
-                onClick={openRequestForm}
-                disabled={isSelectedDayFull}
-                className={`shrink-0 rounded-lg px-4 py-1.5 text-sm font-semibold transition-all ${
-                  isSelectedDayFull
-                    ? 'bg-mist/40 text-ink/35 cursor-not-allowed shadow-none'
-                    : 'bg-pine text-paper shadow-sm hover:opacity-95'
-                }`}
-              >
-                {isSelectedDayFull ? 'Fully Booked' : 'Book this slot'}
-              </button>
-            </div>
+      {/* Day detail — only renders when there's something to show; the
+          collapsed date+button state lives in the sticky bar above */}
+      {selectedDate && !isSelectedPast && (loading || requestSuccess || requestOpen) && (
+        <div className="bg-white border border-[#E0E0E0]/70 shadow-sm rounded-xl p-4 mb-4">
+          {loading ? (
+            <p className="text-sm text-[#333333]/50 py-6 text-center">Loading…</p>
+          ) : requestSuccess ? (
+            <p className="flex items-start gap-2 text-sm text-pine bg-pine/5 border border-pine/20 rounded-lg px-3.5 py-3">
+              <IconCheckCircle className="h-4 w-4 shrink-0 mt-0.5" />
+              {requestSuccess}
+            </p>
           ) : (
-            <>
-              <p className="text-sm font-bold text-ink mb-2 flex items-center gap-1.5">
-                <IconCalendar className="h-3.5 w-3.5 text-pine" />
-                {fromDateKey(selectedDate).toLocaleDateString('en-GB', {
-                  weekday: 'long',
-                  day: 'numeric',
-                  month: 'long',
-                })}
-              </p>
-
-              {loading ? (
-                <p className="text-sm text-ink/50 py-6 text-center">Loading…</p>
-              ) : isSelectedPast ? null : requestSuccess ? (
-                <p className="flex items-start gap-2 text-sm text-pine bg-pine/5 border border-pine/20 rounded-lg px-3.5 py-3">
-                  <IconCheckCircle className="h-4 w-4 shrink-0 mt-0.5" />
-                  {requestSuccess}
-                </p>
-              ) : (
-                <form onSubmit={handleSubmitRequest} className="border border-mist/70 rounded-xl p-4 bg-paper/40">
-                  <p className="text-base font-bold text-ink mb-3">Booking Request</p>
+            <form onSubmit={handleSubmitRequest} className="border border-[#E0E0E0]/70 rounded-xl p-4 bg-[#F9F7F2]/60">
+              <p className="text-base font-bold text-[#333333] mb-3">Booking Request</p>
 
                   {!selectedPackage ? (
                     <>
-                      <p className="text-xs text-ink/60 mb-3">Please select a package above.</p>
+                      <p className="text-xs text-[#333333]/60 mb-3">Please select a package above.</p>
                       <button
                         type="button"
                         onClick={() => setRequestOpen(false)}
-                        className="w-full border border-mist rounded-lg py-2.5 text-sm font-medium text-ink/60"
+                        className="w-full border border-[#E0E0E0] rounded-lg py-2.5 text-sm font-medium text-[#333333]/60"
                       >
                         Cancel
                       </button>
@@ -532,7 +526,7 @@ export default function PublicAvailability() {
                     <>
                       <FieldLabel>Time</FieldLabel>
                       {dayBookings.length > 0 && (
-                        <p className="text-[11px] text-ink/50 mb-1.5">
+                        <p className="text-[11px] text-[#333333]/50 mb-1.5">
                           Booked:{' '}
                           {dayBookings
                             .map((b) => `${formatTimeLabel(b.start_time.slice(0, 5))}–${formatTimeLabel(b.end_time.slice(0, 5))}`)
@@ -569,7 +563,7 @@ export default function PublicAvailability() {
                               ? 'text-pine'
                               : availabilityStatus.kind === 'clash'
                               ? 'text-clay'
-                              : 'text-ink/50'
+                              : 'text-[#333333]/50'
                           }`}
                         >
                           {availabilityStatus.kind === 'ok' && <IconCheckCircle className="h-3.5 w-3.5 shrink-0" />}
@@ -580,7 +574,7 @@ export default function PublicAvailability() {
 
                       {selectedPackageId === 'custom' ? (
                         <div>
-                          <p className="text-xs text-ink/60 mb-2.5">
+                          <p className="text-xs text-[#333333]/60 mb-2.5">
                             Contact us on WhatsApp to discuss packages and pricing for this type of shoot.
                           </p>
                           <a
@@ -598,11 +592,11 @@ export default function PublicAvailability() {
                           {priceInfo && (
                             <div className="grid grid-cols-2 gap-2 mb-3.5">
                               <div className="rounded-lg bg-pine/5 border border-pine/15 px-3 py-2.5">
-                                <p className="text-[10px] uppercase tracking-wide text-ink/50 font-semibold mb-0.5">Total</p>
-                                <p className="text-sm font-semibold text-ink">{priceInfo.total} Tk</p>
+                                <p className="text-[10px] uppercase tracking-wide text-[#333333]/50 font-semibold mb-0.5">Total</p>
+                                <p className="text-sm font-semibold text-[#333333]">{priceInfo.total} Tk</p>
                               </div>
                               <div className="rounded-lg bg-clay/5 border border-clay/20 px-3 py-2.5">
-                                <p className="text-[10px] uppercase tracking-wide text-ink/50 font-semibold mb-0.5">
+                                <p className="text-[10px] uppercase tracking-wide text-[#333333]/50 font-semibold mb-0.5">
                                   Advance ({ADVANCE_PERCENT}%)
                                 </p>
                                 <p className="text-sm font-semibold text-clay">{priceInfo.advance} Tk</p>
@@ -645,7 +639,7 @@ export default function PublicAvailability() {
                                   type="button"
                                   onClick={() => setPaymentTab('mobile')}
                                   className={`flex-1 rounded-md py-1.5 text-xs font-semibold transition-colors ${
-                                    paymentTab === 'mobile' ? 'bg-white text-pine shadow-sm' : 'text-ink/50'
+                                    paymentTab === 'mobile' ? 'bg-white text-pine shadow-sm' : 'text-[#333333]/50'
                                   }`}
                                 >
                                   bKash / Nagad
@@ -654,20 +648,20 @@ export default function PublicAvailability() {
                                   type="button"
                                   onClick={() => setPaymentTab('bank')}
                                   className={`flex-1 rounded-md py-1.5 text-xs font-semibold transition-colors ${
-                                    paymentTab === 'bank' ? 'bg-white text-pine shadow-sm' : 'text-ink/50'
+                                    paymentTab === 'bank' ? 'bg-white text-pine shadow-sm' : 'text-[#333333]/50'
                                   }`}
                                 >
                                   Bank
                                 </button>
                               </div>
-                              <div className="rounded-lg bg-white border border-mist/60 px-3.5 py-2.5 text-xs text-ink/70 space-y-0.5">
+                              <div className="rounded-lg bg-white border border-[#E0E0E0]/60 px-3.5 py-2.5 text-xs text-[#333333]/70 space-y-0.5">
                                 {paymentTab === 'mobile' ? (
                                   <p>
-                                    Send Money to <span className="font-semibold text-ink">{PAYMENT_INFO.mobileBankingNumber}</span> ({PAYMENT_INFO.mobileBankingType})
+                                    Send Money to <span className="font-semibold text-[#333333]">{PAYMENT_INFO.mobileBankingNumber}</span> ({PAYMENT_INFO.mobileBankingType})
                                   </p>
                                 ) : (
                                   <>
-                                    <p className="font-semibold text-ink">{PAYMENT_INFO.bank.accountName}</p>
+                                    <p className="font-semibold text-[#333333]">{PAYMENT_INFO.bank.accountName}</p>
                                     <p>A/C: {PAYMENT_INFO.bank.accountNumber}</p>
                                     <p>{PAYMENT_INFO.bank.bankName}, {PAYMENT_INFO.bank.branchName} Branch</p>
                                   </>
@@ -686,13 +680,13 @@ export default function PublicAvailability() {
                             <button
                               type="button"
                               onClick={() => setRequestOpen(false)}
-                              className="flex-1 border border-mist rounded-lg py-2.5 text-sm font-medium text-ink/60"
+                              className="flex-1 border border-[#E0E0E0] rounded-lg py-2.5 text-sm font-medium text-[#333333]/60"
                             >
                               Cancel
                             </button>
                             <button
                               disabled={requestSaving}
-                              className="flex-1 flex items-center justify-center gap-1.5 bg-pine text-paper rounded-lg py-2.5 text-sm font-semibold shadow-sm disabled:opacity-50"
+                              className="flex-1 flex items-center justify-center gap-1.5 bg-pine text-white rounded-lg py-2.5 text-sm font-semibold shadow-sm disabled:opacity-50"
                             >
                               {requestSaving ? 'Sending…' : (<><IconSend className="h-3.5 w-3.5" /> Send Request</>)}
                             </button>
@@ -703,33 +697,31 @@ export default function PublicAvailability() {
                   )}
                 </form>
               )}
-            </>
-          )}
         </div>
       )}
 
-      <section className="mt-4 pt-3 border-t border-mist/60">
-        <h2 className="text-base font-bold text-ink mb-1">
+      <section className="mt-6 pt-4 border-t border-[#E0E0E0]/60">
+        <h2 className="text-base font-bold text-[#333333] mb-1">
           Why Choose 4R Studio?
         </h2>
-        <p className="text-xs font-bold text-ink/80 leading-snug mb-1">
+        <p className="text-xs font-bold text-[#333333]/80 leading-snug mb-1">
           4R Studio offers premium studio rental in Aftabnagar, Dhaka. Open 7 days a week, we provide a
           professional space for:
         </p>
-        <ul className="text-xs font-bold text-ink/80 leading-snug list-disc list-inside mb-1 space-y-0.5">
+        <ul className="text-xs font-bold text-[#333333]/80 leading-snug list-disc list-inside mb-1 space-y-0.5">
           <li>Fashion Photography & Product Photography.</li>
           <li>Videography, Commercial Productions & Content Creation.</li>
           <li>Professional Podcast Recording.</li>
         </ul>
-        <p className="text-xs font-bold text-ink/80 leading-snug">
+        <p className="text-xs font-bold text-[#333333]/80 leading-snug">
           With premium equipment and a creative environment, 4R Studio helps brands, businesses, and
           creators bring their ideas to life.
         </p>
       </section>
 
-      <p className="text-xs text-ink/50 mt-3 text-center leading-relaxed">
+      <p className="text-xs text-[#333333]/50 mt-3 text-center leading-relaxed">
         Your booking request will be confirmed shortly. Your details remain private. For any changes, please{' '}
-        <a href={buildWhatsAppLink(whatsAppMessage)} target="_blank" rel="noreferrer" className="underline text-ink/60 hover:text-ink">
+        <a href={buildWhatsAppLink(whatsAppMessage)} target="_blank" rel="noreferrer" className="underline text-[#333333]/60 hover:text-[#333333]">
           Contact on WhatsApp
         </a>
         .

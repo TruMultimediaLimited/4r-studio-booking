@@ -12,10 +12,10 @@ function HeaderCard({ href, onClick, icon: Icon, label }) {
   return (
     <Tag
       {...linkProps}
-      className="flex items-center justify-center gap-1 w-20 bg-white border border-pine/15 rounded-lg px-1.5 py-1 shadow-sm hover:border-pine/40 hover:bg-pine/5 hover:shadow-md transition-all"
+      className="flex items-center justify-center gap-1.5 w-full bg-white border border-[#E0E0E0] rounded-lg px-2 py-2 shadow-sm hover:border-pine/40 hover:bg-pine/5 hover:shadow-md transition-all"
     >
-      <Icon className="h-2.5 w-2.5 text-pine shrink-0" />
-      <span className="text-[9px] font-medium text-ink/75 whitespace-nowrap">{label}</span>
+      <Icon className="h-3.5 w-3.5 text-pine shrink-0" />
+      <span className="text-[10px] font-medium text-[#333333]/75 whitespace-nowrap">{label}</span>
     </Tag>
   )
 }
@@ -33,8 +33,12 @@ export default function App() {
   const isAdmin = route === '#/admin'
 
   return (
-    <div className="min-h-screen bg-paper font-body">
-      <header className="border-b border-mist bg-paper/95 backdrop-blur sticky top-0 z-20">
+    <div className={`min-h-screen font-body ${isAdmin ? 'bg-paper' : 'bg-[#F9F7F2]'}`}>
+      <header
+        className={`border-b sticky top-0 z-20 backdrop-blur ${
+          isAdmin ? 'border-mist bg-paper/95' : 'border-[#E0E0E0] bg-[#F9F7F2]/95'
+        }`}
+      >
         {isAdmin ? (
           <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
             <img src="/logo.png" alt="4R Studio" className="h-12 w-auto" />
@@ -46,27 +50,23 @@ export default function App() {
             </a>
           </div>
         ) : (
-          <div className="max-w-5xl mx-auto px-4 py-1.5 grid grid-cols-3 items-center gap-1.5">
-            <div className="flex flex-col items-start gap-1 min-w-0">
-              <HeaderCard href={FACEBOOK_URL} icon={IconFacebook} label="Facebook" />
-              <HeaderCard href={INSTAGRAM_URL} icon={IconInstagram} label="Instagram" />
-            </div>
+          <div className="font-sans max-w-5xl mx-auto px-4 py-3 grid grid-cols-5 items-center gap-2">
+            <HeaderCard href={FACEBOOK_URL} icon={IconFacebook} label="Facebook" />
+            <HeaderCard href={INSTAGRAM_URL} icon={IconInstagram} label="Instagram" />
 
             <div className="flex items-center justify-center min-w-0">
-              <div className="bg-white border border-pine/15 rounded-lg shadow-sm px-2.5 py-1">
-                <img src="/logo.png" alt="4R Studio" className="h-8 w-auto" />
+              <div className="bg-white border border-[#E0E0E0] rounded-lg shadow-sm px-3 py-2">
+                <img src="/logo.png" alt="4R Studio" className="h-10 w-auto" />
               </div>
             </div>
 
-            <div className="flex flex-col items-end gap-1 min-w-0">
-              <HeaderCard onClick={() => setMyBookingsOpen(true)} icon={IconCalendar} label="My Bookings" />
-              <HeaderCard href={MAP_URL} icon={IconMapPin} label="Location" />
-            </div>
+            <HeaderCard onClick={() => setMyBookingsOpen(true)} icon={IconCalendar} label="My Bookings" />
+            <HeaderCard href={MAP_URL} icon={IconMapPin} label="Location" />
           </div>
         )}
       </header>
 
-      <main className={`max-w-5xl mx-auto px-4 ${isAdmin ? 'py-6' : 'pt-1.5 pb-6'}`}>
+      <main className={`max-w-5xl mx-auto px-4 ${isAdmin ? 'py-6' : 'pt-4 pb-6'}`}>
         {isAdmin ? <AdminPanel /> : <PublicAvailability />}
       </main>
 
