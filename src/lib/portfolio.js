@@ -11,12 +11,30 @@ export const CATEGORY_LABELS_BN = {
   Product: 'প্রোডাক্ট',
 }
 
-const MAX_DIMENSION = 1600
-const JPEG_QUALITY = 0.82
+const MAX_DIMENSION = 2000
+const WEBP_QUALITY = 0.85
+const JPEG_QUALITY = 0.85
+
+// WebP encodes noticeably smaller than JPEG at the same visual quality.
+// Some older browsers accept the 'image/webp' request but silently emit
+// PNG instead (huge files), so this actually probes canvas support
+// rather than trusting the request.
+let webpSupportCache = null
+function supportsWebP() {
+  if (webpSupportCache !== null) return webpSupportCache
+  const probe = document.createElement('canvas')
+  probe.width = 1
+  probe.height = 1
+  webpSupportCache = probe.toDataURL('image/webp').startsWith('data:image/webp')
+  return webpSupportCache
+}
 
 // Resizes+compresses an image file in the browser before upload, so a
-// multi-MB phone photo doesn't eat into the free storage quota. Pure
-// Canvas API — no extra dependency.
+// multi-MB phone photo doesn't eat into the free storage quota while
+// staying visually sharp. Pure Canvas API — no extra dependency.
+// Resolves to { blob, mimeType, extension } — format depends on browser
+// WebP support, so callers must use the returned extension/mimeType
+// rather than assuming JPEG.
 export function compressImage(file) {
   return new Promise((resolve, reject) => {
     const img = new Image()
@@ -34,10 +52,15 @@ export function compressImage(file) {
       const ctx = canvas.getContext('2d')
       ctx.drawImage(img, 0, 0, width, height)
 
+      const useWebP = supportsWebP()
+      const mimeType = useWebP ? 'image/webp' : 'image/jpeg'
+      const extension = useWebP ? 'webp' : 'jpg'
+      const quality = useWebP ? WEBP_QUALITY : JPEG_QUALITY
+
       canvas.toBlob(
-        (blob) => (blob ? resolve(blob) : reject(new Error('Image compression failed'))),
-        'image/jpeg',
-        JPEG_QUALITY
+        (blob) => (blob ? resolve({ blob, mimeType, extension }) : reject(new Error('Image compression failed'))),
+        mimeType,
+        quality
       )
     }
     img.onerror = () => {

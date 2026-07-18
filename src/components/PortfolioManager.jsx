@@ -73,12 +73,12 @@ export default function PortfolioManager({ onError }) {
     setUploadError('')
     setUploading(true)
     try {
-      const compressed = await compressImage(pendingFile)
-      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`
+      const { blob, mimeType, extension } = await compressImage(pendingFile)
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`
 
       const { error: uploadErr } = await supabase.storage
         .from('portfolio')
-        .upload(path, compressed, { contentType: 'image/jpeg' })
+        .upload(path, blob, { contentType: mimeType })
       if (uploadErr) throw uploadErr
 
       const { error: insertErr } = await supabase
