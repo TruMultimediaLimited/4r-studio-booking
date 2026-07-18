@@ -10,9 +10,9 @@ export const MAP_URL = 'https://maps.app.goo.gl/kBQP3Gh91ah2TkPp7'
 // rows seeded by docs/schema.sql's admin-management migration, since
 // PACKAGE_ICONS in PublicAvailability.jsx keys off these same ids.
 export const DEFAULT_PACKAGES = [
-  { id: 'photoshoot', label: 'Studio Rent for Photoshoot', rateLabel: '700 TK (Per Hour)', hourlyRate: 700 },
-  { id: 'photo_video', label: 'Studio Rent for Photo & Videoshoot', rateLabel: '1000 TK (Per Hour)', hourlyRate: 1000 },
-  { id: 'custom', label: 'Others', hourlyRate: null },
+  { id: 'photoshoot', label: 'Studio Rent for Photoshoot', rateLabel: '700 TK (Per Hour)', hourlyRate: 700, inclusions: null },
+  { id: 'photo_video', label: 'Studio Rent for Photo & Videoshoot', rateLabel: '1000 TK (Per Hour)', hourlyRate: 1000, inclusions: null },
+  { id: 'custom', label: 'Others', hourlyRate: null, inclusions: null },
 ]
 
 export const PAYMENT_METHODS = ['Hand Cash', 'Bkash', 'Nagad', 'Bank']

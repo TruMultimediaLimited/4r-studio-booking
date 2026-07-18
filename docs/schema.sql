@@ -525,3 +525,15 @@ alter table public.portfolio_items
   add column if not exists album_id uuid references public.portfolio_albums(id) on delete cascade;
 
 create index if not exists portfolio_items_album_idx on public.portfolio_items (album_id);
+
+-- ============================================================
+-- Package inclusions migration (Follow-up: "what's included" list)
+--
+-- ADDITIVE and safe to run once on the live database. Lets each
+-- package show its own list of what's included (equipment, amenities,
+-- etc.) on the public booking page. One item per line, edited from the
+-- admin panel's Package Pricing section. Existing RLS/grants on
+-- `packages` already cover this new column — nothing else to add.
+-- ============================================================
+
+alter table public.packages add column if not exists inclusions text;
