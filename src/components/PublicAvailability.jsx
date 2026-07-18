@@ -132,6 +132,7 @@ export default function PublicAvailability() {
 
   const [selectedPackageId, setSelectedPackageId] = useState('')
   const [packagesOpen, setPackagesOpen] = useState(false)
+  const [expandedInclusionId, setExpandedInclusionId] = useState('')
   const [requestOpen, setRequestOpen] = useState(false)
   const [requestForm, setRequestForm] = useState(emptyRequestForm)
   const [requestError, setRequestError] = useState('')
@@ -552,6 +553,7 @@ export default function PublicAvailability() {
               const inclusions = p.inclusions
                 ? p.inclusions.split('\n').map((s) => s.trim()).filter(Boolean)
                 : []
+              const isExpanded = expandedInclusionId === p.id
               return (
                 <div
                   key={p.id}
@@ -571,17 +573,44 @@ export default function PublicAvailability() {
                     <span className={`text-[11px] font-medium shrink-0 ${isSelected ? 'text-white/70' : 'text-[#333333]/55'}`}>
                       {p.rateLabel || 'WhatsApp'}
                     </span>
+                    {inclusions.length > 0 && (
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setExpandedInclusionId(isExpanded ? '' : p.id)
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            setExpandedInclusionId(isExpanded ? '' : p.id)
+                          }
+                        }}
+                        aria-label="কী থাকছে দেখুন"
+                        className={`flex items-center justify-center h-5 w-5 rounded-full shrink-0 cursor-pointer ${
+                          isSelected ? 'text-white/70 hover:bg-white/15' : 'text-[#333333]/45 hover:bg-pine/10'
+                        }`}
+                      >
+                        <IconChevronRight className={`h-3 w-3 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+                      </span>
+                    )}
                     {isSelected && <IconCheck className="h-3 w-3 shrink-0" />}
                   </button>
                   {inclusions.length > 0 && (
-                    <ul className={`px-2.5 pb-2 pl-9 space-y-0.5 ${isSelected ? 'text-white/85' : 'text-[#333333]/65'}`}>
-                      {inclusions.map((item, i) => (
-                        <li key={i} className="flex items-start gap-1.5 text-[11px]">
-                          <IconCheck className="h-2.5 w-2.5 shrink-0 mt-0.5" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    <div className={`grid transition-[grid-template-rows] duration-200 ease-in-out ${isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+                      <div className="overflow-hidden">
+                        <ul className={`px-2.5 pb-2 pl-9 grid grid-cols-2 gap-x-3 gap-y-0.5 ${isSelected ? 'text-white/85' : 'text-[#333333]/65'}`}>
+                          {inclusions.map((item, i) => (
+                            <li key={i} className="flex items-start gap-1.5 text-[11px]">
+                              <IconCheck className="h-2.5 w-2.5 shrink-0 mt-0.5" />
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
                   )}
                 </div>
               )
