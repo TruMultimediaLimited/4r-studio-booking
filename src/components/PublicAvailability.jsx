@@ -51,14 +51,6 @@ function IconCamera(props) {
     </svg>
   )
 }
-function IconVideo(props) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <polygon points="23 7 16 12 23 17 23 7" />
-      <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-    </svg>
-  )
-}
 function IconMessage(props) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -98,8 +90,6 @@ function IconSend(props) {
     </svg>
   )
 }
-
-const PACKAGE_ICONS = { photoshoot: IconCamera, photo_video: IconVideo, custom: IconMessage }
 
 function inputClass() {
   return 'w-full border border-[#E0E0E0] rounded-lg px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-pine focus:ring-2 focus:ring-pine/15'
@@ -549,7 +539,6 @@ export default function PublicAvailability() {
           <div className="grid gap-1.5 mb-2">
             {packages.map((p) => {
               const isSelected = selectedPackageId === p.id
-              const Icon = PACKAGE_ICONS[p.id] || IconMessage
               const inclusions = p.inclusions
                 ? p.inclusions.split('\n').map((s) => s.trim()).filter(Boolean)
                 : []
@@ -568,13 +557,6 @@ export default function PublicAvailability() {
                     }}
                     className="flex items-center gap-2 w-full px-2.5 py-1.5 text-left"
                   >
-                    <span
-                      className={`flex items-center justify-center h-6 w-6 rounded-full shrink-0 ${
-                        isSelected ? 'bg-pine text-white' : 'bg-pine/10 text-pine'
-                      }`}
-                    >
-                      <Icon className="h-2.5 w-2.5" />
-                    </span>
                     <span className={`flex-1 text-xs font-semibold ${isSelected ? 'text-pine' : 'text-[#333333]'}`}>{p.label}</span>
                     <span className={`text-[11px] font-medium shrink-0 ${isSelected ? 'text-pine/70' : 'text-[#333333]/55'}`}>
                       {p.rateLabel || 'WhatsApp'}
