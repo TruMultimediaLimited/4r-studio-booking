@@ -579,29 +579,6 @@ export default function PublicAvailability() {
                     <span className={`text-[11px] font-medium shrink-0 ${isSelected ? 'text-white/70' : 'text-[#333333]/55'}`}>
                       {p.rateLabel || 'WhatsApp'}
                     </span>
-                    {inclusions.length > 0 && (
-                      <span
-                        role="button"
-                        tabIndex={0}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setExpandedInclusionId(isExpanded ? '' : p.id)
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            setExpandedInclusionId(isExpanded ? '' : p.id)
-                          }
-                        }}
-                        aria-label="কী থাকছে দেখুন"
-                        className={`flex items-center justify-center h-5 w-5 rounded-full shrink-0 cursor-pointer ${
-                          isSelected ? 'text-white/70 hover:bg-white/15' : 'text-[#333333]/45 hover:bg-pine/10'
-                        }`}
-                      >
-                        <IconChevronRight className={`h-3 w-3 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
-                      </span>
-                    )}
                     {isSelected && <IconCheck className="h-3 w-3 shrink-0" />}
                   </button>
                   {inclusions.length > 0 && (
