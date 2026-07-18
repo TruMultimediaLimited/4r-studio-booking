@@ -1,16 +1,5 @@
 import { supabase } from '../supabaseClient.js'
 
-export const PORTFOLIO_CATEGORIES = ['Photoshoot', 'Event', 'Portrait', 'Product']
-
-// English values are stored in the DB (and used in the admin dropdown);
-// Bengali labels are what visitors see on the public gallery.
-export const CATEGORY_LABELS_BN = {
-  Photoshoot: 'ফটোশুট',
-  Event: 'ইভেন্ট',
-  Portrait: 'পোর্ট্রেট',
-  Product: 'প্রোডাক্ট',
-}
-
 const MAX_DIMENSION = 2000
 const WEBP_QUALITY = 0.85
 const JPEG_QUALITY = 0.85

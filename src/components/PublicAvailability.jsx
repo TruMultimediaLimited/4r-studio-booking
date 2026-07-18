@@ -12,6 +12,7 @@ import {
 } from '../lib/time.js'
 import { DEFAULT_PACKAGES, ADVANCE_PERCENT, PAYMENT_INFO, buildWhatsAppLink } from '../lib/packages.js'
 import { isValidBangladeshiPhone, isValidClientName } from '../lib/validation.js'
+import { IconTag } from './icons.jsx'
 
 const WEEKDAY_LABELS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
 
@@ -130,6 +131,7 @@ export default function PublicAvailability() {
   const [error, setError] = useState(null)
 
   const [selectedPackageId, setSelectedPackageId] = useState('')
+  const [packagesOpen, setPackagesOpen] = useState(false)
   const [requestOpen, setRequestOpen] = useState(false)
   const [requestForm, setRequestForm] = useState(emptyRequestForm)
   const [requestError, setRequestError] = useState('')
@@ -512,42 +514,62 @@ export default function PublicAvailability() {
         </div>
       </div>
 
-      {/* Package selector */}
-      <div className="flex items-center justify-between gap-2 mb-1.5">
-        <p className="inline-block bg-mist/50 rounded-md text-xs tracking-wide text-[#333333]/80 font-semibold px-2.5 py-1">প্যাকেজ বেছে নিন</p>
-        <a href="#/portfolio" className="flex items-center gap-1 shrink-0 text-xs font-semibold text-pine hover:underline">
-          <IconCamera className="h-3.5 w-3.5" /> আমাদের কাজ দেখুন
+      {/* Portfolio + Package accordion trigger — identical size/shape/style */}
+      <div className="grid grid-cols-2 gap-2 mb-2">
+        <a
+          href="#/portfolio"
+          className="flex flex-col items-center justify-center gap-1 bg-pine text-white rounded-xl py-3.5 shadow-sm hover:opacity-95 transition-opacity"
+        >
+          <IconCamera className="h-5 w-5" />
+          <span className="text-xs font-bold">পোর্টফোলিও দেখুন</span>
         </a>
+        <button
+          type="button"
+          onClick={() => setPackagesOpen((v) => !v)}
+          className="flex flex-col items-center justify-center gap-1 bg-pine text-white rounded-xl py-3.5 shadow-sm hover:opacity-95 transition-opacity"
+        >
+          <IconTag className="h-5 w-5" />
+          <span className="text-xs font-bold text-center leading-tight">
+            {selectedPackage ? '✓ প্যাকেজ নির্বাচিত' : 'প্যাকেজ বেছে নিন'}
+          </span>
+        </button>
       </div>
-      <div className="grid gap-1.5 mb-2">
-        {packages.map((p) => {
-          const isSelected = selectedPackageId === p.id
-          const Icon = PACKAGE_ICONS[p.id] || IconMessage
-          return (
-            <button
-              key={p.id}
-              onClick={() => setSelectedPackageId(p.id)}
-              className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 border text-left transition-all ${
-                isSelected
-                  ? 'bg-pine border-pine text-white shadow-sm'
-                  : 'bg-white border-[#E0E0E0] text-[#333333] shadow-sm hover:border-pine/40'
-              }`}
-            >
-              <span
-                className={`flex items-center justify-center h-6 w-6 rounded-full shrink-0 ${
-                  isSelected ? 'bg-white/15 text-white' : 'bg-pine/10 text-pine'
-                }`}
-              >
-                <Icon className="h-2.5 w-2.5" />
-              </span>
-              <span className={`flex-1 text-xs font-semibold ${isSelected ? 'text-white' : 'text-[#333333]'}`}>{p.label}</span>
-              <span className={`text-[11px] font-medium shrink-0 ${isSelected ? 'text-white/70' : 'text-[#333333]/55'}`}>
-                {p.rateLabel || 'WhatsApp'}
-              </span>
-              {isSelected && <IconCheck className="h-3 w-3 shrink-0" />}
-            </button>
-          )
-        })}
+
+      {/* Pure-CSS accordion: grid-template-rows animates 0fr↔1fr, no JS
+          height measurement, no library. */}
+      <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${packagesOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+        <div className="overflow-hidden">
+          <div className="grid gap-1.5 mb-2">
+            {packages.map((p) => {
+              const isSelected = selectedPackageId === p.id
+              const Icon = PACKAGE_ICONS[p.id] || IconMessage
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => setSelectedPackageId(p.id)}
+                  className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 border text-left transition-all ${
+                    isSelected
+                      ? 'bg-pine border-pine text-white shadow-sm'
+                      : 'bg-white border-[#E0E0E0] text-[#333333] shadow-sm hover:border-pine/40'
+                  }`}
+                >
+                  <span
+                    className={`flex items-center justify-center h-6 w-6 rounded-full shrink-0 ${
+                      isSelected ? 'bg-white/15 text-white' : 'bg-pine/10 text-pine'
+                    }`}
+                  >
+                    <Icon className="h-2.5 w-2.5" />
+                  </span>
+                  <span className={`flex-1 text-xs font-semibold ${isSelected ? 'text-white' : 'text-[#333333]'}`}>{p.label}</span>
+                  <span className={`text-[11px] font-medium shrink-0 ${isSelected ? 'text-white/70' : 'text-[#333333]/55'}`}>
+                    {p.rateLabel || 'WhatsApp'}
+                  </span>
+                  {isSelected && <IconCheck className="h-3 w-3 shrink-0" />}
+                </button>
+              )
+            })}
+          </div>
+        </div>
       </div>
 
       </div>
@@ -638,7 +660,7 @@ export default function PublicAvailability() {
 
                   {!selectedPackage ? (
                     <>
-                      <p className="text-xs text-[#333333]/60 mb-3">আগে উপরের তালিকা থেকে একটা প্যাকেজ বেছে নিন।</p>
+                      <p className="text-xs text-[#333333]/60 mb-3">উপরে "প্যাকেজ বেছে নিন" বাটনে ক্লিক করে একটা প্যাকেজ বেছে নিন।</p>
                       <button
                         type="button"
                         onClick={() => setRequestOpen(false)}
