@@ -38,7 +38,7 @@ export default function App() {
   const isPortfolio = route === '#/portfolio'
 
   return (
-    <div className="min-h-screen font-body bg-[#F9F7F2]">
+    <div className={`min-h-screen font-body ${isPortfolio ? 'bg-[#18181B]' : 'bg-[#F9F7F2]'}`}>
       <h1 className="sr-only">4R Studio — Photography &amp; Videography Studio Rental in Aftabnagar, Dhaka</h1>
       <header className="border-b border-[#E0E0E0] bg-[#F9F7F2]/95 sticky top-0 z-20 backdrop-blur">
         {isAdmin ? (
@@ -85,7 +85,7 @@ export default function App() {
             <AdminPanel />
           </Suspense>
         ) : isPortfolio ? (
-          <Suspense fallback={<p className="font-sans text-sm text-[#333333]/55 py-12 text-center">লোড হচ্ছে…</p>}>
+          <Suspense fallback={<p className="font-sans text-sm text-white/60 py-12 text-center">লোড হচ্ছে…</p>}>
             <PortfolioGallery />
           </Suspense>
         ) : (

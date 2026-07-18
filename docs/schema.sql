@@ -493,3 +493,35 @@ create policy "authenticated delete portfolio images"
   on storage.objects for delete
   to authenticated
   using (bucket_id = 'portfolio');
+
+-- ============================================================
+-- Portfolio albums migration (Follow-up: album-based gallery redesign)
+--
+-- ADDITIVE and safe to run once on the live database. Replaces the flat
+-- category filter with proper named albums/folders (each with an
+-- optional cover photo). The old `category` column on portfolio_items
+-- is left in place untouched — just no longer used by the UI — since
+-- migrations here never drop columns or data.
+-- ============================================================
+
+create table if not exists public.portfolio_albums (
+  id                  uuid primary key default gen_random_uuid(),
+  name                text not null,
+  cover_storage_path  text,
+  sort_order          int not null default 0,
+  created_at          timestamptz not null default now()
+);
+
+alter table public.portfolio_albums enable row level security;
+
+create policy "anon read portfolio albums" on public.portfolio_albums for select to anon using (true);
+create policy "authenticated read portfolio albums" on public.portfolio_albums for select to authenticated using (true);
+create policy "authenticated manage portfolio albums" on public.portfolio_albums for all to authenticated using (true) with check (true);
+
+grant select on public.portfolio_albums to anon;
+grant select, insert, update, delete on public.portfolio_albums to authenticated;
+
+alter table public.portfolio_items
+  add column if not exists album_id uuid references public.portfolio_albums(id) on delete cascade;
+
+create index if not exists portfolio_items_album_idx on public.portfolio_items (album_id);
