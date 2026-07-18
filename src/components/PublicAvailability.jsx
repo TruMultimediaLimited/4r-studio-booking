@@ -674,7 +674,7 @@ export default function PublicAvailability() {
                   <a
                     href={buildWhatsAppLink(
                       lastRequest
-                        ? `Hello, I just sent a booking request at 4R Studio. Date: ${fromDateKey(lastRequest.dateKey).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}, Time: ${formatTimeLabel(lastRequest.start)} – ${formatTimeLabel(lastRequest.end)}, Package: ${lastRequest.packageLabel}.${lastRequest.advance != null ? ` I am sending the ${lastRequest.advance} Tk advance payment proof.` : ''}`
+                        ? `Hello, I just sent a booking request at 4R Studio. Date: ${fromDateKey(lastRequest.dateKey).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}, Time: ${formatTimeLabel(lastRequest.start)} – ${formatTimeLabel(lastRequest.end)}, Package: ${lastRequest.packageLabel}.${lastRequest.advance != null ? ` I am sending the ${lastRequest.advance} Tk advance payment screenshot.` : ''}`
                         : whatsAppMessage
                     )}
                     target="_blank"
@@ -682,7 +682,7 @@ export default function PublicAvailability() {
                     className="flex items-center justify-center gap-2 text-center bg-[#25D366] text-white rounded-lg py-2.5 text-sm font-semibold shadow-sm"
                   >
                     <IconMessage className="h-4 w-4" />
-                    WhatsApp-এ পেমেন্ট প্রুফ পাঠান
+                    বুকিং কনফার্ম করতে পেমেন্ট স্ক্রিনশট পাঠান
                   </a>
                 </div>
               ) : (
