@@ -9,17 +9,21 @@ const PortfolioGallery = lazy(() => import('./components/PortfolioGallery.jsx'))
 import { FACEBOOK_URL, INSTAGRAM_URL, MAP_URL } from './lib/packages.js'
 import { IconCalendar, IconMapPin, IconFacebook, IconInstagram } from './components/icons.jsx'
 
-function HeaderCard({ href, onClick, icon: Icon, label }) {
+function HeaderCard({ href, onClick, icon: Icon, label, dark }) {
   const isLink = Boolean(href)
   const Tag = isLink ? 'a' : 'button'
   const linkProps = isLink ? { href, target: '_blank', rel: 'noreferrer' } : { onClick, type: 'button' }
   return (
     <Tag
       {...linkProps}
-      className="flex items-center justify-center gap-1 w-24 bg-white border border-[#E0E0E0] rounded-lg px-1.5 py-1.5 shadow-sm hover:border-pine/40 hover:bg-pine/5 hover:shadow-md transition-all"
+      className={
+        dark
+          ? 'flex items-center justify-center gap-1 w-24 bg-zinc-800/60 rounded-full px-1.5 py-1.5 hover:bg-zinc-700/60 transition-colors'
+          : 'flex items-center justify-center gap-1 w-24 bg-white border border-[#E0E0E0] rounded-lg px-1.5 py-1.5 shadow-sm hover:border-pine/40 hover:bg-pine/5 hover:shadow-md transition-all'
+      }
     >
-      <Icon className="h-3 w-3 text-pine shrink-0" />
-      <span className="text-[11px] font-medium text-[#333333]/75 text-center leading-tight">{label}</span>
+      <Icon className={`h-3 w-3 shrink-0 ${dark ? 'text-zinc-300' : 'text-pine'}`} />
+      <span className={`text-[11px] font-medium text-center leading-tight ${dark ? 'text-zinc-300' : 'text-[#333333]/75'}`}>{label}</span>
     </Tag>
   )
 }
@@ -40,7 +44,11 @@ export default function App() {
   return (
     <div className={`min-h-screen font-body ${isPortfolio ? 'bg-[#18181B]' : 'bg-[#F9F7F2]'}`}>
       <h1 className="sr-only">4R Studio — Photography &amp; Videography Studio Rental in Aftabnagar, Dhaka</h1>
-      <header className="border-b border-[#E0E0E0] bg-[#F9F7F2]/95 sticky top-0 z-20 backdrop-blur">
+      <header
+        className={`sticky top-0 z-20 backdrop-blur border-b ${
+          isPortfolio ? 'bg-[#18181B]/95 border-white/10' : 'bg-[#F9F7F2]/95 border-[#E0E0E0]'
+        }`}
+      >
         {isAdmin ? (
           <div className="font-sans max-w-5xl mx-auto px-4 py-3 grid grid-cols-3 items-center gap-1.5">
             <div />
@@ -61,19 +69,27 @@ export default function App() {
         ) : (
           <div className="font-sans max-w-5xl mx-auto px-3 py-2 grid grid-cols-3 items-center gap-1">
             <div className="flex flex-col items-start gap-1 min-w-0">
-              <HeaderCard href={FACEBOOK_URL} icon={IconFacebook} label="Facebook" />
-              <HeaderCard href={INSTAGRAM_URL} icon={IconInstagram} label="Instagram" />
+              <HeaderCard href={FACEBOOK_URL} icon={IconFacebook} label="Facebook" dark={isPortfolio} />
+              <HeaderCard href={INSTAGRAM_URL} icon={IconInstagram} label="Instagram" dark={isPortfolio} />
             </div>
 
             <div className="flex items-center justify-center min-w-0">
-              <div className="bg-white border border-[#E0E0E0] rounded-lg shadow-sm px-3 py-1.5">
-                <img src="/logo.png" alt="4R Studio" className="h-9 w-auto" />
-              </div>
+              {isPortfolio ? (
+                <img
+                  src="/logo.png"
+                  alt="4R Studio"
+                  className="h-9 w-auto drop-shadow-[0_0_10px_rgba(249,247,242,0.5)]"
+                />
+              ) : (
+                <div className="bg-white border border-[#E0E0E0] rounded-lg shadow-sm px-3 py-1.5">
+                  <img src="/logo.png" alt="4R Studio" className="h-9 w-auto" />
+                </div>
+              )}
             </div>
 
             <div className="flex flex-col items-end gap-1 min-w-0">
-              <HeaderCard onClick={() => setMyBookingsOpen(true)} icon={IconCalendar} label="আমার বুকিং" />
-              <HeaderCard href={MAP_URL} icon={IconMapPin} label="লোকেশন" />
+              <HeaderCard onClick={() => setMyBookingsOpen(true)} icon={IconCalendar} label="আমার বুকিং" dark={isPortfolio} />
+              <HeaderCard href={MAP_URL} icon={IconMapPin} label="লোকেশন" dark={isPortfolio} />
             </div>
           </div>
         )}
