@@ -40,7 +40,11 @@ export default function App() {
   return (
     <div className={`min-h-screen font-body ${isPortfolio ? 'bg-[#18181B]' : 'bg-[#F9F7F2]'}`}>
       <h1 className="sr-only">4R Studio — Photography &amp; Videography Studio Rental in Aftabnagar, Dhaka</h1>
-      <header className="border-b border-[#E0E0E0] bg-[#F9F7F2]/95 sticky top-0 z-20 backdrop-blur">
+      <header
+        className={`sticky top-0 z-20 backdrop-blur border-b ${
+          isPortfolio ? 'bg-[#18181B]/95 border-white/10' : 'bg-[#F9F7F2]/95 border-[#E0E0E0]'
+        }`}
+      >
         {isAdmin ? (
           <div className="font-sans max-w-5xl mx-auto px-4 py-3 grid grid-cols-3 items-center gap-1.5">
             <div />

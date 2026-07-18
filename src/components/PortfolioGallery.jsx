@@ -192,7 +192,7 @@ export default function PortfolioGallery() {
   return (
     <div className="font-sans">
       <div className="flex items-center justify-between mb-4">
-        <p className="text-xl font-bold text-white">আমাদের কাজ</p>
+        <p className="text-xs font-medium text-sage">আমাদের কাজ</p>
         {backLink}
       </div>
 
