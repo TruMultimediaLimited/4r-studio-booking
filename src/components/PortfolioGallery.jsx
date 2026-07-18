@@ -192,7 +192,7 @@ export default function PortfolioGallery() {
   return (
     <div className="font-sans">
       <div className="flex items-center justify-between mb-4">
-        <p className="text-xs font-medium text-sage">আমাদের কাজ</p>
+        <p className="text-xs font-medium text-sage border border-sage/40 rounded-full px-3 py-1.5 whitespace-nowrap">আমাদের কাজ</p>
         {backLink}
       </div>
 
