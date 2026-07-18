@@ -555,19 +555,21 @@ export default function PublicAvailability() {
                       setSelectedPackageId(p.id)
                       setExpandedInclusionId((prev) => (prev === p.id ? '' : (inclusions.length > 0 ? p.id : '')))
                     }}
-                    className="flex items-center gap-2 w-full px-2.5 py-1.5 text-left"
+                    className="flex flex-col gap-0.5 w-full px-2.5 py-1.5 text-left"
                   >
-                    <span className={`flex-1 text-xs font-semibold ${isSelected ? 'text-pine' : 'text-[#333333]'}`}>{p.label}</span>
-                    <span className={`text-[11px] font-medium shrink-0 ${isSelected ? 'text-pine/70' : 'text-[#333333]/55'}`}>
-                      {p.rateLabel || 'WhatsApp'}
+                    <span className={`text-xs font-semibold ${isSelected ? 'text-pine' : 'text-[#333333]'}`}>{p.label}</span>
+                    <span className="flex items-center justify-between gap-2">
+                      <span className={`text-[11px] font-medium ${isSelected ? 'text-pine/70' : 'text-[#333333]/55'}`}>
+                        {p.rateLabel || 'WhatsApp'}
+                      </span>
+                      {inclusions.length > 0 && (
+                        <IconChevronRight
+                          className={`h-3 w-3 shrink-0 transition-transform ${isExpanded ? 'rotate-90' : ''} ${
+                            isSelected ? 'text-pine/70' : 'text-[#333333]/45'
+                          }`}
+                        />
+                      )}
                     </span>
-                    {inclusions.length > 0 && (
-                      <IconChevronRight
-                        className={`h-3 w-3 shrink-0 transition-transform ${isExpanded ? 'rotate-90' : ''} ${
-                          isSelected ? 'text-pine/70' : 'text-[#333333]/45'
-                        }`}
-                      />
-                    )}
                   </button>
                   {inclusions.length > 0 && (
                     <div className={`grid transition-[grid-template-rows] duration-200 ease-in-out ${isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
