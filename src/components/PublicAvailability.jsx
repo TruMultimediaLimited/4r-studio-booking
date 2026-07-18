@@ -584,14 +584,16 @@ export default function PublicAvailability() {
                   {inclusions.length > 0 && (
                     <div className={`grid transition-[grid-template-rows] duration-200 ease-in-out ${isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
                       <div className="overflow-hidden">
-                        <ul className={`px-2.5 pb-2 pl-9 grid grid-cols-2 gap-x-3 gap-y-0.5 ${isSelected ? 'text-white/85' : 'text-[#333333]/65'}`}>
-                          {inclusions.map((item, i) => (
-                            <li key={i} className="flex items-start gap-1.5 text-[11px]">
-                              <IconCheck className="h-2.5 w-2.5 shrink-0 mt-0.5" />
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
+                        <div className={`mx-2.5 mb-2 rounded-md p-2 ${isSelected ? 'bg-black/15' : 'bg-pine/5'}`}>
+                          <ul className={`grid grid-cols-2 gap-x-3 gap-y-1 ${isSelected ? 'text-white/85' : 'text-[#333333]/65'}`}>
+                            {inclusions.map((item, i) => (
+                              <li key={i} className="flex items-start gap-1.5 text-[11px]">
+                                <IconCheck className="h-2.5 w-2.5 shrink-0 mt-0.5" />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       </div>
                     </div>
                   )}
