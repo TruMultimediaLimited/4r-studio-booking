@@ -58,13 +58,6 @@ function IconMessage(props) {
     </svg>
   )
 }
-function IconCheck(props) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  )
-}
 function IconCheckCircle(props) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -574,14 +567,23 @@ export default function PublicAvailability() {
                   {inclusions.length > 0 && (
                     <div className={`grid transition-[grid-template-rows] duration-200 ease-in-out ${isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
                       <div className="overflow-hidden">
-                        <div className={`mx-2.5 mb-2 rounded-md p-3 ${isSelected ? 'bg-white' : 'bg-pine/5'}`}>
-                          <ul className="grid grid-cols-2 gap-x-4 gap-y-2.5 text-[#333333]/65">
-                            {inclusions.map((item, i) => (
-                              <li key={i} className="flex items-start gap-2 text-xs leading-snug">
-                                <IconCheck className="h-3 w-3 shrink-0 mt-0.5 text-pine" />
-                                <span>{item}</span>
-                              </li>
-                            ))}
+                        <div className={`mx-2.5 mb-2 rounded-md p-3.5 ${isSelected ? 'bg-white' : 'bg-pine/5'}`}>
+                          <ul className="flex flex-col gap-3 text-[#333333]/70">
+                            {inclusions.map((item, i) => {
+                              const colonIdx = item.indexOf(':')
+                              const hasLabel = colonIdx > 0 && colonIdx < 20
+                              const label = hasLabel ? item.slice(0, colonIdx) : null
+                              const rest = hasLabel ? item.slice(colonIdx + 1).trim() : item
+                              return (
+                                <li key={i} className="flex items-start gap-2.5 text-xs leading-relaxed">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-pine/50 shrink-0 mt-[5px]" />
+                                  <span>
+                                    {label && <span className="font-semibold text-pine">{label}: </span>}
+                                    {rest}
+                                  </span>
+                                </li>
+                              )
+                            })}
                           </ul>
                         </div>
                       </div>
