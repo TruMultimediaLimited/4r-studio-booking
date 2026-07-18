@@ -561,7 +561,13 @@ export default function PublicAvailability() {
                     isSelected ? 'bg-pine border-pine shadow-sm' : 'bg-white border-[#E0E0E0] shadow-sm hover:border-pine/40'
                   }`}
                 >
-                  <button onClick={() => setSelectedPackageId(p.id)} className="flex items-center gap-2 w-full px-2.5 py-1.5 text-left">
+                  <button
+                    onClick={() => {
+                      setSelectedPackageId(p.id)
+                      setExpandedInclusionId(inclusions.length > 0 ? p.id : '')
+                    }}
+                    className="flex items-center gap-2 w-full px-2.5 py-1.5 text-left"
+                  >
                     <span
                       className={`flex items-center justify-center h-6 w-6 rounded-full shrink-0 ${
                         isSelected ? 'bg-white/15 text-white' : 'bg-pine/10 text-pine'
