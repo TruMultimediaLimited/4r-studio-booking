@@ -4,6 +4,8 @@ import MyBookingsModal from './components/MyBookingsModal.jsx'
 
 // The admin panel is staff-only; keep it out of the public visitors' bundle.
 const AdminPanel = lazy(() => import('./components/AdminPanel.jsx'))
+// The gallery isn't needed on the primary booking flow's first load.
+const PortfolioGallery = lazy(() => import('./components/PortfolioGallery.jsx'))
 import { FACEBOOK_URL, INSTAGRAM_URL, MAP_URL } from './lib/packages.js'
 import { IconCalendar, IconMapPin, IconFacebook, IconInstagram } from './components/icons.jsx'
 
@@ -33,6 +35,7 @@ export default function App() {
   }, [])
 
   const isAdmin = route === '#/admin'
+  const isPortfolio = route === '#/portfolio'
 
   return (
     <div className="min-h-screen font-body bg-[#F9F7F2]">
@@ -80,6 +83,10 @@ export default function App() {
         {isAdmin ? (
           <Suspense fallback={<p className="font-sans text-sm text-[#333333]/55 py-12 text-center">Loading…</p>}>
             <AdminPanel />
+          </Suspense>
+        ) : isPortfolio ? (
+          <Suspense fallback={<p className="font-sans text-sm text-[#333333]/55 py-12 text-center">লোড হচ্ছে…</p>}>
+            <PortfolioGallery />
           </Suspense>
         ) : (
           <PublicAvailability />

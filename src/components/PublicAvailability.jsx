@@ -513,7 +513,12 @@ export default function PublicAvailability() {
       </div>
 
       {/* Package selector */}
-      <p className="inline-block bg-mist/50 rounded-md text-xs tracking-wide text-[#333333]/80 font-semibold mb-1.5 px-2.5 py-1">প্যাকেজ বেছে নিন</p>
+      <div className="flex items-center justify-between gap-2 mb-1.5">
+        <p className="inline-block bg-mist/50 rounded-md text-xs tracking-wide text-[#333333]/80 font-semibold px-2.5 py-1">প্যাকেজ বেছে নিন</p>
+        <a href="#/portfolio" className="flex items-center gap-1 shrink-0 text-xs font-semibold text-pine hover:underline">
+          <IconCamera className="h-3.5 w-3.5" /> আমাদের কাজ দেখুন
+        </a>
+      </div>
       <div className="grid gap-1.5 mb-2">
         {packages.map((p) => {
           const isSelected = selectedPackageId === p.id

@@ -3,6 +3,7 @@ import { supabase } from '../supabaseClient.js'
 import { timeToMinutes, overlaps, toDateKey, fromDateKey, formatTimeLabel, generateTimeOptions } from '../lib/time.js'
 import { isValidBangladeshiPhone, isValidClientName } from '../lib/validation.js'
 import { PAYMENT_METHODS, PAYMENT_COLLECTORS } from '../lib/packages.js'
+import PortfolioManager from './PortfolioManager.jsx'
 import {
   IconCalendar,
   IconAlert,
@@ -18,6 +19,7 @@ import {
   IconInbox,
   IconSettings,
   IconCheckCircle,
+  IconImage,
 } from './icons.jsx'
 
 const HOUR_OPTIONS = Array.from({ length: 24 }, (_, h) => ({
@@ -440,6 +442,7 @@ export default function AdminPanel() {
   const [showEarningsBreakdown, setShowEarningsBreakdown] = useState(false)
 
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [portfolioOpen, setPortfolioOpen] = useState(false)
   const [packages, setPackages] = useState([])
   const [editingPackageId, setEditingPackageId] = useState(null)
   const [packageEditForm, setPackageEditForm] = useState(null)
@@ -1302,6 +1305,21 @@ export default function AdminPanel() {
                 <p className="text-[10px] text-[#333333]/55 mt-1.5">Tap a date to mark the studio closed (or reopen it).</p>
               </div>
             </div>
+          </div>
+        )}
+      </div>
+
+      {/* Portfolio manager (collapsible) */}
+      <div className="bg-white border border-[#E0E0E0]/70 shadow-sm rounded-xl p-2.5 mb-2">
+        <button onClick={() => setPortfolioOpen((v) => !v)} className="w-full flex items-center justify-between">
+          <span className="text-sm font-semibold flex items-center gap-1.5">
+            <IconImage className="h-3.5 w-3.5 text-pine" /> Portfolio Settings
+          </span>
+          <IconChevronDown className={`h-3.5 w-3.5 text-[#333333]/55 transition-transform ${portfolioOpen ? 'rotate-180' : ''}`} />
+        </button>
+        {portfolioOpen && (
+          <div className="mt-3">
+            <PortfolioManager onError={reportActionError} />
           </div>
         )}
       </div>

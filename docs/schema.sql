@@ -439,3 +439,57 @@ drop trigger if exists validate_public_booking_trg on public.bookings;
 create trigger validate_public_booking_trg
   before insert on public.bookings
   for each row execute function public.validate_public_booking();
+
+-- ============================================================
+-- Portfolio migration (Follow-up: portfolio gallery feature)
+--
+-- ADDITIVE and safe to run once on the live database. Adds a public
+-- image gallery (Photoshoot/Event/Portrait/Product work samples) with
+-- a Supabase Storage bucket for the actual image files and a table for
+-- title/category/ordering metadata. Anyone can view; only logged-in
+-- staff can upload or delete.
+-- ============================================================
+
+create table if not exists public.portfolio_items (
+  id            uuid primary key default gen_random_uuid(),
+  title         text,
+  category      text not null default 'Photoshoot',
+  storage_path  text not null,
+  sort_order    int not null default 0,
+  created_at    timestamptz not null default now()
+);
+
+create index if not exists portfolio_items_category_idx on public.portfolio_items (category);
+
+alter table public.portfolio_items enable row level security;
+
+create policy "anon read portfolio items" on public.portfolio_items for select to anon using (true);
+create policy "authenticated read portfolio items" on public.portfolio_items for select to authenticated using (true);
+create policy "authenticated manage portfolio items" on public.portfolio_items for all to authenticated using (true) with check (true);
+
+grant select on public.portfolio_items to anon;
+grant select, insert, update, delete on public.portfolio_items to authenticated;
+
+-- Storage bucket for the actual image files. Public bucket (anyone can
+-- view an image URL directly), but writes are gated by the policies
+-- below to logged-in staff only.
+insert into storage.buckets (id, name, public)
+  values ('portfolio', 'portfolio', true)
+  on conflict (id) do nothing;
+
+drop policy if exists "public read portfolio images" on storage.objects;
+create policy "public read portfolio images"
+  on storage.objects for select
+  using (bucket_id = 'portfolio');
+
+drop policy if exists "authenticated upload portfolio images" on storage.objects;
+create policy "authenticated upload portfolio images"
+  on storage.objects for insert
+  to authenticated
+  with check (bucket_id = 'portfolio');
+
+drop policy if exists "authenticated delete portfolio images" on storage.objects;
+create policy "authenticated delete portfolio images"
+  on storage.objects for delete
+  to authenticated
+  using (bucket_id = 'portfolio');
