@@ -32,10 +32,11 @@ export default function PortfolioManager({ onError }) {
   const [itemsLoading, setItemsLoading] = useState(false)
 
   const fileInputRef = useRef(null)
-  const [pendingFile, setPendingFile] = useState(null)
-  const [previewUrl, setPreviewUrl] = useState(null)
+  const [pendingFiles, setPendingFiles] = useState([])
+  const [previewUrls, setPreviewUrls] = useState([])
   const [title, setTitle] = useState('')
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(null)
   const [uploadError, setUploadError] = useState('')
 
   const [deletingId, setDeletingId] = useState(null)
@@ -63,11 +64,11 @@ export default function PortfolioManager({ onError }) {
 
   useEffect(() => {
     return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl)
+      previewUrls.forEach((u) => URL.revokeObjectURL(u))
       if (newAlbumCoverPreview) URL.revokeObjectURL(newAlbumCoverPreview)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [previewUrl, newAlbumCoverPreview])
+  }, [previewUrls, newAlbumCoverPreview])
 
   async function loadItems(albumId) {
     setItemsLoading(true)
@@ -170,54 +171,82 @@ export default function PortfolioManager({ onError }) {
     loadAlbums()
   }
 
-  function pickPhotoFile(file) {
-    if (!file) return
-    if (!file.type.startsWith('image/')) {
+  function pickPhotoFiles(fileList) {
+    const files = Array.from(fileList || []).filter((f) => f.type.startsWith('image/'))
+    if (files.length === 0) {
       setUploadError('শুধু ছবি ফাইল সিলেক্ট করুন')
       return
     }
     setUploadError('')
-    setPendingFile(file)
-    setPreviewUrl(URL.createObjectURL(file))
+    setPendingFiles(files)
+    setPreviewUrls(files.map((f) => URL.createObjectURL(f)))
+    setTitle('')
   }
 
   function clearPendingPhoto() {
-    setPendingFile(null)
-    setPreviewUrl(null)
+    setPendingFiles([])
+    setPreviewUrls([])
     setTitle('')
     setUploadError('')
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
-  async function handleUploadPhoto() {
-    if (!pendingFile || !selectedAlbum) return
+  // Uploads every pending file one at a time (no queue library — the
+  // batch is small enough that a simple sequential loop is plenty).
+  // Files that fail stay in the pending list (with their previews) so
+  // clicking "Upload" again only retries the failures, never re-sends
+  // files that already succeeded.
+  async function handleUploadPhotos() {
+    if (pendingFiles.length === 0 || !selectedAlbum) return
     setUploadError('')
     setUploading(true)
-    try {
-      const path = await uploadOne(pendingFile)
+    const singleTitle = pendingFiles.length === 1 ? title.trim() || null : null
+    let coverPath = selectedAlbum.cover_storage_path
+    const failedFiles = []
+    const failedUrls = []
 
-      const { error: insertErr } = await supabase
-        .from('portfolio_items')
-        .insert({ title: title.trim() || null, album_id: selectedAlbum.id, storage_path: path })
-      if (insertErr) {
-        await supabase.storage.from('portfolio').remove([path])
-        throw insertErr
+    for (let i = 0; i < pendingFiles.length; i++) {
+      setUploadProgress({ done: i, total: pendingFiles.length })
+      try {
+        const path = await uploadOne(pendingFiles[i])
+        const { error: insertErr } = await supabase
+          .from('portfolio_items')
+          .insert({ title: singleTitle, album_id: selectedAlbum.id, storage_path: path })
+        if (insertErr) {
+          await supabase.storage.from('portfolio').remove([path])
+          throw insertErr
+        }
+        if (!coverPath) {
+          coverPath = path
+          await supabase.from('portfolio_albums').update({ cover_storage_path: path }).eq('id', selectedAlbum.id)
+          setSelectedAlbum((a) => ({ ...a, cover_storage_path: path }))
+        }
+      } catch (err) {
+        console.error('Upload failed for one file:', err)
+        failedFiles.push(pendingFiles[i])
+        failedUrls.push(previewUrls[i])
       }
-
-      // First photo in an album automatically becomes its cover.
-      if (!selectedAlbum.cover_storage_path) {
-        await supabase.from('portfolio_albums').update({ cover_storage_path: path }).eq('id', selectedAlbum.id)
-        setSelectedAlbum((a) => ({ ...a, cover_storage_path: path }))
-      }
-
-      clearPendingPhoto()
-      loadItems(selectedAlbum.id)
-      loadAlbums()
-    } catch (err) {
-      setUploadError('আপলোড করা যায়নি: ' + (err.message || 'unknown error'))
-    } finally {
-      setUploading(false)
     }
+
+    setUploadProgress(null)
+    setUploading(false)
+
+    const succeededCount = pendingFiles.length - failedFiles.length
+    previewUrls.forEach((u) => {
+      if (!failedUrls.includes(u)) URL.revokeObjectURL(u)
+    })
+    setPendingFiles(failedFiles)
+    setPreviewUrls(failedUrls)
+
+    if (failedFiles.length > 0) {
+      setUploadError(`${succeededCount}টা আপলোড হয়েছে, ${failedFiles.length}টা ব্যর্থ হয়েছে — আবার "আপলোড করুন" চাপুন।`)
+    } else {
+      setTitle('')
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+
+    loadItems(selectedAlbum.id)
+    loadAlbums()
   }
 
   async function handleDeleteItem(item) {
@@ -263,7 +292,7 @@ export default function PortfolioManager({ onError }) {
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
               e.preventDefault()
-              pickPhotoFile(e.dataTransfer.files?.[0])
+              pickPhotoFiles(e.dataTransfer.files)
             }}
             onClick={() => fileInputRef.current?.click()}
             className="border-2 border-dashed border-[#E0E0E0] rounded-xl p-4 text-center cursor-pointer hover:border-pine/40 hover:bg-pine/5 transition-colors"
@@ -272,29 +301,36 @@ export default function PortfolioManager({ onError }) {
               ref={fileInputRef}
               type="file"
               accept="image/*"
+              multiple
               className="hidden"
-              onChange={(e) => pickPhotoFile(e.target.files?.[0])}
+              onChange={(e) => pickPhotoFiles(e.target.files)}
             />
-            {previewUrl ? (
-              <img src={previewUrl} alt="" className="mx-auto h-28 w-28 object-cover rounded-lg" />
+            {previewUrls.length > 0 ? (
+              <div className="flex flex-wrap justify-center gap-1.5">
+                {previewUrls.map((url, i) => (
+                  <img key={i} src={url} alt="" className="h-14 w-14 object-cover rounded-lg" />
+                ))}
+              </div>
             ) : (
               <>
                 <IconUpload className="h-5 w-5 mx-auto text-[#333333]/45 mb-1" />
-                <p className="text-xs text-[#333333]/60">ছবি সিলেক্ট করুন বা এখানে টেনে আনুন</p>
+                <p className="text-xs text-[#333333]/60">একটা বা একাধিক ছবি সিলেক্ট করুন বা এখানে টেনে আনুন</p>
               </>
             )}
           </div>
 
-          {pendingFile && (
+          {pendingFiles.length > 0 && (
             <div className="mt-2.5 space-y-2">
-              <input
-                type="text"
-                placeholder="টাইটেল (ঐচ্ছিক)"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                maxLength={100}
-                className={inputClass()}
-              />
+              {pendingFiles.length === 1 && (
+                <input
+                  type="text"
+                  placeholder="টাইটেল (ঐচ্ছিক)"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  maxLength={100}
+                  className={inputClass()}
+                />
+              )}
               {uploadError && (
                 <p className="flex items-start gap-2 text-xs text-clay bg-clay/10 border border-clay/20 rounded-xl px-3 py-2">
                   <IconAlert className="h-3.5 w-3.5 shrink-0 mt-0.5" /> {uploadError}
@@ -303,18 +339,23 @@ export default function PortfolioManager({ onError }) {
               <div className="flex gap-1.5">
                 <button
                   type="button"
+                  disabled={uploading}
                   onClick={clearPendingPhoto}
-                  className="flex-1 border border-[#E0E0E0] rounded-lg py-1.5 text-xs font-medium text-[#333333]/60"
+                  className="flex-1 border border-[#E0E0E0] rounded-lg py-1.5 text-xs font-medium text-[#333333]/60 disabled:opacity-50"
                 >
                   বাতিল
                 </button>
                 <button
                   type="button"
                   disabled={uploading}
-                  onClick={handleUploadPhoto}
+                  onClick={handleUploadPhotos}
                   className="flex-1 bg-pine text-white rounded-lg py-1.5 text-xs font-semibold disabled:opacity-50"
                 >
-                  {uploading ? 'আপলোড হচ্ছে…' : 'আপলোড করুন'}
+                  {uploading
+                    ? `আপলোড হচ্ছে (${uploadProgress?.done ?? 0}/${uploadProgress?.total ?? pendingFiles.length})…`
+                    : pendingFiles.length > 1
+                    ? `${pendingFiles.length}টা ছবি আপলোড করুন`
+                    : 'আপলোড করুন'}
                 </button>
               </div>
             </div>
