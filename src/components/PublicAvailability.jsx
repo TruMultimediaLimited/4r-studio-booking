@@ -558,37 +558,43 @@ export default function PublicAvailability() {
                 <div
                   key={p.id}
                   className={`rounded-lg border transition-all ${
-                    isSelected ? 'bg-pine border-pine shadow-sm' : 'bg-white border-[#E0E0E0] shadow-sm hover:border-pine/40'
+                    isSelected ? 'bg-pine/5 border-pine shadow-sm' : 'bg-white border-[#E0E0E0] shadow-sm hover:border-pine/40'
                   }`}
                 >
                   <button
                     onClick={() => {
                       setSelectedPackageId(p.id)
-                      setExpandedInclusionId(inclusions.length > 0 ? p.id : '')
+                      setExpandedInclusionId((prev) => (prev === p.id ? '' : (inclusions.length > 0 ? p.id : '')))
                     }}
                     className="flex items-center gap-2 w-full px-2.5 py-1.5 text-left"
                   >
                     <span
                       className={`flex items-center justify-center h-6 w-6 rounded-full shrink-0 ${
-                        isSelected ? 'bg-white/15 text-white' : 'bg-pine/10 text-pine'
+                        isSelected ? 'bg-pine text-white' : 'bg-pine/10 text-pine'
                       }`}
                     >
                       <Icon className="h-2.5 w-2.5" />
                     </span>
-                    <span className={`flex-1 text-xs font-semibold ${isSelected ? 'text-white' : 'text-[#333333]'}`}>{p.label}</span>
-                    <span className={`text-[11px] font-medium shrink-0 ${isSelected ? 'text-white/70' : 'text-[#333333]/55'}`}>
+                    <span className={`flex-1 text-xs font-semibold ${isSelected ? 'text-pine' : 'text-[#333333]'}`}>{p.label}</span>
+                    <span className={`text-[11px] font-medium shrink-0 ${isSelected ? 'text-pine/70' : 'text-[#333333]/55'}`}>
                       {p.rateLabel || 'WhatsApp'}
                     </span>
-                    {isSelected && <IconCheck className="h-3 w-3 shrink-0" />}
+                    {inclusions.length > 0 && (
+                      <IconChevronRight
+                        className={`h-3 w-3 shrink-0 transition-transform ${isExpanded ? 'rotate-90' : ''} ${
+                          isSelected ? 'text-pine/70' : 'text-[#333333]/45'
+                        }`}
+                      />
+                    )}
                   </button>
                   {inclusions.length > 0 && (
                     <div className={`grid transition-[grid-template-rows] duration-200 ease-in-out ${isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
                       <div className="overflow-hidden">
-                        <div className={`mx-2.5 mb-2 rounded-md p-2 ${isSelected ? 'bg-black/15' : 'bg-pine/5'}`}>
-                          <ul className={`grid grid-cols-2 gap-x-3 gap-y-1 ${isSelected ? 'text-white/85' : 'text-[#333333]/65'}`}>
+                        <div className={`mx-2.5 mb-2 rounded-md p-2 ${isSelected ? 'bg-white' : 'bg-pine/5'}`}>
+                          <ul className="grid grid-cols-2 gap-x-3 gap-y-1 text-[#333333]/65">
                             {inclusions.map((item, i) => (
                               <li key={i} className="flex items-start gap-1.5 text-[11px]">
-                                <IconCheck className="h-2.5 w-2.5 shrink-0 mt-0.5" />
+                                <IconCheck className="h-2.5 w-2.5 shrink-0 mt-0.5 text-pine" />
                                 <span>{item}</span>
                               </li>
                             ))}
