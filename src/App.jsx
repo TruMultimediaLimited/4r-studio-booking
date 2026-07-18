@@ -75,12 +75,8 @@ export default function App() {
 
             <div className="flex items-center justify-center min-w-0">
               {isPortfolio ? (
-                <div className="bg-zinc-800/60 rounded-lg px-3 py-1.5">
-                  <img
-                    src="/logo.png"
-                    alt="4R Studio"
-                    className="h-9 w-auto drop-shadow-[0_0_5px_rgba(249,247,242,0.85)]"
-                  />
+                <div className="bg-white/80 border border-[#E0E0E0] rounded-lg shadow-sm px-3 py-1.5">
+                  <img src="/logo.png" alt="4R Studio" className="h-9 w-auto" />
                 </div>
               ) : (
                 <div className="bg-white border border-[#E0E0E0] rounded-lg shadow-sm px-3 py-1.5">
