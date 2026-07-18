@@ -660,8 +660,8 @@ export default function PublicAvailability() {
                   )}
                   {lastRequest && lastRequest.advance != null && (
                     <div className="rounded-lg bg-clay/5 border border-clay/20 px-3.5 py-2.5 text-xs text-[#333333]/75 space-y-1 mb-2.5">
-                      <p className="text-[11px] tracking-wide font-semibold text-clay">
-                        বুকিং কনফার্ম করতে {lastRequest.advance} টাকা অ্যাডভান্স পাঠান
+                      <p className="text-[11px] font-semibold text-clay">
+                        আপনার কাঙ্ক্ষিত বুকিং স্লটটি নিশ্চিত করার জন্য অনুগ্রহ করে {lastRequest.advance} টাকা অগ্রিম প্রদান করুন।
                       </p>
                       <p>
                         bKash / Nagad (Send Money): <span className="font-semibold text-[#333333]">{PAYMENT_INFO.mobileBankingNumber}</span> ({PAYMENT_INFO.mobileBankingType})
@@ -682,7 +682,7 @@ export default function PublicAvailability() {
                     className="flex items-center justify-center gap-2 text-center bg-[#25D366] text-white rounded-lg py-2.5 text-sm font-semibold shadow-sm"
                   >
                     <IconMessage className="h-4 w-4" />
-                    বুকিং কনফার্ম করতে পেমেন্ট স্ক্রিনশট পাঠান
+                    পেমেন্ট সম্পন্ন হওয়ার পর, আমাদের ট্র্যাকিংয়ের সুবিধার্থে অনুগ্রহ করে ট্রানজেকশনের একটি স্ক্রিনশট শেয়ার করুন।
                   </a>
                 </div>
               ) : (
@@ -888,25 +888,6 @@ export default function PublicAvailability() {
       )}
       </div>
       </div>
-
-      <section className="mt-6 pt-4 border-t border-[#E0E0E0]/60">
-        <h2 className="text-base font-bold text-[#333333] mb-1">
-          Why Choose 4R Studio?
-        </h2>
-        <p className="text-xs font-bold text-[#333333]/80 leading-snug mb-1">
-          4R Studio offers premium studio rental in Aftabnagar, Dhaka. Open 7 days a week, we provide a
-          professional space for:
-        </p>
-        <ul className="text-xs font-bold text-[#333333]/80 leading-snug list-disc list-inside mb-1 space-y-0.5">
-          <li>Fashion Photography & Product Photography.</li>
-          <li>Videography, Commercial Productions & Content Creation.</li>
-          <li>Professional Podcast Recording.</li>
-        </ul>
-        <p className="text-xs font-bold text-[#333333]/80 leading-snug">
-          With premium equipment and a creative environment, 4R Studio helps brands, businesses, and
-          creators bring their ideas to life.
-        </p>
-      </section>
 
       <p className="text-xs text-[#333333]/55 mt-3 text-center leading-relaxed">
         রিকোয়েস্ট পাঠানোর পর আমরা দ্রুত যোগাযোগ করে কনফার্ম করব। আপনার তথ্য গোপন থাকবে। কোনো পরিবর্তন দরকার হলে{' '}
