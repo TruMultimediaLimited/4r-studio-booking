@@ -158,7 +158,13 @@ export default function PublicAvailability() {
       if (offDaysRes.error) console.error('Failed to load off-days:', offDaysRes.error)
       if (packagesRes.data && packagesRes.data.length > 0) {
         setPackages(
-          packagesRes.data.map((p) => ({ id: p.id, label: p.label, rateLabel: p.rate_label, hourlyRate: p.hourly_rate }))
+          packagesRes.data.map((p) => ({
+            id: p.id,
+            label: p.label,
+            rateLabel: p.rate_label,
+            hourlyRate: p.hourly_rate,
+            inclusions: p.inclusions,
+          }))
         )
       }
       if (settingsRes.data) {
@@ -543,29 +549,41 @@ export default function PublicAvailability() {
             {packages.map((p) => {
               const isSelected = selectedPackageId === p.id
               const Icon = PACKAGE_ICONS[p.id] || IconMessage
+              const inclusions = p.inclusions
+                ? p.inclusions.split('\n').map((s) => s.trim()).filter(Boolean)
+                : []
               return (
-                <button
+                <div
                   key={p.id}
-                  onClick={() => setSelectedPackageId(p.id)}
-                  className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 border text-left transition-all ${
-                    isSelected
-                      ? 'bg-pine border-pine text-white shadow-sm'
-                      : 'bg-white border-[#E0E0E0] text-[#333333] shadow-sm hover:border-pine/40'
+                  className={`rounded-lg border transition-all ${
+                    isSelected ? 'bg-pine border-pine shadow-sm' : 'bg-white border-[#E0E0E0] shadow-sm hover:border-pine/40'
                   }`}
                 >
-                  <span
-                    className={`flex items-center justify-center h-6 w-6 rounded-full shrink-0 ${
-                      isSelected ? 'bg-white/15 text-white' : 'bg-pine/10 text-pine'
-                    }`}
-                  >
-                    <Icon className="h-2.5 w-2.5" />
-                  </span>
-                  <span className={`flex-1 text-xs font-semibold ${isSelected ? 'text-white' : 'text-[#333333]'}`}>{p.label}</span>
-                  <span className={`text-[11px] font-medium shrink-0 ${isSelected ? 'text-white/70' : 'text-[#333333]/55'}`}>
-                    {p.rateLabel || 'WhatsApp'}
-                  </span>
-                  {isSelected && <IconCheck className="h-3 w-3 shrink-0" />}
-                </button>
+                  <button onClick={() => setSelectedPackageId(p.id)} className="flex items-center gap-2 w-full px-2.5 py-1.5 text-left">
+                    <span
+                      className={`flex items-center justify-center h-6 w-6 rounded-full shrink-0 ${
+                        isSelected ? 'bg-white/15 text-white' : 'bg-pine/10 text-pine'
+                      }`}
+                    >
+                      <Icon className="h-2.5 w-2.5" />
+                    </span>
+                    <span className={`flex-1 text-xs font-semibold ${isSelected ? 'text-white' : 'text-[#333333]'}`}>{p.label}</span>
+                    <span className={`text-[11px] font-medium shrink-0 ${isSelected ? 'text-white/70' : 'text-[#333333]/55'}`}>
+                      {p.rateLabel || 'WhatsApp'}
+                    </span>
+                    {isSelected && <IconCheck className="h-3 w-3 shrink-0" />}
+                  </button>
+                  {inclusions.length > 0 && (
+                    <ul className={`px-2.5 pb-2 pl-9 space-y-0.5 ${isSelected ? 'text-white/85' : 'text-[#333333]/65'}`}>
+                      {inclusions.map((item, i) => (
+                        <li key={i} className="flex items-start gap-1.5 text-[11px]">
+                          <IconCheck className="h-2.5 w-2.5 shrink-0 mt-0.5" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               )
             })}
           </div>

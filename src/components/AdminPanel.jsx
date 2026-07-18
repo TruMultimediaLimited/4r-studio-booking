@@ -854,7 +854,12 @@ export default function AdminPanel() {
 
   function startEditPackage(p) {
     setEditingPackageId(p.id)
-    setPackageEditForm({ label: p.label, rate_label: p.rate_label || '', hourly_rate: p.hourly_rate ?? '' })
+    setPackageEditForm({
+      label: p.label,
+      rate_label: p.rate_label || '',
+      hourly_rate: p.hourly_rate ?? '',
+      inclusions: p.inclusions || '',
+    })
   }
 
   async function savePackageEdit() {
@@ -866,6 +871,7 @@ export default function AdminPanel() {
         label: packageEditForm.label,
         rate_label: packageEditForm.rate_label || null,
         hourly_rate: packageEditForm.hourly_rate === '' ? null : Number(packageEditForm.hourly_rate),
+        inclusions: packageEditForm.inclusions.trim() || null,
       })
       .eq('id', editingPackageId)
     setPackageSaving(false)
@@ -1190,6 +1196,13 @@ export default function AdminPanel() {
                         placeholder="Hourly Rate (blank = WhatsApp-only package)"
                         value={packageEditForm.hourly_rate}
                         onChange={(e) => setPackageEditForm({ ...packageEditForm, hourly_rate: e.target.value })}
+                        className={inputClass()}
+                      />
+                      <textarea
+                        placeholder={'কী থাকছে — এক লাইনে একটা (যেমন: ২টা স্টুডিও লাইট)'}
+                        value={packageEditForm.inclusions}
+                        onChange={(e) => setPackageEditForm({ ...packageEditForm, inclusions: e.target.value })}
+                        rows={4}
                         className={inputClass()}
                       />
                       <div className="flex gap-1.5">
