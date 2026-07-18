@@ -78,7 +78,7 @@ export default function PortfolioGallery() {
     () => (
       <a
         href="#/"
-        className="text-xs font-medium text-sage border border-sage/40 rounded-full px-3 py-1.5 hover:bg-sage/15 transition-colors whitespace-nowrap"
+        className="text-xs font-medium text-white border border-white/30 rounded-full px-3 py-1.5 hover:bg-white/15 transition-colors whitespace-nowrap"
       >
         বুকিং পেজে ফিরুন
       </a>
@@ -192,7 +192,7 @@ export default function PortfolioGallery() {
   return (
     <div className="font-sans">
       <div className="flex items-center justify-between mb-4">
-        <p className="text-xs font-medium text-sage border border-sage/40 rounded-full px-3 py-1.5 whitespace-nowrap">আমাদের কাজ</p>
+        <p className="text-xs font-medium text-white border border-white/30 rounded-full px-3 py-1.5 whitespace-nowrap">আমাদের কাজ</p>
         {backLink}
       </div>
 
