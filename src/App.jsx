@@ -18,8 +18,8 @@ function HeaderCard({ href, onClick, icon: Icon, label, dark }) {
       {...linkProps}
       className={
         dark
-          ? 'flex items-center justify-center gap-1 w-24 bg-zinc-800/60 rounded-full px-1.5 py-1.5 hover:bg-zinc-700/60 transition-colors'
-          : 'flex items-center justify-center gap-1 w-24 bg-white border border-[#E0E0E0] rounded-lg px-1.5 py-1.5 shadow-sm hover:border-pine/40 hover:bg-pine/5 hover:shadow-md transition-all'
+          ? 'flex items-center gap-1 w-24 bg-zinc-800/60 rounded-full px-1.5 py-1.5 hover:bg-zinc-700/60 transition-colors'
+          : 'flex items-center gap-1 w-24 bg-white border border-[#E0E0E0] rounded-lg px-1.5 py-1.5 shadow-sm hover:border-pine/40 hover:bg-pine/5 hover:shadow-md transition-all'
       }
     >
       <Icon className={`h-3 w-3 shrink-0 ${dark ? 'text-zinc-300' : 'text-pine'}`} />
@@ -86,8 +86,8 @@ export default function App() {
             </div>
 
             <div className="flex flex-col items-end gap-1 min-w-0">
-              <HeaderCard onClick={() => setMyBookingsOpen(true)} icon={IconCalendar} label="আমার বুকিং" dark={isPortfolio} />
-              <HeaderCard href={MAP_URL} icon={IconMapPin} label="লোকেশন" dark={isPortfolio} />
+              <HeaderCard onClick={() => setMyBookingsOpen(true)} icon={IconCalendar} label="My Booking" dark={isPortfolio} />
+              <HeaderCard href={MAP_URL} icon={IconMapPin} label="Location" dark={isPortfolio} />
             </div>
           </div>
         )}
