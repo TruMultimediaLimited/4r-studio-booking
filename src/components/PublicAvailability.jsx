@@ -571,7 +571,7 @@ export default function PublicAvailability() {
                           <ul className="flex flex-col gap-3 text-[#333333]/70">
                             {inclusions.map((item, i) => {
                               const colonIdx = item.indexOf(':')
-                              const hasLabel = colonIdx > 0 && colonIdx < 20
+                              const hasLabel = colonIdx > 0 && colonIdx < 30
                               const label = hasLabel ? item.slice(0, colonIdx) : null
                               const rest = hasLabel ? item.slice(colonIdx + 1).trim() : item
                               return (
