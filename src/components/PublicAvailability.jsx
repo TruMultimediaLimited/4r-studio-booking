@@ -558,13 +558,13 @@ export default function PublicAvailability() {
                 <div
                   key={p.id}
                   className={`rounded-lg border transition-all ${
-                    isSelected ? 'bg-pine border-pine shadow-sm' : 'bg-white border-[#E0E0E0] shadow-sm hover:border-pine/40'
+                    isSelected ? 'bg-zinc-800 border-zinc-800 shadow-sm' : 'bg-white border-[#E0E0E0] shadow-sm hover:border-pine/40'
                   }`}
                 >
                   <button
                     onClick={() => {
                       setSelectedPackageId(p.id)
-                      setExpandedInclusionId(inclusions.length > 0 ? p.id : '')
+                      setExpandedInclusionId((prev) => (prev === p.id ? '' : (inclusions.length > 0 ? p.id : '')))
                     }}
                     className="flex items-center gap-2 w-full px-2.5 py-1.5 text-left"
                   >
@@ -579,7 +579,13 @@ export default function PublicAvailability() {
                     <span className={`text-[11px] font-medium shrink-0 ${isSelected ? 'text-white/70' : 'text-[#333333]/55'}`}>
                       {p.rateLabel || 'WhatsApp'}
                     </span>
-                    {isSelected && <IconCheck className="h-3 w-3 shrink-0" />}
+                    {inclusions.length > 0 && (
+                      <IconChevronRight
+                        className={`h-3 w-3 shrink-0 transition-transform ${isExpanded ? 'rotate-90' : ''} ${
+                          isSelected ? 'text-white/70' : 'text-[#333333]/45'
+                        }`}
+                      />
+                    )}
                   </button>
                   {inclusions.length > 0 && (
                     <div className={`grid transition-[grid-template-rows] duration-200 ease-in-out ${isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
