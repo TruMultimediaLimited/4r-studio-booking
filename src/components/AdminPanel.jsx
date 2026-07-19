@@ -1046,7 +1046,7 @@ export default function AdminPanel() {
           }`}
         >
           <p className="text-lg font-bold text-[#333333]">{formatMoney(stats.todayEarnings)}</p>
-          <p className="text-[10px] uppercase tracking-wide text-[#333333]/55 font-semibold mt-0.5">Today Earnings</p>
+          <p className="text-[10px] uppercase tracking-wide text-[#333333]/55 font-semibold mt-0.5">Today's Earnings</p>
         </button>
         <button
           onClick={() => {

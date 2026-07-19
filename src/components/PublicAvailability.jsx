@@ -396,7 +396,10 @@ export default function PublicAvailability() {
       {error && (
         <div className="flex items-start gap-2 mb-4 text-sm text-clay bg-clay/10 border border-clay/20 rounded-lg px-3.5 py-3">
           <IconAlert className="h-4 w-4 shrink-0 mt-0.5" />
-          <p>বুকিং লোড করা যায়নি। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।</p>
+          <p className="flex-1">বুকিং লোড করা যায়নি। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।</p>
+          <button onClick={loadBookings} className="text-xs font-semibold underline shrink-0 hover:opacity-80">
+            আবার চেষ্টা করুন
+          </button>
         </div>
       )}
 
