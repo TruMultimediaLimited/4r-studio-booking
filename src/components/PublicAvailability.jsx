@@ -121,7 +121,6 @@ export default function PublicAvailability() {
   const [error, setError] = useState(null)
 
   const [selectedPackageId, setSelectedPackageId] = useState('')
-  const [packagesOpen, setPackagesOpen] = useState(false)
   const [expandedInclusionId, setExpandedInclusionId] = useState('')
   const [requestOpen, setRequestOpen] = useState(false)
   const [requestForm, setRequestForm] = useState(emptyRequestForm)
@@ -514,96 +513,72 @@ export default function PublicAvailability() {
         </div>
       </div>
 
-      {/* Portfolio + Package accordion trigger — identical size/shape/style */}
-      <div className="grid grid-cols-2 gap-2 mb-2">
-        <a
-          href="#/portfolio"
-          className="flex flex-col items-center justify-center gap-1 bg-pine text-white rounded-xl py-3.5 shadow-sm hover:opacity-95 transition-opacity"
-        >
-          <IconCamera className="h-5 w-5" />
-          <span className="text-xs font-bold">পোর্টফোলিও দেখুন</span>
-        </a>
-        <button
-          type="button"
-          onClick={() => setPackagesOpen((v) => !v)}
-          className="flex flex-col items-center justify-center gap-1 bg-pine text-white rounded-xl py-3.5 shadow-sm hover:opacity-95 transition-opacity"
-        >
-          <IconTag className="h-5 w-5" />
-          <span className="text-xs font-bold text-center leading-tight">
-            {selectedPackage ? '✓ প্যাকেজ নির্বাচিত' : 'প্যাকেজ বেছে নিন'}
-          </span>
-        </button>
-      </div>
-
-      {/* Pure-CSS accordion: grid-template-rows animates 0fr↔1fr, no JS
-          height measurement, no library. */}
-      <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${packagesOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
-        <div className="overflow-hidden">
-          <div className="grid gap-1.5 mb-2">
-            {packages.map((p) => {
-              const isSelected = selectedPackageId === p.id
-              const inclusions = p.inclusions
-                ? p.inclusions.split('\n').map((s) => s.trim()).filter(Boolean)
-                : []
-              const isExpanded = expandedInclusionId === p.id
-              return (
-                <div
-                  key={p.id}
-                  className={`rounded-lg border transition-all ${
-                    isSelected ? 'bg-pine/5 border-pine shadow-sm' : 'bg-white border-[#E0E0E0] shadow-sm hover:border-pine/40'
-                  }`}
-                >
-                  <button
-                    onClick={() => {
-                      setSelectedPackageId(p.id)
-                      setExpandedInclusionId((prev) => (prev === p.id ? '' : (inclusions.length > 0 ? p.id : '')))
-                    }}
-                    className="flex flex-col gap-0.5 w-full px-2.5 py-1.5 text-left"
-                  >
-                    <span className={`text-xs font-semibold ${isSelected ? 'text-pine' : 'text-[#333333]'}`}>{p.label}</span>
-                    <span className="flex items-center justify-between gap-2">
-                      <span className={`text-[11px] font-medium ${isSelected ? 'text-pine/70' : 'text-[#333333]/55'}`}>
-                        {p.rateLabel || 'WhatsApp'}
-                      </span>
-                      {inclusions.length > 0 && (
-                        <IconChevronRight
-                          className={`h-3 w-3 shrink-0 transition-transform ${isExpanded ? 'rotate-90' : ''} ${
-                            isSelected ? 'text-pine/70' : 'text-[#333333]/45'
-                          }`}
-                        />
-                      )}
-                    </span>
-                  </button>
+      <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-[#333333]/50 mb-1.5">
+        <IconTag className="h-3 w-3" /> প্যাকেজ বেছে নিন
+      </p>
+      <div className="grid gap-1.5 mb-2">
+        {packages.map((p) => {
+          const isSelected = selectedPackageId === p.id
+          const inclusions = p.inclusions
+            ? p.inclusions.split('\n').map((s) => s.trim()).filter(Boolean)
+            : []
+          const isExpanded = expandedInclusionId === p.id
+          return (
+            <div
+              key={p.id}
+              className={`rounded-lg border transition-all ${
+                isSelected ? 'bg-pine/5 border-pine shadow-sm' : 'bg-white border-[#E0E0E0] shadow-sm hover:border-pine/40'
+              }`}
+            >
+              <button
+                onClick={() => {
+                  setSelectedPackageId(p.id)
+                  setExpandedInclusionId((prev) => (prev === p.id ? '' : (inclusions.length > 0 ? p.id : '')))
+                }}
+                className="flex flex-col gap-0.5 w-full px-2.5 py-1.5 text-left"
+              >
+                <span className={`text-xs font-semibold ${isSelected ? 'text-pine' : 'text-[#333333]'}`}>{p.label}</span>
+                <span className="flex items-center justify-between gap-2">
+                  <span className={`text-[11px] font-medium ${isSelected ? 'text-pine/70' : 'text-[#333333]/55'}`}>
+                    {p.rateLabel || 'WhatsApp'}
+                  </span>
                   {inclusions.length > 0 && (
-                    <div className={`grid transition-[grid-template-rows] duration-200 ease-in-out ${isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
-                      <div className="overflow-hidden">
-                        <div className={`mx-2.5 mb-2 rounded-md p-3.5 ${isSelected ? 'bg-white' : 'bg-pine/5'}`}>
-                          <ul className="flex flex-col gap-3 text-[#333333]/70">
-                            {inclusions.map((item, i) => {
-                              const colonIdx = item.indexOf(':')
-                              const hasLabel = colonIdx > 0 && colonIdx < 30
-                              const label = hasLabel ? item.slice(0, colonIdx) : null
-                              const rest = hasLabel ? item.slice(colonIdx + 1).trim() : item
-                              return (
-                                <li key={i} className="flex items-start gap-2.5 text-xs leading-relaxed">
-                                  <IconCheck className="h-3 w-3 shrink-0 mt-1 text-pine/70" />
-                                  <span>
-                                    {label && <span className="font-semibold text-pine">{label}: </span>}
-                                    {rest}
-                                  </span>
-                                </li>
-                              )
-                            })}
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
+                    <IconChevronRight
+                      className={`h-3 w-3 shrink-0 transition-transform ${isExpanded ? 'rotate-90' : ''} ${
+                        isSelected ? 'text-pine/70' : 'text-[#333333]/45'
+                      }`}
+                    />
                   )}
+                </span>
+              </button>
+              {inclusions.length > 0 && (
+                <div className={`grid transition-[grid-template-rows] duration-200 ease-in-out ${isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+                  <div className="overflow-hidden">
+                    <div className={`mx-2.5 mb-2 rounded-md p-3.5 ${isSelected ? 'bg-white' : 'bg-pine/5'}`}>
+                      <ul className="flex flex-col gap-3 text-[#333333]/70">
+                        {inclusions.map((item, i) => {
+                          const colonIdx = item.indexOf(':')
+                          const hasLabel = colonIdx > 0 && colonIdx < 30
+                          const label = hasLabel ? item.slice(0, colonIdx) : null
+                          const rest = hasLabel ? item.slice(colonIdx + 1).trim() : item
+                          return (
+                            <li key={i} className="flex items-start gap-2.5 text-xs leading-relaxed">
+                              <IconCheck className="h-3 w-3 shrink-0 mt-1 text-pine/70" />
+                              <span>
+                                {label && <span className="font-semibold text-pine">{label}: </span>}
+                                {rest}
+                              </span>
+                            </li>
+                          )
+                        })}
+                      </ul>
+                    </div>
+                  </div>
                 </div>
-              )
-            })}
-          </div>
-        </div>
+              )}
+            </div>
+          )
+        })}
       </div>
 
       </div>
@@ -613,17 +588,25 @@ export default function PublicAvailability() {
       {!selectedDate ? (
         <p className="text-sm text-[#333333]/55 py-6 text-center">একটা তারিখ বেছে নিন</p>
       ) : isCollapsedDayView ? (
-        <button
-          onClick={openRequestForm}
-          disabled={isSelectedDayFull || isSelectedOffDay}
-          className={`w-full rounded-lg py-2.5 text-sm font-semibold text-center transition-all ${
-            isSelectedDayFull || isSelectedOffDay
-              ? 'bg-mist/40 text-[#333333]/35 cursor-not-allowed shadow-none'
-              : 'bg-pine text-white shadow-sm hover:opacity-95'
-          }`}
-        >
-          {isSelectedOffDay ? 'স্টুডিও বন্ধ' : isSelectedDayFull ? 'পুরো দিন বুকড' : 'এই দিনে বুক করুন'}
-        </button>
+        <div className="grid grid-cols-2 gap-2">
+          <a
+            href="#/portfolio"
+            className="flex items-center justify-center gap-1.5 rounded-lg py-2.5 text-sm font-semibold text-center bg-pine text-white shadow-sm hover:opacity-95 transition-opacity"
+          >
+            <IconCamera className="h-4 w-4" /> পোর্টফোলিও
+          </a>
+          <button
+            onClick={openRequestForm}
+            disabled={isSelectedDayFull || isSelectedOffDay}
+            className={`rounded-lg py-2.5 text-sm font-semibold text-center transition-all ${
+              isSelectedDayFull || isSelectedOffDay
+                ? 'bg-mist/40 text-[#333333]/35 cursor-not-allowed shadow-none'
+                : 'bg-pine text-white shadow-sm hover:opacity-95'
+            }`}
+          >
+            {isSelectedOffDay ? 'স্টুডিও বন্ধ' : isSelectedDayFull ? 'পুরো দিন বুকড' : 'এই দিনে বুক করুন'}
+          </button>
+        </div>
       ) : (
         <div className="bg-white border border-[#E0E0E0]/70 shadow-sm rounded-xl p-2.5">
           <p className="text-sm font-bold text-[#333333] mb-2 flex items-center gap-1.5">
@@ -694,7 +677,7 @@ export default function PublicAvailability() {
 
                   {!selectedPackage ? (
                     <>
-                      <p className="text-xs text-[#333333]/60 mb-3">উপরে "প্যাকেজ বেছে নিন" বাটনে ক্লিক করে একটা প্যাকেজ বেছে নিন।</p>
+                      <p className="text-xs text-[#333333]/60 mb-3">উপরে থেকে একটা প্যাকেজ বেছে নিন।</p>
                       <button
                         type="button"
                         onClick={() => setRequestOpen(false)}
