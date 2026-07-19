@@ -409,10 +409,7 @@ export default function PublicAvailability() {
         </p>
       </div>
 
-      {/* On large screens the calendar+packages sit on the left and the
-          day detail / booking form on the right; on mobile it stays a
-          single column exactly as before. */}
-      <div className="lg:grid lg:grid-cols-2 lg:gap-8 lg:items-start">
+      <div>
       <div className="min-w-0">
       {/* Month calendar card */}
       <div className="bg-white rounded-xl border border-[#E0E0E0]/70 shadow-sm p-3 mb-2">
@@ -513,7 +510,7 @@ export default function PublicAvailability() {
         </div>
       </div>
 
-      <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-[#333333]/50 mb-1.5">
+      <p className="inline-flex items-center gap-1.5 bg-[#E0E0E0]/60 text-[#333333]/75 text-xs font-semibold rounded-full px-3 py-1.5 mb-2">
         <IconTag className="h-3 w-3" /> প্যাকেজ বেছে নিন
       </p>
       <div className="grid gap-1.5 mb-2">
@@ -583,7 +580,7 @@ export default function PublicAvailability() {
 
       </div>
 
-      <div className="min-w-0 lg:sticky lg:top-24">
+      <div className="min-w-0">
       {/* Day detail */}
       {!selectedDate ? (
         <p className="text-sm text-[#333333]/55 py-6 text-center">একটা তারিখ বেছে নিন</p>
