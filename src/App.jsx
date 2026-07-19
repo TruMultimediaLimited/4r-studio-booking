@@ -18,7 +18,7 @@ function HeaderCard({ href, onClick, icon: Icon, label, dark }) {
       {...linkProps}
       className={
         dark
-          ? 'flex items-center gap-1 w-24 bg-zinc-800/60 rounded-full px-1.5 py-1.5 hover:bg-zinc-700/60 transition-colors'
+          ? 'flex items-center gap-1 w-24 bg-white/20 border border-[#E0E0E0] rounded-lg shadow-sm px-1.5 py-1.5 hover:bg-white/25 transition-colors'
           : 'flex items-center gap-1 w-24 bg-white border border-[#E0E0E0] rounded-lg px-1.5 py-1.5 shadow-sm hover:border-pine/40 hover:bg-pine/5 hover:shadow-md transition-all'
       }
     >
