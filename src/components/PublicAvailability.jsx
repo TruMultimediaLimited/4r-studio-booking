@@ -510,9 +510,17 @@ export default function PublicAvailability() {
         </div>
       </div>
 
-      <p className="inline-flex items-center gap-1.5 bg-pine/85 text-white text-xs font-semibold rounded-full px-3 py-1.5 mb-2">
-        <IconTag className="h-3 w-3" /> Choose a Package
-      </p>
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <p className="inline-flex items-center gap-1.5 bg-pine/75 text-white text-xs font-semibold rounded-full px-3 py-1.5">
+          <IconTag className="h-3 w-3" /> Choose a Package
+        </p>
+        <a
+          href="#/portfolio"
+          className="inline-flex items-center gap-1.5 bg-pine/75 text-white text-xs font-semibold rounded-full px-3 py-1.5 hover:opacity-90 transition-opacity"
+        >
+          <IconCamera className="h-3 w-3" /> Portfolio
+        </a>
+      </div>
       <div className="grid gap-1.5 mb-2">
         {packages.map((p) => {
           const isSelected = selectedPackageId === p.id
@@ -585,25 +593,17 @@ export default function PublicAvailability() {
       {!selectedDate ? (
         <p className="text-sm text-[#333333]/55 py-6 text-center">Select a date</p>
       ) : isCollapsedDayView ? (
-        <div className="grid grid-cols-2 gap-2">
-          <a
-            href="#/portfolio"
-            className="flex items-center justify-center gap-1.5 rounded-lg py-2.5 text-sm font-semibold text-center bg-pine/85 text-white shadow-sm hover:opacity-95 transition-opacity"
-          >
-            <IconCamera className="h-4 w-4" /> Portfolio
-          </a>
-          <button
-            onClick={openRequestForm}
-            disabled={isSelectedDayFull || isSelectedOffDay}
-            className={`rounded-lg py-2.5 text-sm font-semibold text-center transition-all ${
-              isSelectedDayFull || isSelectedOffDay
-                ? 'bg-mist/40 text-[#333333]/35 cursor-not-allowed shadow-none'
-                : 'bg-pine/85 text-white shadow-sm hover:opacity-95'
-            }`}
-          >
-            {isSelectedOffDay ? 'Studio closed' : isSelectedDayFull ? 'Fully booked' : 'Book this slot'}
-          </button>
-        </div>
+        <button
+          onClick={openRequestForm}
+          disabled={isSelectedDayFull || isSelectedOffDay}
+          className={`w-full rounded-lg py-2.5 text-sm font-semibold text-center transition-all ${
+            isSelectedDayFull || isSelectedOffDay
+              ? 'bg-mist/40 text-[#333333]/35 cursor-not-allowed shadow-none'
+              : 'bg-pine/75 text-white shadow-sm hover:opacity-95'
+          }`}
+        >
+          {isSelectedOffDay ? 'Studio closed' : isSelectedDayFull ? 'Fully booked' : 'Book this slot'}
+        </button>
       ) : (
         <div className="bg-white border border-[#E0E0E0]/70 shadow-sm rounded-xl p-2.5">
           <p className="text-sm font-bold text-[#333333] mb-2 flex items-center gap-1.5">
