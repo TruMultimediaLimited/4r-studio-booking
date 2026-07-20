@@ -511,12 +511,12 @@ export default function PublicAvailability() {
       </div>
 
       <div className="flex items-center justify-between gap-2 mb-2">
-        <p className="inline-flex items-center gap-1.5 bg-pine/75 text-white text-xs font-semibold rounded-full px-3 py-1.5">
+        <p className="inline-flex items-center gap-1.5 bg-pine/75 text-white text-[11px] font-semibold rounded-full px-3 py-1.5 whitespace-nowrap">
           <IconTag className="h-3 w-3" /> Choose a Package
         </p>
         <a
           href="#/portfolio"
-          className="inline-flex items-center gap-1.5 bg-pine/75 text-white text-xs font-semibold rounded-full px-3 py-1.5 hover:opacity-90 transition-opacity"
+          className="inline-flex items-center gap-1.5 bg-pine/75 text-white text-[11px] font-semibold rounded-full px-3 py-1.5 whitespace-nowrap hover:opacity-90 transition-opacity"
         >
           <IconCamera className="h-3 w-3" /> Portfolio
         </a>
