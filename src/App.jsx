@@ -99,7 +99,7 @@ export default function App() {
             <AdminPanel />
           </Suspense>
         ) : isPortfolio ? (
-          <Suspense fallback={<p className="font-sans text-sm text-white/60 py-12 text-center">লোড হচ্ছে…</p>}>
+          <Suspense fallback={<p className="font-sans text-sm text-white/60 py-12 text-center">Loading…</p>}>
             <PortfolioGallery />
           </Suspense>
         ) : (

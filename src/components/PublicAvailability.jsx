@@ -247,19 +247,19 @@ export default function PublicAvailability() {
     const { start_time, end_time } = requestForm
     if (!start_time || !end_time) return null
     if (timeToMinutes(start_time) >= timeToMinutes(end_time)) {
-      return { kind: 'warn', text: 'শেষ সময় শুরুর সময়ের পরে হতে হবে।' }
+      return { kind: 'warn', text: 'End time must be after the start time.' }
     }
     if (isSelectedToday && timeToMinutes(start_time) <= nowMinutes) {
-      return { kind: 'warn', text: 'আজকের এই সময়টা পেরিয়ে গেছে।' }
+      return { kind: 'warn', text: 'This time today has already passed.' }
     }
     const clash = dayBookings.find((b) => overlaps(start_time, end_time, b.start_time, b.end_time))
     if (clash) {
       return {
         kind: 'clash',
-        text: `দুঃখিত, এই সময়ে আগেই বুকিং আছে (${formatTimeLabel(clash.start_time.slice(0, 5))}–${formatTimeLabel(clash.end_time.slice(0, 5))})।`,
+        text: `Sorry, there's already a booking at this time (${formatTimeLabel(clash.start_time.slice(0, 5))}–${formatTimeLabel(clash.end_time.slice(0, 5))}).`,
       }
     }
-    return { kind: 'ok', text: 'এই স্লটটা ফাঁকা আছে।' }
+    return { kind: 'ok', text: 'This slot is available.' }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestForm.start_time, requestForm.end_time, dayBookings])
 
@@ -321,28 +321,28 @@ export default function PublicAvailability() {
 
     const { start_time, end_time, client_name, client_phone } = requestForm
     if (!start_time || !end_time || !client_name || !client_phone) {
-      setRequestError('নাম, ফোন নম্বর ও সময় দিন')
+      setRequestError('Please enter your name, phone number, and time')
       return
     }
     if (!isValidClientName(client_name)) {
-      setRequestError('সঠিক নাম লিখুন')
+      setRequestError('Please enter a valid name')
       return
     }
     if (!isValidBangladeshiPhone(client_phone)) {
-      setRequestError('সঠিক বাংলাদেশি ফোন নম্বর দিন (যেমন 01712345678)')
+      setRequestError('Please enter a valid Bangladeshi phone number (e.g. 01712345678)')
       return
     }
     if (timeToMinutes(start_time) >= timeToMinutes(end_time)) {
-      setRequestError('শুরুর সময় শেষের সময়ের আগে হতে হবে')
+      setRequestError('Start time must be before the end time')
       return
     }
     if (isSelectedToday && timeToMinutes(start_time) <= nowMinutes) {
-      setRequestError('আজকের এই সময়টা পেরিয়ে গেছে, পরের কোনো সময় বেছে নিন')
+      setRequestError('This time today has already passed, please choose a later time')
       return
     }
     const clash = dayBookings.find((b) => overlaps(start_time, end_time, b.start_time, b.end_time))
     if (clash) {
-      setRequestError(`এই সময়ে আগেই বুকিং আছে (${formatTimeLabel(clash.start_time.slice(0, 5))}–${formatTimeLabel(clash.end_time.slice(0, 5))}), অন্য সময় বেছে নিন`)
+      setRequestError(`There's already a booking at this time (${formatTimeLabel(clash.start_time.slice(0, 5))}–${formatTimeLabel(clash.end_time.slice(0, 5))}), please choose another time`)
       return
     }
 
@@ -369,9 +369,9 @@ export default function PublicAvailability() {
 
     if (error) {
       if (error.code === '23P01') {
-        setRequestError('দুঃখিত, এই স্লটটা এইমাত্র বুক হয়ে গেছে। অন্য একটা সময় বেছে নিন।')
+        setRequestError('Sorry, this slot was just booked. Please choose another time.')
       } else {
-        setRequestError('রিকোয়েস্ট পাঠানো যায়নি: ' + error.message)
+        setRequestError('Could not send request: ' + error.message)
       }
       return
     }
@@ -386,7 +386,7 @@ export default function PublicAvailability() {
       total: priceInfo ? priceInfo.total : null,
       advance: priceInfo ? priceInfo.advance : null,
     })
-    setRequestSuccess('আপনার রিকোয়েস্ট পাঠানো হয়েছে। আমরা শিগগিরই যোগাযোগ করে বুকিং কনফার্ম করব।')
+    setRequestSuccess('Your request has been sent. We will contact you shortly to confirm the booking.')
     loadBookings()
   }
 
@@ -395,9 +395,9 @@ export default function PublicAvailability() {
       {error && (
         <div className="flex items-start gap-2 mb-4 text-sm text-clay bg-clay/10 border border-clay/20 rounded-lg px-3.5 py-3">
           <IconAlert className="h-4 w-4 shrink-0 mt-0.5" />
-          <p className="flex-1">বুকিং লোড করা যায়নি। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।</p>
+          <p className="flex-1">Could not load bookings. Please check your internet connection and try again.</p>
           <button onClick={loadBookings} className="text-xs font-semibold underline shrink-0 hover:opacity-80">
-            আবার চেষ্টা করুন
+            Try again
           </button>
         </div>
       )}
@@ -405,7 +405,7 @@ export default function PublicAvailability() {
       {/* Opening Hours strip */}
       <div className="bg-pine/5 border-y border-[#E0E0E0] py-1.5 mb-1.5 -mx-4 px-4">
         <p className="text-center text-xs font-semibold text-[#333333]/70">
-          খোলার সময়: {formatTimeLabel(`${String(DAY_START_HOUR).padStart(2, '0')}:00`)} – {formatTimeLabel(`${String(DAY_END_HOUR).padStart(2, '0')}:00`)}
+          Opening hours: {formatTimeLabel(`${String(DAY_START_HOUR).padStart(2, '0')}:00`)} – {formatTimeLabel(`${String(DAY_END_HOUR).padStart(2, '0')}:00`)}
         </p>
       </div>
 
@@ -420,7 +420,7 @@ export default function PublicAvailability() {
               setSelectedDate(null)
             }}
             disabled={monthStart <= startOfMonth(new Date())}
-            aria-label="আগের মাস"
+            aria-label="Previous month"
             className="flex items-center justify-center h-7 w-7 rounded-full text-[#333333]/60 hover:bg-mist/40 hover:text-[#333333] transition-colors disabled:opacity-30 disabled:pointer-events-none"
           >
             <IconChevronLeft className="h-4 w-4" />
@@ -434,7 +434,7 @@ export default function PublicAvailability() {
               setMonthStart(addMonths(monthStart, 1))
               setSelectedDate(null)
             }}
-            aria-label="পরের মাস"
+            aria-label="Next month"
             className="flex items-center justify-center h-7 w-7 rounded-full text-[#333333]/60 hover:bg-mist/40 hover:text-[#333333] transition-colors"
           >
             <IconChevronRight className="h-4 w-4" />
@@ -471,12 +471,12 @@ export default function PublicAvailability() {
             const ringClasses = isSelected ? 'ring-2 ring-ink ring-offset-1' : ''
 
             const statusText = isOffDay
-              ? 'স্টুডিও বন্ধ'
+              ? 'Studio closed'
               : dayStatus === 'full'
-              ? 'সম্পূর্ণ বুকড'
+              ? 'Fully booked'
               : dayStatus === 'partial'
-              ? 'আংশিক বুকড'
-              : 'ফাঁকা'
+              ? 'Partially booked'
+              : 'Available'
 
             return (
               <button
@@ -499,19 +499,19 @@ export default function PublicAvailability() {
 
         <div className="flex items-center justify-center gap-2 mt-2.5 pt-2.5 border-t border-[#E0E0E0]/60 text-[11px] text-[#333333]/60">
           <span className="flex items-center gap-1">
-            <span className="h-2.5 w-2.5 rounded-[3px] bg-mist/30 border border-[#E0E0E0]/70" /> ফাঁকা
+            <span className="h-2.5 w-2.5 rounded-[3px] bg-mist/30 border border-[#E0E0E0]/70" /> Available
           </span>
           <span className="flex items-center gap-1">
-            <span className="h-2.5 w-2.5 rounded-[3px] bg-sage" /> আংশিক বুকড
+            <span className="h-2.5 w-2.5 rounded-[3px] bg-sage" /> Partially booked
           </span>
           <span className="flex items-center gap-1">
-            <span className="h-2.5 w-2.5 rounded-[3px] bg-pine" /> সম্পূর্ণ বুকড
+            <span className="h-2.5 w-2.5 rounded-[3px] bg-pine" /> Fully booked
           </span>
         </div>
       </div>
 
-      <p className="inline-flex items-center gap-1.5 bg-[#E0E0E0]/60 text-[#333333]/75 text-xs font-semibold rounded-full px-3 py-1.5 mb-2">
-        <IconTag className="h-3 w-3" /> প্যাকেজ বেছে নিন
+      <p className="inline-flex items-center gap-1.5 bg-pine/85 text-white text-xs font-semibold rounded-full px-3 py-1.5 mb-2">
+        <IconTag className="h-3 w-3" /> Choose a Package
       </p>
       <div className="grid gap-1.5 mb-2">
         {packages.map((p) => {
@@ -583,14 +583,14 @@ export default function PublicAvailability() {
       <div className="min-w-0">
       {/* Day detail */}
       {!selectedDate ? (
-        <p className="text-sm text-[#333333]/55 py-6 text-center">একটা তারিখ বেছে নিন</p>
+        <p className="text-sm text-[#333333]/55 py-6 text-center">Select a date</p>
       ) : isCollapsedDayView ? (
         <div className="grid grid-cols-2 gap-2">
           <a
             href="#/portfolio"
-            className="flex items-center justify-center gap-1.5 rounded-lg py-2.5 text-sm font-semibold text-center bg-pine text-white shadow-sm hover:opacity-95 transition-opacity"
+            className="flex items-center justify-center gap-1.5 rounded-lg py-2.5 text-sm font-semibold text-center bg-pine/85 text-white shadow-sm hover:opacity-95 transition-opacity"
           >
-            <IconCamera className="h-4 w-4" /> পোর্টফোলিও
+            <IconCamera className="h-4 w-4" /> Portfolio
           </a>
           <button
             onClick={openRequestForm}
@@ -598,10 +598,10 @@ export default function PublicAvailability() {
             className={`rounded-lg py-2.5 text-sm font-semibold text-center transition-all ${
               isSelectedDayFull || isSelectedOffDay
                 ? 'bg-mist/40 text-[#333333]/35 cursor-not-allowed shadow-none'
-                : 'bg-pine text-white shadow-sm hover:opacity-95'
+                : 'bg-pine/85 text-white shadow-sm hover:opacity-95'
             }`}
           >
-            {isSelectedOffDay ? 'স্টুডিও বন্ধ' : isSelectedDayFull ? 'পুরো দিন বুকড' : 'এই দিনে বুক করুন'}
+            {isSelectedOffDay ? 'Studio closed' : isSelectedDayFull ? 'Fully booked' : 'Book this slot'}
           </button>
         </div>
       ) : (
@@ -616,7 +616,7 @@ export default function PublicAvailability() {
           </p>
 
           {loading ? (
-                <p className="text-sm text-[#333333]/55 py-6 text-center">লোড হচ্ছে…</p>
+                <p className="text-sm text-[#333333]/55 py-6 text-center">Loading…</p>
               ) : isSelectedPast ? null : requestSuccess ? (
                 <div>
                   <p className="flex items-start gap-2 text-sm text-pine bg-pine/5 border border-pine/20 rounded-lg px-3.5 py-3 mb-2.5">
@@ -625,7 +625,7 @@ export default function PublicAvailability() {
                   </p>
                   {lastRequest && (
                     <div className="rounded-lg bg-white border border-[#E0E0E0]/70 px-3.5 py-2.5 text-xs text-[#333333]/75 space-y-1 mb-2.5">
-                      <p className="text-[11px] tracking-wide font-semibold text-[#333333]/60">আপনার রিকোয়েস্ট</p>
+                      <p className="text-[11px] tracking-wide font-semibold text-[#333333]/60">Your Request</p>
                       <p>
                         <span className="font-semibold text-[#333333]">
                           {fromDateKey(lastRequest.dateKey).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}
@@ -635,8 +635,8 @@ export default function PublicAvailability() {
                       <p>{lastRequest.packageLabel}</p>
                       {lastRequest.total != null && (
                         <p>
-                          মোট <span className="font-semibold text-[#333333]">{lastRequest.total} টাকা</span> · অ্যাডভান্স ({ADVANCE_PERCENT}%){' '}
-                          <span className="font-semibold text-clay">{lastRequest.advance} টাকা</span>
+                          Total <span className="font-semibold text-[#333333]">{lastRequest.total} Tk</span> · Advance ({ADVANCE_PERCENT}%){' '}
+                          <span className="font-semibold text-clay">{lastRequest.advance} Tk</span>
                         </p>
                       )}
                     </div>
@@ -644,13 +644,13 @@ export default function PublicAvailability() {
                   {lastRequest && lastRequest.advance != null && (
                     <div className="rounded-lg bg-clay/5 border border-clay/20 px-3.5 py-2.5 text-xs text-[#333333]/75 space-y-1 mb-2.5">
                       <p className="text-[11px] font-semibold text-clay">
-                        আপনার কাঙ্ক্ষিত বুকিং স্লটটি নিশ্চিত করার জন্য অনুগ্রহ করে {lastRequest.advance} টাকা অগ্রিম প্রদান করুন।
+                        Please pay a {lastRequest.advance} Tk advance to confirm your desired booking slot.
                       </p>
                       <p>
                         bKash / Nagad (Send Money): <span className="font-semibold text-[#333333]">{PAYMENT_INFO.mobileBankingNumber}</span> ({PAYMENT_INFO.mobileBankingType})
                       </p>
                       <p>
-                        ব্যাংক: {PAYMENT_INFO.bank.accountName}, A/C {PAYMENT_INFO.bank.accountNumber}, {PAYMENT_INFO.bank.bankName}, {PAYMENT_INFO.bank.branchName} Branch
+                        Bank: {PAYMENT_INFO.bank.accountName}, A/C {PAYMENT_INFO.bank.accountNumber}, {PAYMENT_INFO.bank.bankName}, {PAYMENT_INFO.bank.branchName} Branch
                       </p>
                     </div>
                   )}
@@ -665,30 +665,30 @@ export default function PublicAvailability() {
                     className="flex items-center justify-center gap-2 text-center bg-[#25D366] text-white rounded-lg py-2.5 text-sm font-semibold shadow-sm"
                   >
                     <IconMessage className="h-4 w-4" />
-                    পেমেন্ট সম্পন্ন হওয়ার পর, আমাদের ট্র্যাকিংয়ের সুবিধার্থে অনুগ্রহ করে ট্রানজেকশনের একটি স্ক্রিনশট শেয়ার করুন।
+                    After completing payment, please share a screenshot of the transaction for our tracking.
                   </a>
                 </div>
               ) : (
                 <form onSubmit={handleSubmitRequest} className="border border-[#E0E0E0]/70 rounded-xl p-4 bg-[#F9F7F2]/60">
-                  <p className="text-base font-bold text-[#333333] mb-3">বুকিং রিকোয়েস্ট</p>
+                  <p className="text-base font-bold text-[#333333] mb-3">Booking Request</p>
 
                   {!selectedPackage ? (
                     <>
-                      <p className="text-xs text-[#333333]/60 mb-3">উপরে থেকে একটা প্যাকেজ বেছে নিন।</p>
+                      <p className="text-xs text-[#333333]/60 mb-3">Please choose a package from above.</p>
                       <button
                         type="button"
                         onClick={() => setRequestOpen(false)}
                         className="w-full border border-[#E0E0E0] rounded-lg py-2.5 text-sm font-medium text-[#333333]/60"
                       >
-                        বাতিল
+                        Cancel
                       </button>
                     </>
                   ) : (
                     <>
-                      <FieldLabel>সময়</FieldLabel>
+                      <FieldLabel>Time</FieldLabel>
                       {dayBookings.length > 0 && (
                         <p className="text-[11px] text-[#333333]/55 mb-1.5">
-                          বুকড:{' '}
+                          Booked:{' '}
                           {dayBookings
                             .map((b) => `${formatTimeLabel(b.start_time.slice(0, 5))}–${formatTimeLabel(b.end_time.slice(0, 5))}`)
                             .join(', ')}
@@ -698,10 +698,10 @@ export default function PublicAvailability() {
                         <select
                           value={requestForm.start_time}
                           onChange={(e) => setRequestForm({ ...requestForm, start_time: e.target.value })}
-                          aria-label="শুরুর সময়"
+                          aria-label="Start time"
                           className={inputClass()}
                         >
-                          <option value="">থেকে</option>
+                          <option value="">From</option>
                           {fromTimeOptions.map((t) => (
                             <option key={t.value} value={t.value} disabled={t.disabled}>{t.label}</option>
                           ))}
@@ -709,10 +709,10 @@ export default function PublicAvailability() {
                         <select
                           value={requestForm.end_time}
                           onChange={(e) => setRequestForm({ ...requestForm, end_time: e.target.value })}
-                          aria-label="শেষ সময়"
+                          aria-label="End time"
                           className={inputClass()}
                         >
-                          <option value="">পর্যন্ত</option>
+                          <option value="">To</option>
                           {toTimeOptions.map((t) => (
                             <option key={t.value} value={t.value} disabled={t.disabled}>{t.label}</option>
                           ))}
@@ -738,7 +738,7 @@ export default function PublicAvailability() {
                       {!selectedPackage.hourlyRate ? (
                         <div>
                           <p className="text-xs text-[#333333]/60 mb-2.5">
-                            এই ধরনের শুটের প্যাকেজ ও দাম নিয়ে কথা বলতে WhatsApp-এ যোগাযোগ করুন।
+                            Contact us on WhatsApp to discuss packages and pricing for this type of shoot.
                           </p>
                           <a
                             href={buildWhatsAppLink(whatsAppMessage)}
@@ -747,7 +747,7 @@ export default function PublicAvailability() {
                             className="flex items-center justify-center gap-2 text-center bg-[#25D366] text-white rounded-lg py-3 text-sm font-semibold shadow-sm"
                           >
                             <IconMessage className="h-4 w-4" />
-                            WhatsApp-এ যোগাযোগ করুন
+                            Contact us on WhatsApp
                           </a>
                         </div>
                       ) : (
@@ -755,24 +755,24 @@ export default function PublicAvailability() {
                           {priceInfo && (
                             <div className="grid grid-cols-2 gap-2 mb-3.5">
                               <div className="rounded-lg bg-pine/5 border border-pine/15 px-3 py-2.5">
-                                <p className="text-[11px] tracking-wide text-[#333333]/60 font-semibold mb-0.5">মোট</p>
-                                <p className="text-sm font-semibold text-[#333333]">{priceInfo.total} টাকা</p>
+                                <p className="text-[11px] tracking-wide text-[#333333]/60 font-semibold mb-0.5">Total</p>
+                                <p className="text-sm font-semibold text-[#333333]">{priceInfo.total} Tk</p>
                               </div>
                               <div className="rounded-lg bg-clay/5 border border-clay/20 px-3 py-2.5">
                                 <p className="text-[11px] tracking-wide text-[#333333]/60 font-semibold mb-0.5">
-                                  অ্যাডভান্স ({ADVANCE_PERCENT}%)
+                                  Advance ({ADVANCE_PERCENT}%)
                                 </p>
-                                <p className="text-sm font-semibold text-clay">{priceInfo.advance} টাকা</p>
+                                <p className="text-sm font-semibold text-clay">{priceInfo.advance} Tk</p>
                               </div>
                             </div>
                           )}
 
-                          <FieldLabel>আপনার তথ্য</FieldLabel>
+                          <FieldLabel>Your Details</FieldLabel>
                           <div className="space-y-2 mb-3.5">
                             <input
                               type="text"
-                              placeholder="আপনার নাম"
-                              aria-label="আপনার নাম"
+                              placeholder="Your name"
+                              aria-label="Your name"
                               autoComplete="name"
                               maxLength={100}
                               value={requestForm.client_name}
@@ -781,8 +781,8 @@ export default function PublicAvailability() {
                             />
                             <input
                               type="tel"
-                              placeholder="ফোন নম্বর (01XXXXXXXXX)"
-                              aria-label="ফোন নম্বর"
+                              placeholder="Phone number (01XXXXXXXXX)"
+                              aria-label="Phone number"
                               autoComplete="tel"
                               inputMode="tel"
                               maxLength={20}
@@ -796,14 +796,14 @@ export default function PublicAvailability() {
                             <div className="flex items-start gap-2 rounded-lg bg-clay/5 border border-clay/20 px-3.5 py-2.5 mb-3.5">
                               <IconAlert className="h-4 w-4 text-clay shrink-0 mt-0.5" />
                               <p className="text-xs text-clay font-medium">
-                                বুকিং কনফার্ম করতে {ADVANCE_PERCENT}% অ্যাডভান্স দেওয়া বাধ্যতামূলক।
+                                A {ADVANCE_PERCENT}% advance payment is required to confirm your booking.
                               </p>
                             </div>
                           )}
 
                           {priceInfo && (
                             <div className="mb-3.5">
-                              <FieldLabel>পেমেন্ট তথ্য</FieldLabel>
+                              <FieldLabel>Payment Details</FieldLabel>
                               <div className="flex bg-mist/30 rounded-lg p-1 mb-2">
                                 <button
                                   type="button"
@@ -827,7 +827,7 @@ export default function PublicAvailability() {
                               <div className="rounded-lg bg-white border border-[#E0E0E0]/60 px-3.5 py-2.5 text-xs text-[#333333]/70 space-y-0.5">
                                 {paymentTab === 'mobile' ? (
                                   <p>
-                                    এই নম্বরে Send Money করুন: <span className="font-semibold text-[#333333]">{PAYMENT_INFO.mobileBankingNumber}</span> ({PAYMENT_INFO.mobileBankingType})
+                                    Send Money to this number: <span className="font-semibold text-[#333333]">{PAYMENT_INFO.mobileBankingNumber}</span> ({PAYMENT_INFO.mobileBankingType})
                                   </p>
                                 ) : (
                                   <>
@@ -852,13 +852,13 @@ export default function PublicAvailability() {
                               onClick={() => setRequestOpen(false)}
                               className="flex-1 border border-[#E0E0E0] rounded-lg py-2.5 text-sm font-medium text-[#333333]/60"
                             >
-                              বাতিল
+                              Cancel
                             </button>
                             <button
                               disabled={requestSaving}
                               className="flex-1 flex items-center justify-center gap-1.5 bg-pine text-white rounded-lg py-2.5 text-sm font-semibold shadow-sm disabled:opacity-50"
                             >
-                              {requestSaving ? 'পাঠানো হচ্ছে…' : (<><IconSend className="h-3.5 w-3.5" /> রিকোয়েস্ট পাঠান</>)}
+                              {requestSaving ? 'Sending…' : (<><IconSend className="h-3.5 w-3.5" /> Send Request</>)}
                             </button>
                           </div>
                         </>
@@ -873,15 +873,15 @@ export default function PublicAvailability() {
       </div>
 
       <p className="text-xs text-[#333333]/55 mt-3 text-center leading-relaxed">
-        রিকোয়েস্ট পাঠানোর পর আমরা দ্রুত যোগাযোগ করে কনফার্ম করব। আপনার তথ্য গোপন থাকবে। কোনো পরিবর্তন দরকার হলে{' '}
+        After sending a request, we'll get in touch quickly to confirm. Your information stays private. If you need to make any changes,{' '}
         <a href={buildWhatsAppLink(whatsAppMessage)} target="_blank" rel="noreferrer" className="underline text-[#333333]/65 hover:text-[#333333]">
-          WhatsApp-এ মেসেজ করুন
+          message us on WhatsApp
         </a>{' '}
-        বা কল করুন{' '}
+        or call{' '}
         <a href="tel:+8801335254627" className="underline text-[#333333]/65 hover:text-[#333333] whitespace-nowrap">
           +880 1335-254627
         </a>
-        ।
+        .
       </p>
     </div>
   )

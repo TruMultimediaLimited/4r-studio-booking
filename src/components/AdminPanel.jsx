@@ -1199,7 +1199,7 @@ export default function AdminPanel() {
                         className={inputClass()}
                       />
                       <textarea
-                        placeholder={'কী থাকছে — এক লাইনে একটা (যেমন: ২টা স্টুডিও লাইট)'}
+                        placeholder={"What's included — one item per line (e.g. 2 studio lights)"}
                         value={packageEditForm.inclusions}
                         onChange={(e) => setPackageEditForm({ ...packageEditForm, inclusions: e.target.value })}
                         rows={4}

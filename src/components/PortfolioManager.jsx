@@ -101,7 +101,7 @@ export default function PortfolioManager({ onError }) {
   async function handleCreateAlbum() {
     setCreateAlbumError('')
     if (!newAlbumName.trim()) {
-      setCreateAlbumError('অ্যালবামের নাম দিন')
+      setCreateAlbumError('Please enter an album name')
       return
     }
     setCreatingAlbum(true)
@@ -120,7 +120,7 @@ export default function PortfolioManager({ onError }) {
       if (coverInputRef.current) coverInputRef.current.value = ''
       loadAlbums()
     } catch (err) {
-      setCreateAlbumError('অ্যালবাম তৈরি করা যায়নি: ' + (err.message || 'unknown error'))
+      setCreateAlbumError('Could not create album: ' + (err.message || 'unknown error'))
     } finally {
       setCreatingAlbum(false)
     }
@@ -128,7 +128,7 @@ export default function PortfolioManager({ onError }) {
 
   async function handleDeleteAlbum(album, e) {
     e?.stopPropagation()
-    if (!confirm(`"${album.name}" অ্যালবামটা এবং এর সব ছবি স্থায়ীভাবে মুছে ফেলবেন?`)) return
+    if (!confirm(`Permanently delete the "${album.name}" album and all its photos?`)) return
     setDeletingAlbumId(album.id)
 
     const { data: albumItems, error: itemsErr } = await supabase
@@ -174,7 +174,7 @@ export default function PortfolioManager({ onError }) {
   function pickPhotoFiles(fileList) {
     const files = Array.from(fileList || []).filter((f) => f.type.startsWith('image/'))
     if (files.length === 0) {
-      setUploadError('শুধু ছবি ফাইল সিলেক্ট করুন')
+      setUploadError('Please select only image files')
       return
     }
     setUploadError('')
@@ -239,7 +239,7 @@ export default function PortfolioManager({ onError }) {
     setPreviewUrls(failedUrls)
 
     if (failedFiles.length > 0) {
-      setUploadError(`${succeededCount}টা আপলোড হয়েছে, ${failedFiles.length}টা ব্যর্থ হয়েছে — আবার "আপলোড করুন" চাপুন।`)
+      setUploadError(`${succeededCount} uploaded, ${failedFiles.length} failed — click "Upload" again to retry.`)
     } else {
       setTitle('')
       if (fileInputRef.current) fileInputRef.current.value = ''
@@ -250,7 +250,7 @@ export default function PortfolioManager({ onError }) {
   }
 
   async function handleDeleteItem(item) {
-    if (!confirm('এই ছবিটা স্থায়ীভাবে মুছে ফেলবেন?')) return
+    if (!confirm('Permanently delete this photo?')) return
     setDeletingId(item.id)
     const { error: storageErr } = await supabase.storage.from('portfolio').remove([item.storage_path])
     if (storageErr) {
@@ -283,7 +283,7 @@ export default function PortfolioManager({ onError }) {
           onClick={() => setSelectedAlbum(null)}
           className="flex items-center gap-1 text-xs font-semibold text-[#333333]/70 hover:text-[#333333]"
         >
-          <IconChevronLeft className="h-3.5 w-3.5" /> অ্যালবাম তালিকা
+          <IconChevronLeft className="h-3.5 w-3.5" /> Album List
         </button>
         <p className="text-sm font-bold text-[#333333]">{selectedAlbum.name}</p>
 
@@ -314,7 +314,7 @@ export default function PortfolioManager({ onError }) {
             ) : (
               <>
                 <IconUpload className="h-5 w-5 mx-auto text-[#333333]/45 mb-1" />
-                <p className="text-xs text-[#333333]/60">একটা বা একাধিক ছবি সিলেক্ট করুন বা এখানে টেনে আনুন</p>
+                <p className="text-xs text-[#333333]/60">Select one or more photos, or drag and drop here</p>
               </>
             )}
           </div>
@@ -324,7 +324,7 @@ export default function PortfolioManager({ onError }) {
               {pendingFiles.length === 1 && (
                 <input
                   type="text"
-                  placeholder="টাইটেল (ঐচ্ছিক)"
+                  placeholder="Title (optional)"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   maxLength={100}
@@ -343,7 +343,7 @@ export default function PortfolioManager({ onError }) {
                   onClick={clearPendingPhoto}
                   className="flex-1 border border-[#E0E0E0] rounded-lg py-1.5 text-xs font-medium text-[#333333]/60 disabled:opacity-50"
                 >
-                  বাতিল
+                  Cancel
                 </button>
                 <button
                   type="button"
@@ -352,10 +352,10 @@ export default function PortfolioManager({ onError }) {
                   className="flex-1 bg-pine text-white rounded-lg py-1.5 text-xs font-semibold disabled:opacity-50"
                 >
                   {uploading
-                    ? `আপলোড হচ্ছে (${uploadProgress?.done ?? 0}/${uploadProgress?.total ?? pendingFiles.length})…`
+                    ? `Uploading (${uploadProgress?.done ?? 0}/${uploadProgress?.total ?? pendingFiles.length})…`
                     : pendingFiles.length > 1
-                    ? `${pendingFiles.length}টা ছবি আপলোড করুন`
-                    : 'আপলোড করুন'}
+                    ? `Upload ${pendingFiles.length} photos`
+                    : 'Upload'}
                 </button>
               </div>
             </div>
@@ -364,11 +364,11 @@ export default function PortfolioManager({ onError }) {
 
         <div>
           <p className="text-[10px] uppercase tracking-wide text-[#333333]/55 font-semibold mb-1.5">
-            {itemsLoading ? 'লোড হচ্ছে…' : `ছবি (${items.length})`}
+            {itemsLoading ? 'Loading…' : `Photos (${items.length})`}
           </p>
           {!itemsLoading && items.length === 0 ? (
             <p className="flex flex-col items-center gap-1.5 text-xs text-[#333333]/45 py-6 text-center">
-              <IconInbox className="h-5 w-5" /> এখনো কোনো ছবি নেই
+              <IconInbox className="h-5 w-5" /> No photos yet
             </p>
           ) : (
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -378,7 +378,7 @@ export default function PortfolioManager({ onError }) {
                   <button
                     onClick={() => handleDeleteItem(item)}
                     disabled={deletingId === item.id}
-                    aria-label="ডিলিট করুন"
+                    aria-label="Delete"
                     className="absolute top-1 right-1 flex items-center justify-center h-6 w-6 rounded-full bg-black/55 text-white hover:bg-clay disabled:opacity-50"
                   >
                     <IconTrash className="h-3 w-3" />
@@ -398,10 +398,10 @@ export default function PortfolioManager({ onError }) {
   return (
     <div className="space-y-4">
       <div className="border border-[#E0E0E0]/70 rounded-xl p-2.5 space-y-2">
-        <p className="text-[10px] uppercase tracking-wide text-[#333333]/55 font-semibold">নতুন অ্যালবাম</p>
+        <p className="text-[10px] uppercase tracking-wide text-[#333333]/55 font-semibold">New Album</p>
         <input
           type="text"
-          placeholder="অ্যালবামের নাম (যেমন: Wedding)"
+          placeholder="Album name (e.g. Wedding)"
           value={newAlbumName}
           onChange={(e) => setNewAlbumName(e.target.value)}
           maxLength={100}
@@ -425,14 +425,14 @@ export default function PortfolioManager({ onError }) {
               <IconImage className="h-4 w-4 text-[#333333]/40" />
             )}
           </div>
-          <p className="text-[11px] text-[#333333]/55 flex-1">কভার ফটো (ঐচ্ছিক)</p>
+          <p className="text-[11px] text-[#333333]/55 flex-1">Cover photo (optional)</p>
           <button
             type="button"
             disabled={creatingAlbum}
             onClick={handleCreateAlbum}
             className="flex items-center gap-1 bg-pine text-white rounded-lg px-3 py-1.5 text-xs font-semibold disabled:opacity-50"
           >
-            <IconPlus className="h-3 w-3" /> {creatingAlbum ? 'তৈরি হচ্ছে…' : 'তৈরি করুন'}
+            <IconPlus className="h-3 w-3" /> {creatingAlbum ? 'Creating…' : 'Create'}
           </button>
         </div>
         {createAlbumError && (
@@ -444,11 +444,11 @@ export default function PortfolioManager({ onError }) {
 
       <div>
         <p className="text-[10px] uppercase tracking-wide text-[#333333]/55 font-semibold mb-1.5">
-          {albumsLoading ? 'লোড হচ্ছে…' : `অ্যালবাম (${albums.length})`}
+          {albumsLoading ? 'Loading…' : `Albums (${albums.length})`}
         </p>
         {!albumsLoading && albums.length === 0 ? (
           <p className="flex flex-col items-center gap-1.5 text-xs text-[#333333]/45 py-6 text-center">
-            <IconInbox className="h-5 w-5" /> এখনো কোনো অ্যালবাম নেই
+            <IconInbox className="h-5 w-5" /> No albums yet
           </p>
         ) : (
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -471,7 +471,7 @@ export default function PortfolioManager({ onError }) {
                 <button
                   onClick={(e) => handleDeleteAlbum(album, e)}
                   disabled={deletingAlbumId === album.id}
-                  aria-label="অ্যালবাম ডিলিট করুন"
+                  aria-label="Delete album"
                   className="absolute top-1 right-1 flex items-center justify-center h-6 w-6 rounded-full bg-black/55 text-white hover:bg-clay disabled:opacity-50"
                 >
                   <IconTrash className="h-3 w-3" />

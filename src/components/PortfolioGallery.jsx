@@ -80,7 +80,7 @@ export default function PortfolioGallery() {
         href="#/"
         className="text-xs font-medium text-white border border-white/30 rounded-full px-3 py-1.5 hover:bg-white/15 transition-colors whitespace-nowrap"
       >
-        বুকিং পেজে ফিরুন
+        Back to Booking
       </a>
     ),
     []
@@ -94,7 +94,7 @@ export default function PortfolioGallery() {
             onClick={() => setSelectedAlbum(null)}
             className="flex items-center gap-1 text-sm font-semibold text-white/90 hover:text-white"
           >
-            <IconChevronLeft className="h-4 w-4" /> সব অ্যালবাম
+            <IconChevronLeft className="h-4 w-4" /> All Albums
           </button>
           {backLink}
         </div>
@@ -103,15 +103,15 @@ export default function PortfolioGallery() {
         {itemsError && (
           <div className="flex items-start gap-2 mb-4 text-sm text-clay bg-clay/10 border border-clay/20 rounded-lg px-3.5 py-3">
             <IconAlert className="h-4 w-4 shrink-0 mt-0.5" />
-            <p>ছবি লোড করা যায়নি। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।</p>
+            <p>Could not load photos. Please check your internet connection and try again.</p>
           </div>
         )}
 
         {itemsLoading ? (
-          <p className="text-sm text-white/60 py-12 text-center">লোড হচ্ছে…</p>
+          <p className="text-sm text-white/60 py-12 text-center">Loading…</p>
         ) : items.length === 0 ? (
           <p className="flex flex-col items-center gap-2 text-sm text-white/50 py-16 text-center">
-            <IconInbox className="h-6 w-6" /> এই অ্যালবামে এখনো কোনো ছবি নেই।
+            <IconInbox className="h-6 w-6" /> No photos in this album yet.
           </p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -144,7 +144,7 @@ export default function PortfolioGallery() {
           >
             <button
               onClick={() => setLightboxIndex(null)}
-              aria-label="বন্ধ করুন"
+              aria-label="Close"
               className="absolute top-4 right-4 text-white/80 hover:text-white"
             >
               <IconX className="h-6 w-6" />
@@ -156,7 +156,7 @@ export default function PortfolioGallery() {
                   e.stopPropagation()
                   setLightboxIndex(lightboxIndex - 1)
                 }}
-                aria-label="আগের ছবি"
+                aria-label="Previous photo"
                 className="absolute left-2 sm:left-4 text-white/80 hover:text-white p-2"
               >
                 <IconChevronLeft className="h-7 w-7" />
@@ -168,7 +168,7 @@ export default function PortfolioGallery() {
                   e.stopPropagation()
                   setLightboxIndex(lightboxIndex + 1)
                 }}
-                aria-label="পরের ছবি"
+                aria-label="Next photo"
                 className="absolute right-2 sm:right-4 text-white/80 hover:text-white p-2"
               >
                 <IconChevronRight className="h-7 w-7" />
@@ -192,22 +192,22 @@ export default function PortfolioGallery() {
   return (
     <div className="font-sans">
       <div className="flex items-center justify-between mb-4">
-        <p className="text-xs font-medium text-white border border-white/30 rounded-full px-3 py-1.5 whitespace-nowrap">আমাদের কাজ</p>
+        <p className="text-xs font-medium text-white border border-white/30 rounded-full px-3 py-1.5 whitespace-nowrap">Our Work</p>
         {backLink}
       </div>
 
       {albumsError && (
         <div className="flex items-start gap-2 mb-4 text-sm text-clay bg-clay/10 border border-clay/20 rounded-lg px-3.5 py-3">
           <IconAlert className="h-4 w-4 shrink-0 mt-0.5" />
-          <p>গ্যালারি লোড করা যায়নি। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।</p>
+          <p>Could not load gallery. Please check your internet connection and try again.</p>
         </div>
       )}
 
       {albumsLoading ? (
-        <p className="text-sm text-white/60 py-12 text-center">লোড হচ্ছে…</p>
+        <p className="text-sm text-white/60 py-12 text-center">Loading…</p>
       ) : albums.length === 0 ? (
         <p className="flex flex-col items-center gap-2 text-sm text-white/50 py-16 text-center">
-          <IconInbox className="h-6 w-6" /> এখনো কোনো অ্যালবাম যোগ করা হয়নি।
+          <IconInbox className="h-6 w-6" /> No albums added yet.
         </p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -231,7 +231,7 @@ export default function PortfolioGallery() {
               )}
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-3 py-2.5 text-left">
                 <p className="text-sm font-bold text-white truncate">{album.name}</p>
-                <p className="text-[11px] text-white/70">{albumCounts[album.id] || 0}টা ছবি</p>
+                <p className="text-[11px] text-white/70">{albumCounts[album.id] || 0} photos</p>
               </div>
             </button>
           ))}
